@@ -10,7 +10,8 @@ function App() {
 
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT, { transports: ["websocket"], rejectUnauthorized: false });
-    socket.on("FromAPI", data => {
+    socket.on("screencast", data => {
+      console.log(data);
       setResponse(data);
     });
     socket.on("connect_error", (err) => {
@@ -21,18 +22,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <BrowserWindow></BrowserWindow>
-        <p>
-          It's <time dateTime={response}>{response}</time>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <BrowserWindow screenShot={response}></BrowserWindow>
       </header>
     </div>
   );
