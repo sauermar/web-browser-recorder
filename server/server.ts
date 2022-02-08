@@ -25,6 +25,7 @@ app.get('/ping', function (req, res) {
 
 const browserSession = new BrowserSession();
 (async () => {
+    // sleep is needed to first connect to the socket io server
     await sleep(3000)
     function sleep(ms: number) {
         return new Promise((resolve) => {
@@ -32,6 +33,7 @@ const browserSession = new BrowserSession();
         });
     }
     await browserSession.initialize({});
+    await browserSession.subscribeToScreencast();
     await browserSession.openPage('https://cs.wikipedia.org/');
 })();
 

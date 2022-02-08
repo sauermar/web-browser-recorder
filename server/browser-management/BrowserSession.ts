@@ -34,17 +34,17 @@ export class BrowserSession {
             console.log('socket is not connected');
             return;
         }
-        console.log(payload);
-        this.socket.emit('screencast', payload);
+        const dataWithMimeType = ('data:image/jpeg;base64,').concat(payload);
+        this.socket.emit('screencast', dataWithMimeType);
+        console.log(`DEBUG: Screenshot emitted`);
     };
 
     public async initialize(options: any) : Promise<void> {
         // initialize the browser instance
         this.browser = <Browser>(await chromium.launch(
-            process.env.CHROMIUM_PATH
-                ? { executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox'] }
-                : {}
-            )
+            {
+                headless: false,
+            })
         );
         //initialize page context
         const context = await this.browser.newContext();
@@ -69,15 +69,15 @@ export class BrowserSession {
             console.log('client is not initialized');
             return;
         }
-        this.client.on('Page.screencastFrame', (payload) => {
-            this.emitScreenshot(payload);
+        this.client.on('Page.screencastFrame', ({ data: base64, sessionId }) => {
+            this.emitScreenshot(base64);
             setTimeout(async () => {
                 try {
                     if (!this.client) {
                         console.log('client is not initialized');
                         return;
                     }
-                    await this.client.send('Page.screencastFrameAck', { sessionId: payload.sessionId });
+                    await this.client.send('Page.screencastFrameAck', { sessionId: sessionId });
                 } catch (e) {
                     console.log(e);
                 }
@@ -100,7 +100,9 @@ export class BrowserSession {
             await this.currentPage.goto(url);
             const image = await this.currentPage.screenshot();
             fs.writeFileSync('screenshot.png', image);
-            this.emitScreenshot(image);
+            // this.emitScreenshot(image);
+        } else {
+            console.log('Page is not initialized');
         }
     };
 };

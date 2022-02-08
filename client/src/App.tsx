@@ -11,7 +11,6 @@ function App() {
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT, { transports: ["websocket"], rejectUnauthorized: false });
     socket.on("screencast", data => {
-      console.log(data);
       setResponse(data);
     });
     socket.on("connect_error", (err) => {
