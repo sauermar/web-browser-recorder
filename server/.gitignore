@@ -11,5 +11,6 @@
 /.idea
 
 /build
+/logs
 
 package-lock.json

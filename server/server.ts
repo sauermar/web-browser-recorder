@@ -2,13 +2,13 @@
  * HTTP server for the cloud browser recorder application.
  */
 import express from 'express';
-import bodyParser from 'body-parser';
 import path from 'path';
 import http from 'http';
 import cors from 'cors';
 
-import { Server } from "socket.io";
-import {BrowserSession} from "./browser-management/BrowserSession";
+import { Server } from 'socket.io';
+import { BrowserSession } from './browser-management/BrowserSession';
+import logger from './logger'
 
 const app = express();
 app.use(cors());
@@ -41,4 +41,4 @@ app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
 });
 
-server.listen(8080, () => console.log(`Listening on port 8080`));
+server.listen(8080, () => logger.log('info',`Listening on port 8080`));

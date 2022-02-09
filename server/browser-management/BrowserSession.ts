@@ -3,6 +3,7 @@ import { uuid } from 'uuidv4';
 import { Socket } from 'socket.io';
 import { io } from '../server';
 import * as fs from 'fs';
+import logger from '../logger';
 
 export class BrowserSession {
 
@@ -21,22 +22,22 @@ export class BrowserSession {
     constructor(){
         this.id = uuid();
         io.on('connection', async (socket: Socket) => {
-            console.log("Client connected");
+            logger.log('info',"Client connected");
             this.socket = socket;
             socket.on('disconnect', () => {
-                console.log("Client disconnected");
+                logger.log('info', "Client disconnected");
             });
         });
     }
 
     private emitScreenshot = (payload: any) : void => {
         if (!this.socket) {
-            console.log('socket is not connected');
+            logger.log('warn','socket is not connected');
             return;
         }
         const dataWithMimeType = ('data:image/jpeg;base64,').concat(payload);
         this.socket.emit('screencast', dataWithMimeType);
-        console.log(`DEBUG: Screenshot emitted`);
+        logger.log('debug',`Screenshot emitted`);
     };
 
     public async initialize(options: any) : Promise<void> {
@@ -56,17 +57,17 @@ export class BrowserSession {
 
     private async startScreencast() : Promise<void> {
         if (!this.client) {
-            console.log('client is not initialized');
+            logger.log('warn','client is not initialized');
             return;
         }
         await this.client.send('Page.startScreencast', { format: 'jpeg', quality: 50 });
-        console.log(`BrowserSession with id ${this.id} started with a screencasting.`);
+        logger.log('info',`BrowserSession with id ${this.id} started with a screencasting.`);
     };
 
     public async subscribeToScreencast() : Promise<void> {
         await this.startScreencast();
         if (!this.client) {
-            console.log('client is not initialized');
+            logger.log('warn','client is not initialized');
             return;
         }
         this.client.on('Page.screencastFrame', ({ data: base64, sessionId }) => {
@@ -74,12 +75,12 @@ export class BrowserSession {
             setTimeout(async () => {
                 try {
                     if (!this.client) {
-                        console.log('client is not initialized');
+                        logger.log('warn','client is not initialized');
                         return;
                     }
                     await this.client.send('Page.screencastFrameAck', { sessionId: sessionId });
                 } catch (e) {
-                    console.log(e);
+                    logger.log('error', e);
                 }
             }, 100);
         });
@@ -87,22 +88,22 @@ export class BrowserSession {
 
     public async stopScreencast() : Promise<void> {
         if (!this.client) {
-            console.log('client is not initialized');
+            logger.log('warn','client is not initialized');
             return;
         }
         await this.client.send('Page.stopScreencast');
-        console.log(`BrowserSession with id ${this.id} stopped with a screencasting.`);
+        logger.log('info',`BrowserSession with id ${this.id} stopped with a screencasting.`);
     };
 
     public async openPage(url: string) : Promise<void>{
         if (this.currentPage) {
-            console.log(`Page ${url} opened`)
+            logger.log('debug',`Page ${url} opened`)
             await this.currentPage.goto(url);
             const image = await this.currentPage.screenshot();
             fs.writeFileSync('screenshot.png', image);
             // this.emitScreenshot(image);
         } else {
-            console.log('Page is not initialized');
+            logger.log('warn','Page is not initialized');
         }
     };
 };
