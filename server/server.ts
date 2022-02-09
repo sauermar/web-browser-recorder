@@ -6,16 +6,15 @@ import path from 'path';
 import http from 'http';
 import cors from 'cors';
 
-import { Server } from 'socket.io';
 import { BrowserSession } from './browser-management/BrowserSession';
 import logger from './logger'
+import {SocketConnection} from "./browser-management/SocketConnection";
 
 const app = express();
 app.use(cors());
-// integrate socket.io for websocket communication
-// necesary for socket.io
+
 const server = http.createServer(app);
-export const io = new Server(server);
+const socket = new SocketConnection(server);
 
 app.use(express.static(path.join(__dirname, 'client/build')));
 
@@ -23,7 +22,7 @@ app.get('/ping', function (req, res) {
     return res.send('pong');
 });
 
-const browserSession = new BrowserSession();
+const browserSession = new BrowserSession(socket);
 (async () => {
     // sleep is needed to first connect to the socket io server
     await sleep(3000)
