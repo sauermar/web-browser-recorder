@@ -1,38 +1,46 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import Canvas from "./Canvas";
 
 const VIEWPORT_W = 1280;
 const VIEWPORT_H = 720;
 
 interface BrowserWindowProps {
-    screenShot: any;
+
+    screenShot: string;
+
 }
 
 export const BrowserWindow : React.FC<BrowserWindowProps> = ({ screenShot }: BrowserWindowProps) => {
 
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [canvasRef, setCanvasReference] = useState<React.RefObject<HTMLCanvasElement> | undefined>(undefined);
+
     useEffect(() =>  {
-        if (canvasRef.current) {
+
+        if (canvasRef?.current) {
+
             drawImage(screenShot, canvasRef.current);
+
         } else {
+
             console.log('Canvas is not initialized');
+
         }
+
     }, [screenShot, canvasRef]);
 
     return (
-        <canvas
-            ref={canvasRef}
-            tabIndex={-1}
-            style={{ width: `${75}%`, height: `${75}vh` }}
-            width={`${VIEWPORT_W}px`}
-            height={`${VIEWPORT_H}px`}
+        <Canvas
+            onCreateRef={setCanvasReference}
+            width={VIEWPORT_W}
+            height={VIEWPORT_H}
         />
     );
 };
 
 const drawImage = (image: string, canvas: HTMLCanvasElement) :void => {
+
     const ctx = canvas.getContext('2d');
 
-    console.log('DEBUG: Screenshot displayed');
     const img = new Image();
 
     img.src = image;
@@ -41,4 +49,5 @@ const drawImage = (image: string, canvas: HTMLCanvasElement) :void => {
         //ctx?.clearRect(0, 0, canvas?.width || 0, VIEWPORT_H || 0);
         ctx?.drawImage(img, 0, 0, canvas.width , canvas.height);
     };
+
 };
