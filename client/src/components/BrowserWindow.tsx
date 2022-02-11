@@ -1,20 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
+import { SocketContext } from '../context/socket';
 import Canvas from "./Canvas";
 
 const VIEWPORT_W = 1280;
 const VIEWPORT_H = 720;
 
-interface BrowserWindowProps {
 
-    screenShot: string;
-
-}
-
-export const BrowserWindow : React.FC<BrowserWindowProps> = ({ screenShot }: BrowserWindowProps) => {
+export const BrowserWindow : React.FC = () => {
 
     const [canvasRef, setCanvasReference] = useState<React.RefObject<HTMLCanvasElement> | undefined>(undefined);
+    const [screenShot, setScreenShot] = useState<string>("");
+
+    const socket = useContext(SocketContext);
 
     useEffect(() =>  {
+
+        socket.on("screencast", data => {
+            setScreenShot(data);
+        });
 
         if (canvasRef?.current) {
 
@@ -26,7 +29,7 @@ export const BrowserWindow : React.FC<BrowserWindowProps> = ({ screenShot }: Bro
 
         }
 
-    }, [screenShot, canvasRef]);
+    }, [screenShot, canvasRef, socket]);
 
     return (
         <Canvas

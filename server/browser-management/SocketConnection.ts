@@ -5,7 +5,7 @@ export class SocketConnection {
 
     private readonly io : Server;
 
-    private socket : Socket|null = null;
+    public socket : Socket|null = null;
 
     public constructor(server: any){
         this.io = new Server(server);
@@ -13,7 +13,7 @@ export class SocketConnection {
 
     public connect = () => {
         if (!this.io){
-            logger.log('warn', 'socket connection wasn\'t yet initialized');
+            logger.log('warn', 'socket.tsx connection wasn\'t yet initialized');
         }
 
         this.io.on('connection', async (socket: Socket) => {
@@ -27,7 +27,7 @@ export class SocketConnection {
 
     public emitScreenshot = (payload: any) : void => {
         if (!this.socket) {
-            logger.log('warn','socket is not connected');
+            logger.log('warn','socket.tsx is not connected');
             return;
         }
         const dataWithMimeType = ('data:image/jpeg;base64,').concat(payload);

@@ -88,4 +88,12 @@ export class BrowserSession {
             logger.log('warn','Page is not initialized');
         }
     };
+
+    public clickOnCoordinates = async(x: number, y: number) => {
+        if (!this.currentPage){
+            return;
+        }
+        await this.currentPage.mouse.click(x, y);
+        logger.log('info', `Clicked on position x:${x}, y:${y}`);
+    };
 };

@@ -24,7 +24,7 @@ app.get('/ping', function (req, res) {
 
 const browserSession = new BrowserSession(socket);
 (async () => {
-    // sleep is needed to first connect to the socket io server
+    // sleep is needed to first connect to the socket.tsx io server
     await sleep(3000)
     function sleep(ms: number) {
         return new Promise((resolve) => {
@@ -35,6 +35,16 @@ const browserSession = new BrowserSession(socket);
     await browserSession.subscribeToScreencast();
     await browserSession.openPage('https://cs.wikipedia.org/');
 })();
+
+if (socket.socket){
+    socket.socket.on('interaction', (data) => {
+        logger.log('debug', 'We are inside of interaction socket handler');
+        (async () =>{
+            await browserSession.clickOnCoordinates(data.coordinates.x, data.coordinates.y);
+        })();
+    })
+}
+
 
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));

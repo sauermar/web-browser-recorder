@@ -1,4 +1,5 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useRef, useContext } from 'react';
+import { SocketContext } from '../context/socket';
 
 interface CreateRefCallback {
 
@@ -31,20 +32,18 @@ interface Coordinate {
 
 const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
 
-    const [clicked, setClicked] = useState(false);
-    const [mousePosition, setMousePosition] = useState<Coordinate | undefined>(undefined);
+    const socket = useContext(SocketContext);
 
     const startInteraction = useCallback((event: MouseEvent) => {
 
         const coordinates = getCoordinates(event);
 
-        if (coordinates) {
-
-            setClicked(true);
-
-            setMousePosition(coordinates);
-
-        }
+        socket.emit(
+            'interaction',
+            {
+            event,
+            coordinates
+        });
 
     }, []);
 
