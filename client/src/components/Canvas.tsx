@@ -32,6 +32,7 @@ interface Coordinate {
 
 const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
 
+    const canvasRef = useRef<HTMLCanvasElement>(null);
     const socket = useContext(SocketContext);
 
     const startInteraction = useCallback((event: MouseEvent) => {
@@ -50,26 +51,22 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
 
     useEffect(() => {
 
-        if (!canvasRef.current) {
+        console.log('Effect from canvas');
+        if (canvasRef.current) {
+            onCreateRef(canvasRef);
+            canvasRef.current.addEventListener('mousedown', startInteraction);
 
-            return;
+            return () => {
+                if (canvasRef.current) {
+                    canvasRef.current.removeEventListener('mousedown', startInteraction);
+                }
 
+            };
+        }else {
+            console.log('Canvas not initialized');
         }
 
-        const canvas: HTMLCanvasElement = canvasRef.current;
-
-        canvas.addEventListener('mousedown', startInteraction);
-
-        return () => {
-
-            canvas.removeEventListener('mousedown', startInteraction);
-
-        };
-
     }, [startInteraction]);
-
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    onCreateRef(canvasRef);
 
     const getCoordinates = (event: MouseEvent): Coordinate | undefined => {
 

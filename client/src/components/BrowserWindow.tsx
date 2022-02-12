@@ -14,6 +14,7 @@ export const BrowserWindow : React.FC = () => {
     const socket = useContext(SocketContext);
 
     useEffect(() =>  {
+        console.log('Effect from BrWindow');
 
         socket.on("screencast", data => {
             setScreenShot(data);
@@ -29,7 +30,7 @@ export const BrowserWindow : React.FC = () => {
 
         }
 
-    }, [screenShot, canvasRef, socket]);
+    }, [screenShot, canvasRef]);
 
     return (
         <Canvas
