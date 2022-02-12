@@ -43,7 +43,7 @@ export class BrowserSession {
             logger.log('warn','client is not initialized');
             return;
         }
-        await this.client.send('Page.startScreencast', { format: 'jpeg', quality: 50 });
+        await this.client.send('Page.startScreencast', { format: 'jpeg', quality: 75 });
         logger.log('info',`BrowserSession with id ${this.id} started with a screencasting.`);
     };
 

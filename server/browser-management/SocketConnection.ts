@@ -7,9 +7,15 @@ export class SocketConnection {
 
     public socket : Socket|null = null;
 
+    private browserSession: any;
+
     public constructor(server: any){
         this.io = new Server(server);
         this.connect();
+    }
+
+    public addBrowserSession = (br: any) => {
+        this.browserSession = br;
     }
 
     private connect = () => {
@@ -23,6 +29,14 @@ export class SocketConnection {
             socket.on('disconnect', () => {
                 logger.log('info', "Client disconnected");
             });
+            socket.on('interaction', (data) => {
+                logger.log('debug', 'We are inside of interaction socket handler');
+                (async () =>{
+                    if (this.browserSession) {
+                        await this.browserSession.clickOnCoordinates(data.coordinates.x, data.coordinates.y);
+                    }
+                })();
+            })
         });
     }
 

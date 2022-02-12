@@ -36,8 +36,11 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
     const socket = useContext(SocketContext);
 
     const startInteraction = useCallback((event: MouseEvent) => {
+        console.log('click registered and emitted');
 
         const coordinates = getCoordinates(event);
+
+        console.log(coordinates);
 
         socket.emit(
             'interaction',
