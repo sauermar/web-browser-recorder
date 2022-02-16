@@ -42,12 +42,7 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
 
         console.log(coordinates);
 
-        socket.emit(
-            'interaction',
-            {
-            event,
-            coordinates
-        });
+        socket.emit('input:mousedown', coordinates);
 
     }, []);
 
