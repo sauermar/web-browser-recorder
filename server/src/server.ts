@@ -6,10 +6,13 @@ import path from 'path';
 import http from 'http';
 import cors from 'cors';
 import { Socket } from 'socket.io';
+ // load .env config to the process
+import 'dotenv/config';
 
 import { BrowserSession } from './browser-management/BrowserSession';
 import logger from './logger'
 import { createSocketConnection } from "./socket-connection/connection";
+import { SERVER_PORT } from "./constants/config";
 
 const app = express();
 app.use(cors());
@@ -33,4 +36,4 @@ app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
 });
 
-server.listen(8080, () => logger.log('info',`Listening on port 8080`));
+server.listen(SERVER_PORT, () => logger.log('info',`Server listening on port ${SERVER_PORT}`));

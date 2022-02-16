@@ -1,6 +1,7 @@
 import { createLogger, format, transports } from 'winston';
-
 const { combine, colorize, timestamp, printf } = format;
+
+import { DEBUG, LOGS_PATH } from "./constants/config";
 
 
 const logger = createLogger({
@@ -11,13 +12,9 @@ const logger = createLogger({
     ),
     defaultMeta: { service: 'user-service' },
     transports: [
-        new transports.Console({level: 'debug'}),
-        //
-        // - Write all logs with importance level of `error` or less to `error.log`
-        // - Write all logs with importance level of `debug` or less to `combined.log`
-        //
-        new transports.File({ filename: 'logs/error.log', level: 'error' }),
-        new transports.File({ filename: 'logs/combined.log', level: 'debug' }),
+        new transports.Console({ level: DEBUG ? 'debug' : 'info' }),
+        new transports.File({ filename: `${LOGS_PATH}/error.log`, level: 'error' }),
+        new transports.File({ filename: `${LOGS_PATH}/combined.log`, level: DEBUG ? 'debug' : 'info' }),
     ],
 });
 
