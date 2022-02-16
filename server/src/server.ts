@@ -5,37 +5,28 @@ import express from 'express';
 import path from 'path';
 import http from 'http';
 import cors from 'cors';
+import { Socket } from 'socket.io';
 
 import { BrowserSession } from './browser-management/BrowserSession';
 import logger from './logger'
-import {SocketConnection} from "./browser-management/SocketConnection";
+import { createSocketConnection } from "./socket-connection/connection";
 
 const app = express();
 app.use(cors());
 
 const server = http.createServer(app);
-const socket = new SocketConnection(server);
+createSocketConnection(server, async (socket: Socket) => {
+    const browserSession = new BrowserSession(socket);
+    await browserSession.initialize({});
+    await browserSession.subscribeToScreencast();
+    await browserSession.openPage('https://cs.wikipedia.org/');
+});
 
 app.use(express.static(path.join(__dirname, 'client/build')));
 
 app.get('/ping', function (req, res) {
     return res.send('pong');
 });
-
-const browserSession = new BrowserSession(socket);
-socket.addBrowserSession(browserSession);
-(async () => {
-    // sleep is needed to first connect to the socket.tsx io server
-    await sleep(3000)
-    function sleep(ms: number) {
-        return new Promise((resolve) => {
-            setTimeout(resolve, ms);
-        });
-    }
-    await browserSession.initialize({});
-    await browserSession.subscribeToScreencast();
-    await browserSession.openPage('https://cs.wikipedia.org/');
-})();
 
 
 app.get('/', function (req, res) {

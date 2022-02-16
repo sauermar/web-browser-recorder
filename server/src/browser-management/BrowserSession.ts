@@ -1,26 +1,27 @@
 import { chromium, Page, Browser, CDPSession } from 'playwright';
 import { uuid } from 'uuidv4';
 import * as fs from 'fs';
+import { Socket } from "socket.io";
+
 import logger from '../logger';
-import {SocketConnection} from "./SocketConnection";
 
 export class BrowserSession {
 
-    private browser: Browser|null = null;
+    private browser: Browser | null = null;
 
-    private currentPage : Page|null = null;
+    private currentPage : Page | null = null;
 
     private readonly id : string;
 
     private pages : Page[] = [];
 
-    private client : CDPSession|null = null;
+    private client : CDPSession | null = null;
 
-    private socketConnection : SocketConnection;
+    private readonly socket : Socket;
 
-    public constructor(clientConnection: SocketConnection){
+    public constructor(socket: Socket){
         this.id = uuid();
-        this.socketConnection = clientConnection;
+        this.socket = socket;
     }
 
     public initialize = async(options: any) : Promise<void> => {
@@ -54,7 +55,7 @@ export class BrowserSession {
             return;
         }
         this.client.on('Page.screencastFrame', ({ data: base64, sessionId }) => {
-            this.socketConnection.emitScreenshot(base64);
+            this.emitScreenshot(base64);
             setTimeout(async () => {
                 try {
                     if (!this.client) {
@@ -95,5 +96,11 @@ export class BrowserSession {
         }
         await this.currentPage.mouse.click(x, y);
         logger.log('info', `Clicked on position x:${x}, y:${y}`);
+    };
+
+    private emitScreenshot = (payload: any) : void => {
+        const dataWithMimeType = ('data:image/jpeg;base64,').concat(payload);
+        this.socket.emit('screencast', dataWithMimeType);
+        logger.log('debug',`Screenshot emitted`);
     };
 };

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "./node_modules/.bin/nodemon server.ts",
+    "server": "./node_modules/.bin/nodemon src/server.ts",
     "client": "npm start --prefix ../client",
     "lint": "./node_modules/.bin/eslint ."
   },
