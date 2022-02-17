@@ -2,7 +2,7 @@ import { chromium, Page, Browser, CDPSession } from 'playwright';
 import * as fs from 'fs';
 import { Socket } from "socket.io";
 
-import logger from '../logger';
+import logger from '../../logger';
 
 export class RemoteBrowser {
 

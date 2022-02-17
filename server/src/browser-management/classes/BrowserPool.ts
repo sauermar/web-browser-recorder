@@ -1,5 +1,5 @@
 import { RemoteBrowser } from "./RemoteBrowser";
-import logger from "../logger";
+import logger from "../../logger";
 
 interface PoolDictionary {
     [key: string]: RemoteBrowser

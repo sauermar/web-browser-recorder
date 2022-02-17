@@ -3,7 +3,7 @@ import { uuid } from 'uuidv4';
 
 import { createSocketConnection } from "../socket-connection/connection";
 import { server, browserPool } from "../server";
-import { RemoteBrowser } from "./RemoteBrowser";
+import { RemoteBrowser } from "./classes/RemoteBrowser";
 
 export const createRemoteBrowser = () => {
     createSocketConnection(server, async (socket: Socket) => {

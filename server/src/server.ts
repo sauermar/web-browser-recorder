@@ -8,7 +8,7 @@ import cors from 'cors';
 import 'dotenv/config';
 
 import routes from './routes';
-import { BrowserPool } from "./browser-management/BrowserPool";
+import { BrowserPool } from "./browser-management/classes/BrowserPool";
 import logger from './logger'
 import { SERVER_PORT } from "./constants/config";
 
