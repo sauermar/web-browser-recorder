@@ -1,7 +1,8 @@
 import { Socket } from "socket.io";
+import { uuid } from 'uuidv4';
 
 import { createSocketConnection } from "../socket-connection/connection";
-import { server } from "../server";
+import { server, browserPool } from "../server";
 import { RemoteBrowser } from "./RemoteBrowser";
 
 export const createRemoteBrowser = () => {
@@ -9,6 +10,8 @@ export const createRemoteBrowser = () => {
         const browserSession = new RemoteBrowser(socket);
         await browserSession.initialize({});
         await browserSession.subscribeToScreencast();
+        browserPool.addRemoteBrowser(uuid(), browserSession);
+
         await browserSession.openPage('https://cs.wikipedia.org/');
     });
 };

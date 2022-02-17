@@ -1,5 +1,4 @@
 import { chromium, Page, Browser, CDPSession } from 'playwright';
-import { uuid } from 'uuidv4';
 import * as fs from 'fs';
 import { Socket } from "socket.io";
 
@@ -9,18 +8,15 @@ export class RemoteBrowser {
 
     private browser: Browser | null = null;
 
-    private currentPage : Page | null = null;
-
-    private readonly id : string;
-
     private pages : Page[] = [];
 
     private client : CDPSession | null = null;
 
     private readonly socket : Socket;
 
+    public currentPage : Page | null = null;
+
     public constructor(socket: Socket){
-        this.id = uuid();
         this.socket = socket;
     }
 
@@ -45,7 +41,7 @@ export class RemoteBrowser {
             return;
         }
         await this.client.send('Page.startScreencast', { format: 'jpeg', quality: 75 });
-        logger.log('info',`BrowserSession with id ${this.id} started with a screencasting.`);
+        logger.log('info',`Browser started with screencasting.`);
     };
 
     public subscribeToScreencast = async() : Promise<void> => {
@@ -76,7 +72,7 @@ export class RemoteBrowser {
             return;
         }
         await this.client.send('Page.stopScreencast');
-        logger.log('info',`BrowserSession with id ${this.id} stopped with a screencasting.`);
+        logger.log('info',`Browser stopped with screencasting.`);
     };
 
     public openPage = async(url: string) : Promise<void> =>{
@@ -94,8 +90,7 @@ export class RemoteBrowser {
         if (!this.currentPage){
             return;
         }
-        await this.currentPage.mouse.click(x, y);
-        logger.log('info', `Clicked on position x:${x}, y:${y}`);
+
     };
 
     private emitScreenshot = (payload: any) : void => {

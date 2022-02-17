@@ -2,13 +2,13 @@
  * HTTP server for the cloud browser recorder application.
  */
 import express from 'express';
-import path from 'path';
 import http from 'http';
 import cors from 'cors';
  // load .env config to the process
 import 'dotenv/config';
 
 import routes from './routes';
+import { BrowserPool } from "./browser-management/BrowserPool";
 import logger from './logger'
 import { SERVER_PORT } from "./constants/config";
 
@@ -16,6 +16,7 @@ const app = express();
 app.use(cors());
 
 export const server = http.createServer(app);
+export const browserPool = new BrowserPool();
 
 app.use('/record', routes.record);
 
