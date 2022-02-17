@@ -25,55 +25,50 @@ interface Coordinates {
     y: number;
 };
 
+interface ScrollDeltas {
+    deltaX: number;
+    deltaY: number;
+}
+
 const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const socket = useContext(SocketContext);
-    const [isOver, setIsOver] = useState(false);
 
     const lastMousePosition = useRef<Coordinates>({ x: 0, y: 0 });
+    const lastWheelPosition = useRef<ScrollDeltas>({ deltaX: 0, deltaY: 0 });
 
     const onMouseEvent = useCallback((event: MouseEvent) => {
         switch (event.type){
             case 'mousedown':
                 console.log('click registered and emitted');
-                const coordinates = getCoordinates(event);
-                console.log(coordinates);
-                socket.emit('input:mousedown', coordinates);
+                const clickCoordinates = getCoordinates(event);
+                console.log(clickCoordinates);
+                socket.emit('input:mousedown', clickCoordinates);
                 break;
             case 'mousemove':
-                if (isOver) {
-                    const coordinates = getCoordinates(event);
-                    if (lastMousePosition.current.x !== coordinates.x ||
-                        lastMousePosition.current.y !== coordinates.y) {
-                        console.log('mousemove event registered');
-                        lastMousePosition.current = coordinates;
-                        socket.emit('input:mousemove', coordinates);
-                    }
+                const coordinates = getCoordinates(event);
+                if (lastMousePosition.current.x !== coordinates.x ||
+                    lastMousePosition.current.y !== coordinates.y) {
+                    console.log('mousemove event registered');
+                    lastMousePosition.current = coordinates;
+                    socket.emit('input:mousemove', coordinates);
                 }
                 break;
-            case 'mouseover':
-                console.log('mouseover canvas event registered');
-                setIsOver(true);
-                break;
-            case 'mouseout':
-                console.log('mouseout canvas event registered');
-                setIsOver(false);
+            case 'wheel':
+                console.log('wheel canvas event registered');
+                const wheelEvent= event as WheelEvent;
+                const deltas = {
+                    deltaX: Math.round(wheelEvent.deltaX),
+                    deltaY: Math.round(wheelEvent.deltaY),
+                };
+                console.log(deltas);
+                socket.emit('input:wheel', deltas);
                 break;
             default:
                 console.log('Default mouseEvent registered');
                 return;
         }
-    }, [isOver]);
-
-    const onEvent = useCallback((event: Event) => {
-        console.log('scroll registered and emitted');
-
-    socket.emit('input:scroll', {
-        deltaX: canvasRef.current!.scrollTop,
-        deltaY: canvasRef.current!.scrollLeft
-    });
-
     }, []);
 
 
@@ -84,17 +79,13 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
             onCreateRef(canvasRef);
             canvasRef.current.addEventListener('mousedown', onMouseEvent);
             canvasRef.current.addEventListener('mousemove', onMouseEvent);
-            canvasRef.current.addEventListener('mouseover', onMouseEvent);
-            canvasRef.current.addEventListener('mouseout', onMouseEvent);
-            //canvasRef.current.addEventListener('scroll', onEvent, { passive: true });
+            canvasRef.current.addEventListener('wheel', onMouseEvent, { passive: true });
 
             return () => {
                 if (canvasRef.current) {
                     canvasRef.current.removeEventListener('mousedown', onMouseEvent);
                     canvasRef.current.addEventListener('mousemove', onMouseEvent);
-                    canvasRef.current.addEventListener('mouseover', onMouseEvent);
-                    canvasRef.current.addEventListener('mouseout', onMouseEvent);
-                    //canvasRef.current.removeEventListener('scroll', onEvent);
+                    canvasRef.current.removeEventListener('wheel', onMouseEvent);
                 }
 
             };
@@ -116,14 +107,7 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
     };
 
     return (
-        <div style={{
-            overflow: "scroll",
-            border: "1px solid black",
-            height: "1500",
-            width: "2000",
-        }}>
             <canvas ref={canvasRef}  height={height} width={width} />
-        </div>
     );
 
 };

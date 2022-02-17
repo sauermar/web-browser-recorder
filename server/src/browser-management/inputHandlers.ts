@@ -16,7 +16,7 @@ const handleMousedown = async ( { x, y }: Coordinates) => {
     }
 };
 
-const handleScroll = async ( { deltaX, deltaY }: ScrollDeltas) => {
+const handleWheel = async ( { deltaX, deltaY }: ScrollDeltas) => {
     logger.log('debug', 'Handling scroll event emitted from client');
     const id = browserPool.getActiveBrowserId();
     const activeBrowser = browserPool.getRemoteBrowser(id);
@@ -42,7 +42,7 @@ const handleMousemove = async ({x, y}: Coordinates) => {
 
 const registerInputHandlers = (io: Server, socket: Socket) => {
     socket.on("input:mousedown", handleMousedown);
-    socket.on("input:scroll", handleScroll);
+    socket.on("input:wheel", handleWheel);
     socket.on("input:mousemove", handleMousemove);
 };
 
