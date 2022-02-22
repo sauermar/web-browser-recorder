@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useContext, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useContext } from 'react';
 import { SocketContext } from '../context/socket';
 
 interface CreateRefCallback {
@@ -30,13 +30,26 @@ interface ScrollDeltas {
     deltaY: number;
 }
 
+const throttle = (callback: any, limit: number) => {
+    let wait = false;
+    return (...args: any[]) => {
+        if (!wait) {
+            callback(...args);
+            wait = true;
+            setTimeout(function () {
+                wait = false;
+            }, limit);
+        }
+    }
+}
+
 const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const socket = useContext(SocketContext);
 
     const lastMousePosition = useRef<Coordinates>({ x: 0, y: 0 });
-    const lastWheelPosition = useRef<ScrollDeltas>({ deltaX: 0, deltaY: 0 });
+     //const lastWheelPosition = useRef<ScrollDeltas>({ deltaX: 0, deltaY: 0 });
 
     const onMouseEvent = useCallback((event: MouseEvent) => {
         switch (event.type){
@@ -71,6 +84,22 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
         }
     }, []);
 
+    const onKeyboardEvent = useCallback((event: KeyboardEvent) => {
+        switch (event.type) {
+            case 'keydown':
+                console.log('Keydown event was triggered on canvas');
+                socket.emit('input:keydown', event.key);
+                break;
+            case 'keyup':
+                console.log('Keyup event was triggered on canvas');
+                socket.emit('input:keyup', event.key);
+                break;
+            default:
+                console.log('Default keyEvent registered');
+                return;
+        }
+    }, []);
+
 
     useEffect(() => {
 
@@ -80,12 +109,16 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
             canvasRef.current.addEventListener('mousedown', onMouseEvent);
             canvasRef.current.addEventListener('mousemove', onMouseEvent);
             canvasRef.current.addEventListener('wheel', onMouseEvent, { passive: true });
+            canvasRef.current.addEventListener('keydown', onKeyboardEvent);
+            canvasRef.current.addEventListener('keyup', onKeyboardEvent);
 
             return () => {
                 if (canvasRef.current) {
                     canvasRef.current.removeEventListener('mousedown', onMouseEvent);
                     canvasRef.current.addEventListener('mousemove', onMouseEvent);
                     canvasRef.current.removeEventListener('wheel', onMouseEvent);
+                    canvasRef.current.addEventListener('keydown', onKeyboardEvent);
+                    canvasRef.current.addEventListener('keyup', onKeyboardEvent);
                 }
 
             };
@@ -107,7 +140,7 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
     };
 
     return (
-            <canvas ref={canvasRef}  height={height} width={width} />
+            <canvas tabIndex={0} ref={canvasRef}  height={height} width={width} />
     );
 
 };

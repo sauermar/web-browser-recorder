@@ -40,10 +40,36 @@ const handleMousemove = async ({x, y}: Coordinates) => {
     }
 }
 
+const handleKeydown = async (key: string) => {
+    logger.log('debug', 'Handling keydown event')
+    const id = browserPool.getActiveBrowserId();
+    const activeBrowser = browserPool.getRemoteBrowser(id);
+    if (activeBrowser) {
+        await activeBrowser.currentPage!.keyboard.down(key);
+        logger.log('info', `Key ${key} pressed`);
+    } else {
+        logger.log('warn', `Did not press ${key} key, because there is no active browser`);
+    }
+};
+
+const handleKeyup = async (key: string) => {
+    logger.log('debug', 'Handling keyup event')
+    const id = browserPool.getActiveBrowserId();
+    const activeBrowser = browserPool.getRemoteBrowser(id);
+    if (activeBrowser) {
+        await activeBrowser.currentPage!.keyboard.up(key);
+        logger.log('info', `Key ${key} unpressed`);
+    } else {
+        logger.log('warn', `Did not unpress ${key} key, because there is no active browser`);
+    }
+};
+
 const registerInputHandlers = (io: Server, socket: Socket) => {
     socket.on("input:mousedown", handleMousedown);
     socket.on("input:wheel", handleWheel);
     socket.on("input:mousemove", handleMousemove);
+    socket.on("input:keydown", handleKeydown);
+    socket.on("input:keyup", handleKeyup);
 };
 
 export default registerInputHandlers;
