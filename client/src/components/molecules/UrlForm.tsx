@@ -6,67 +6,65 @@ import { definition as faAngleRight } from '@fortawesome/free-solid-svg-icons/fa
 import { NavBarForm, NavBarInput } from "../atoms/Form.style";
 import { UrlFormButton } from "../atoms/Button.style";
 import { SocketContext } from '../../context/socket';
+import {Socket} from "socket.io-client";
 
 type Props = {
-    currentAddress: string;
-    refresh: () => void;
-    goTo: (nextAddress: string) => void;
+    initialAddress: string;
+};
+
+const refresh = (socket: Socket) : void => {
+    socket.emit('input:refresh');
+};
+
+const goTo = (socket : Socket, address: string) : void => {
+    socket.emit('input:url', address);
 };
 
 const UrlForm: FC<Props> = ({
-    currentAddress,
-    refresh,
-    goTo,
+    initialAddress,
 }) => {
-    const [address, setAddress] = useState<string>(currentAddress);
-
+    // states:
+    const [address, setAddress] = useState<string>(initialAddress);
+    const [currentAddress, setCurrentAddress] = useState<string>(initialAddress);
+    // context:
     const socket = useContext(SocketContext);
 
-    const isSameAddresses = address === currentAddress;
+    const areSameAddresses = address === currentAddress;
 
     const onChange = useCallback((event: SyntheticEvent): void => {
-        const newUrl = (event.target as HTMLInputElement).value;
-        setAddress(newUrl);
-        socket.emit('input:url', newUrl);
+        setAddress((event.target as HTMLInputElement).value);
     }, []);
 
     const onSubmit = (event: SyntheticEvent): void => {
         event.preventDefault();
 
-        if (isSameAddresses) {
-            refresh();
+        if (areSameAddresses) {
+            refresh(socket);
         } else {
-            goTo(address);
+            try {
+                // try the validity of url
+                new URL(address);
+                goTo(socket, address);
+                setCurrentAddress(address);
+            } catch (e) {
+                // TODO: make an alert from this
+                alert('ERROR: not a valid url!');
+            }
         }
     };
 
-    useEffect(() => {
-        if (!isSameAddresses) {
-            setAddress(currentAddress);
-        }
-    }, [currentAddress]);
-
     return (
-        <NavBarForm
-            onSubmit={onSubmit}
-        >
+        <NavBarForm onSubmit={onSubmit}>
             <NavBarInput
                 type="text"
                 value={address}
                 onChange={onChange}
             />
-
-            {
-                address !== currentAddress && (
-                    <UrlFormButton
-                        type="submit"
-                    >
-                        <FontAwesomeIcon
-                            icon={faAngleRight}
-                        />
-                    </UrlFormButton>
-                )
-            }
+            <UrlFormButton type="submit">
+                <FontAwesomeIcon
+                    icon={faAngleRight}
+                />
+            </UrlFormButton>
         </NavBarForm>
     );
 };

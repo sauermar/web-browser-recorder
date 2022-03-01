@@ -72,7 +72,19 @@ const handleChangeUrl = async (url: string) => {
         await activeBrowser.currentPage!.goto(url);
         logger.log('info', `Went to ${url}`);
     } else {
-        logger.log('warn', `Did not went to ${url}, because there is no active browser`);
+        logger.log('warn', `Did not go to ${url}, because there is no active browser`);
+    }
+};
+
+const handleRefresh = async () => {
+    logger.log('debug', 'Handling refresh of url')
+    const id = browserPool.getActiveBrowserId();
+    const activeBrowser = browserPool.getRemoteBrowser(id);
+    if (activeBrowser) {
+        await activeBrowser.currentPage!.reload();
+        logger.log('info', `Page refreshed.`);
+    } else {
+        logger.log('warn', `Did not refresh the page, because there is no active browser`);
     }
 };
 
@@ -83,6 +95,7 @@ const registerInputHandlers = (io: Server, socket: Socket) => {
     socket.on("input:keydown", handleKeydown);
     socket.on("input:keyup", handleKeyup);
     socket.on("input:url", handleChangeUrl);
+    socket.on("input:refresh", handleRefresh);
 };
 
 export default registerInputHandlers;

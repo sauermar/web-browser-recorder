@@ -9,8 +9,12 @@ export const RecordPage: FC = () => (
         <NavBar
             canMoveForward={true}
             canMoveBack={true}
-            currentAddress={''}
-            refresh={()=>{}} goBack={()=>{}} goForward={()=>{}} goTo={()=>{}}></NavBar>
+            // about:blank is an empty page which is the first getting displayed - will not be in the recording
+            currentAddress={'about:blank'}
+            refresh={()=>{}}
+            goBack={()=>{}}
+            goForward={()=>{}}
+            goTo={()=>{}}></NavBar>
         <BrowserWindow></BrowserWindow>
     </div>
 );

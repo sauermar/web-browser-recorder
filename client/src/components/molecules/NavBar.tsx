@@ -16,7 +16,7 @@ const StyledNavBar = styled.div`
     background-color: #f6f6f6;
 `;
 
-type Props = {
+type NavBarProps = {
     canMoveForward: boolean;
     canMoveBack: boolean;
     currentAddress: string;
@@ -26,7 +26,7 @@ type Props = {
     goTo: (nextAddress: string) => void;
 };
 
-const NavBar: FC<Props> = ({
+const NavBar: FC<NavBarProps> = ({
    canMoveForward,
    canMoveBack,
    currentAddress,
@@ -67,9 +67,7 @@ const NavBar: FC<Props> = ({
         </NavBarButton>
 
         <UrlForm
-            currentAddress={currentAddress}
-            goTo={goTo}
-            refresh={refresh}
+            initialAddress={currentAddress}
         />
     </StyledNavBar>
 );

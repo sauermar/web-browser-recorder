@@ -8,7 +8,7 @@ function App() {
 
   return (
     <SocketProvider>
-      <div className="App">
+      <div className="BrowserRecorder">
           <RecordPage></RecordPage>
       </div>
     </SocketProvider>
