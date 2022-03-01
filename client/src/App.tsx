@@ -1,14 +1,15 @@
 import React from 'react';
 import './App.css';
-import { BrowserWindow } from './components/BrowserWindow';
+
 import { SocketProvider } from './context/socket';
+import { RecordPage } from "./pages/RecordPage";
 
 function App() {
 
   return (
     <SocketProvider>
       <div className="App">
-          <BrowserWindow></BrowserWindow>
+          <RecordPage></RecordPage>
       </div>
     </SocketProvider>
   );

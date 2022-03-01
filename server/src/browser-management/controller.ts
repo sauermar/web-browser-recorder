@@ -12,6 +12,6 @@ export const createRemoteBrowser = () => {
         await browserSession.subscribeToScreencast();
         browserPool.addRemoteBrowser(uuid(), browserSession);
 
-        await browserSession.openPage('https://cs.wikipedia.org/');
+        await browserSession.currentPage!.goto('https://cs.wikipedia.org/');
     });
 };

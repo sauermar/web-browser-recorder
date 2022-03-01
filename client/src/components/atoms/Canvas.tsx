@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useContext } from 'react';
-import { SocketContext } from '../context/socket';
+import { SocketContext } from '../../context/socket';
 
 interface CreateRefCallback {
 

@@ -1,5 +1,4 @@
 import { chromium, Page, Browser, CDPSession } from 'playwright';
-import * as fs from 'fs';
 import { Socket } from "socket.io";
 
 import logger from '../../logger';
@@ -73,24 +72,6 @@ export class RemoteBrowser {
         }
         await this.client.send('Page.stopScreencast');
         logger.log('info',`Browser stopped with screencasting.`);
-    };
-
-    public openPage = async(url: string) : Promise<void> =>{
-        if (this.currentPage) {
-            logger.log('debug',`Page ${url} opened`)
-            await this.currentPage.goto(url);
-            const image = await this.currentPage.screenshot();
-            fs.writeFileSync('screenshot.png', image);
-        } else {
-            logger.log('warn','Page is not initialized');
-        }
-    };
-
-    public clickOnCoordinates = async(x: number, y: number) => {
-        if (!this.currentPage){
-            return;
-        }
-
     };
 
     private emitScreenshot = (payload: any) : void => {

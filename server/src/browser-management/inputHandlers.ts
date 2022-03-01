@@ -64,12 +64,25 @@ const handleKeyup = async (key: string) => {
     }
 };
 
+const handleChangeUrl = async (url: string) => {
+    logger.log('debug', 'Handling changing of url')
+    const id = browserPool.getActiveBrowserId();
+    const activeBrowser = browserPool.getRemoteBrowser(id);
+    if (activeBrowser) {
+        await activeBrowser.currentPage!.goto(url);
+        logger.log('info', `Went to ${url}`);
+    } else {
+        logger.log('warn', `Did not went to ${url}, because there is no active browser`);
+    }
+};
+
 const registerInputHandlers = (io: Server, socket: Socket) => {
     socket.on("input:mousedown", handleMousedown);
     socket.on("input:wheel", handleWheel);
     socket.on("input:mousemove", handleMousemove);
     socket.on("input:keydown", handleKeydown);
     socket.on("input:keyup", handleKeyup);
+    socket.on("input:url", handleChangeUrl);
 };
 
 export default registerInputHandlers;
