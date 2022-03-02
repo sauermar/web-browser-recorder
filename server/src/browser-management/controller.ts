@@ -1,5 +1,6 @@
 import { Socket } from "socket.io";
 import { uuid } from 'uuidv4';
+import { chromium } from "playwright";
 
 import { createSocketConnection } from "../socket-connection/connection";
 import { server, browserPool } from "../server";
@@ -11,7 +12,10 @@ export const createRemoteBrowser = (): string => {
         server,
         async (socket: Socket, id: string) => {
         const browserSession = new RemoteBrowser(socket);
-        await browserSession.initialize({});
+        await browserSession.initialize({
+            browser: chromium,
+            options: { headless: false },
+        });
         await browserSession.subscribeToScreencast();
         browserPool.addRemoteBrowser(id, browserSession);
     }, id);
