@@ -1,4 +1,4 @@
-import {useState, useCallback, useEffect, useContext,} from 'react';
+import {useState, useCallback, useContext, useEffect,} from 'react';
 import type { FC, SyntheticEvent, } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { definition as faAngleRight } from '@fortawesome/free-solid-svg-icons/faAngleRight';
@@ -9,23 +9,18 @@ import { SocketContext } from '../../context/socket';
 import {Socket} from "socket.io-client";
 
 type Props = {
-    initialAddress: string;
-};
-
-const refresh = (socket: Socket) : void => {
-    socket.emit('input:refresh');
-};
-
-const goTo = (socket : Socket, address: string) : void => {
-    socket.emit('input:url', address);
+    currentAddress: string;
+    handleRefresh: (socket: Socket) => void;
+    setCurrentAddress: (address: string) => void;
 };
 
 const UrlForm: FC<Props> = ({
-    initialAddress,
+    currentAddress,
+    handleRefresh,
+    setCurrentAddress,
 }) => {
     // states:
-    const [address, setAddress] = useState<string>(initialAddress);
-    const [currentAddress, setCurrentAddress] = useState<string>(initialAddress);
+    const [address, setAddress] = useState<string>(currentAddress);
     // context:
     const socket = useContext(SocketContext);
 
@@ -39,12 +34,11 @@ const UrlForm: FC<Props> = ({
         event.preventDefault();
 
         if (areSameAddresses) {
-            refresh(socket);
+            handleRefresh(socket);
         } else {
             try {
                 // try the validity of url
                 new URL(address);
-                goTo(socket, address);
                 setCurrentAddress(address);
             } catch (e) {
                 // TODO: make an alert from this
@@ -52,6 +46,8 @@ const UrlForm: FC<Props> = ({
             }
         }
     };
+
+    useEffect(() => setAddress(currentAddress), [currentAddress]);
 
     return (
         <NavBarForm onSubmit={onSubmit}>

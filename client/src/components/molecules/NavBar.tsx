@@ -9,6 +9,9 @@ import { definition as faRedo } from '@fortawesome/free-solid-svg-icons/faRedo';
 
 import { NavBarButton } from '../atoms/Button.style';
 import UrlForm from './UrlForm';
+import {Socket} from "socket.io-client";
+import {useContext, useEffect, useState} from "react";
+import {SocketContext} from "../../context/socket";
 
 const StyledNavBar = styled.div`
     display: flex;
@@ -17,59 +20,85 @@ const StyledNavBar = styled.div`
 `;
 
 type NavBarProps = {
-    canMoveForward: boolean;
-    canMoveBack: boolean;
-    currentAddress: string;
-    refresh: () => void;
-    goBack: () => void;
-    goForward: () => void;
-    goTo: (nextAddress: string) => void;
+    initialAddress: string;
+};
+
+const handleRefresh = (socket: Socket) : void => {
+    socket.emit('input:refresh');
+};
+
+const handleGoTo = (socket : Socket, address: string) : void => {
+    socket.emit('input:url', address);
 };
 
 const NavBar: FC<NavBarProps> = ({
-   canMoveForward,
-   canMoveBack,
-   currentAddress,
-   refresh,
-   goBack,
-   goForward,
-   goTo,
-}) => (
-    <StyledNavBar>
-        <NavBarButton
-            type="button"
-            onClick={goBack}
-            disabled={!canMoveBack}
-        >
-            <FontAwesomeIcon
-                icon={faArrowLeft}
-            />
-        </NavBarButton>
+   initialAddress,
+}) => {
+    // context:
+    const socket = useContext(SocketContext);
+    //state:
+    const [history, setHistory] = useState<string[]>([initialAddress]);
+    const [historyIndex, setHistoryIndex] = useState<number>(0);
 
-        <NavBarButton
-            type="button"
-            onClick={goForward}
-            disabled={!canMoveForward}
-        >
-            <FontAwesomeIcon
-                icon={faArrowRight}
-            />
-        </NavBarButton>
+    const currentAddress = history[historyIndex];
 
-        <NavBarButton
-            type="button"
-            onClick={refresh}
-            disabled={false}
-        >
-            <FontAwesomeIcon
-                icon={faRedo}
-            />
-        </NavBarButton>
+    const addAddress = (address: string) => {
+        setHistory([...history, address]);
+        const newIndex = historyIndex + 1;
+        setHistoryIndex(newIndex);
+    };
 
-        <UrlForm
-            initialAddress={currentAddress}
-        />
-    </StyledNavBar>
-);
+    useEffect(() => {
+        if (currentAddress !== initialAddress) {
+            handleGoTo(socket, currentAddress);
+        }
+    }, [historyIndex, currentAddress, initialAddress, socket]);
+
+    return (
+        <StyledNavBar>
+            <NavBarButton
+                type="button"
+                onClick={() => {
+                    const newIndex = historyIndex - 1;
+                    setHistoryIndex(newIndex);
+                }}
+                disabled={historyIndex === 1 || history.length === 1}
+            >
+                <FontAwesomeIcon
+                    icon={faArrowLeft}
+                />
+            </NavBarButton>
+
+            <NavBarButton
+                type="button"
+                onClick={()=>{
+                    const newIndex = historyIndex + 1;
+                    setHistoryIndex(newIndex);
+                }}
+                disabled={historyIndex === (history.length - 1)}
+            >
+                <FontAwesomeIcon
+                    icon={faArrowRight}
+                />
+            </NavBarButton>
+
+            <NavBarButton
+                type="button"
+                onClick={() => handleRefresh(socket)}
+                disabled={ history.length === 1 }
+            >
+                <FontAwesomeIcon
+                    icon={faRedo}
+                />
+            </NavBarButton>
+
+            <UrlForm
+                currentAddress={currentAddress}
+                handleRefresh={handleRefresh}
+                setCurrentAddress={addAddress}
+            />
+        </StyledNavBar>
+    );
+}
 
 export default NavBar;
