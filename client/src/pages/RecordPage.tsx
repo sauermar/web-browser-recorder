@@ -1,20 +1,29 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 
 import NavBar from "../components/molecules/NavBar";
 import { BrowserWindow } from "../components/organisms/BrowserWindow";
+import { startRecording, stopRecording } from "../RemoteBrowserAPI";
 
 
-export const RecordPage: FC = () => (
-    <div>
-        <NavBar
-            canMoveForward={true}
-            canMoveBack={true}
-            // about:blank is an empty page which is the first getting displayed - will not be in the recording
-            currentAddress={'about:blank'}
-            refresh={()=>{}}
-            goBack={()=>{}}
-            goForward={()=>{}}
-            goTo={()=>{}}></NavBar>
-        <BrowserWindow></BrowserWindow>
-    </div>
-);
+export const RecordPage: FC = () => {
+
+    useEffect(() => {
+        const id = startRecording();
+        if (id) {
+            // cleanup function when the component dismounts
+            return () => {
+                stopRecording(id);
+            };
+        }
+    }, []);
+
+    return (
+        <div>
+            <NavBar
+                initialAddress={'https://'}
+            >
+            </NavBar>
+            <BrowserWindow></BrowserWindow>
+        </div>
+    );
+};

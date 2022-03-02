@@ -65,10 +65,20 @@ export class RemoteBrowser {
         });
     };
 
-    public stopScreencast = async() : Promise<void> => {
+    public switchOff = async() : Promise<void> => {
+        if (this.browser) {
+            await this.stopScreencast();
+            await this.browser.close();
+        } else {
+            logger.log('error', 'Browser wasn\'t initialized');
+            throw new Error('Switching off the browser failed');
+        }
+    };
+
+    private stopScreencast = async() : Promise<void> => {
         if (!this.client) {
-            logger.log('warn','client is not initialized');
-            return;
+            logger.log('error','client is not initialized');
+            throw new Error('Screencast stop failed');
         }
         await this.client.send('Page.stopScreencast');
         logger.log('info',`Browser stopped with screencasting.`);

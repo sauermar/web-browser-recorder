@@ -68,7 +68,7 @@ const handleChangeUrl = async (url: string) => {
     logger.log('debug', 'Handling changing of url')
     const id = browserPool.getActiveBrowserId();
     const activeBrowser = browserPool.getRemoteBrowser(id);
-    if (activeBrowser) {
+    if (activeBrowser && url) {
         await activeBrowser.currentPage!.goto(url);
         logger.log('info', `Went to ${url}`);
     } else {

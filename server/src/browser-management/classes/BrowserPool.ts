@@ -9,7 +9,7 @@ export class BrowserPool {
 
     private pool : PoolDictionary = {};
 
-    public addRemoteBrowser = (id: string, browser: RemoteBrowser) => {
+    public addRemoteBrowser = (id: string, browser: RemoteBrowser): void => {
         this.pool = {
             ...this.pool,
             [id]: browser,
@@ -17,13 +17,14 @@ export class BrowserPool {
         logger.log('debug', `Remote browser with id: ${id} added to the pool`);
     };
 
-    public deleteRemoteBrowser = (id: string) => {
+    public deleteRemoteBrowser = (id: string) : boolean => {
         if (!this.pool[id]) {
             logger.log('warn', `Remote browser with id: ${id} does not exist in the pool`);
-            return;
+            return false;
         }
         delete(this.pool[id]);
         logger.log('debug', `Remote browser with id: ${id} deleted from the pool`);
+        return true;
     };
 
     public getRemoteBrowser = (id: string) : RemoteBrowser | undefined => {
