@@ -2,18 +2,11 @@ import {
     Page,
     Browser,
     CDPSession,
-    BrowserType,
-    LaunchOptions,
 } from 'playwright';
 import { Socket } from "socket.io";
 
 import logger from '../../logger';
-
-
-interface RemoteBrowserOptions {
-    browser: BrowserType
-    options: LaunchOptions
-};
+import { RemoteBrowserOptions } from "../../interfaces/Input";
 
 export class RemoteBrowser {
 
@@ -33,7 +26,7 @@ export class RemoteBrowser {
 
     public initialize = async(options: RemoteBrowserOptions) : Promise<void> => {
         // initialize the browser instance
-        this.browser = <Browser>(await options.browser.launch(options.options));
+        this.browser = <Browser>(await options.browser.launch(options.launchOptions));
         //initialize page context
         const context = await this.browser.newContext();
         this.currentPage = await context.newPage();

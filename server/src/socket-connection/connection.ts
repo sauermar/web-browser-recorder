@@ -6,15 +6,15 @@ import registerInputHandlers from '../browser-management/inputHandlers'
 
 export const createSocketConnection = (
     server: httpServer,
-    callback: (socket: Socket, id: string) => void,
-    id: string) => {
+    callback: (socket: Socket) => void,
+    ) => {
     const io = new Server(server);
 
     const onConnection = (socket: Socket) => {
         logger.log('info',"Client connected");
         registerInputHandlers(io, socket);
         socket.on('disconnect', () => logger.log('info', "Client disconnected"));
-        callback(socket, id);
+        callback(socket);
     }
 
     io.on('connection', onConnection);

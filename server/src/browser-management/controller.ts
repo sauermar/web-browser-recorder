@@ -1,24 +1,21 @@
 import { Socket } from "socket.io";
 import { uuid } from 'uuidv4';
-import { chromium } from "playwright";
 
 import { createSocketConnection } from "../socket-connection/connection";
 import { server, browserPool } from "../server";
 import { RemoteBrowser } from "./classes/RemoteBrowser";
+import { RemoteBrowserOptions } from "../interfaces/Input";
 
-export const createRemoteBrowser = (): string => {
+export const createRemoteBrowser = (options: RemoteBrowserOptions): string => {
     const id = uuid();
     createSocketConnection(
         server,
-        async (socket: Socket, id: string) => {
+        async (socket: Socket) => {
         const browserSession = new RemoteBrowser(socket);
-        await browserSession.initialize({
-            browser: chromium,
-            options: { headless: false },
-        });
+        await browserSession.initialize(options);
         await browserSession.subscribeToScreencast();
         browserPool.addRemoteBrowser(id, browserSession);
-    }, id);
+    });
     return id;
 };
 
