@@ -7,9 +7,11 @@
 .env.development.local
 .env.test.local
 .env.production.local
+.env
 
 /.idea
 
 /build
+/logs
 
 package-lock.json
