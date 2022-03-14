@@ -1,16 +1,14 @@
-import { Server, Socket } from 'socket.io';
-import { Server as httpServer } from 'http';
+import {Namespace, Socket} from 'socket.io';
 
 import logger from "../logger";
 import registerInputHandlers from '../browser-management/inputHandlers'
 
+// uses socket.io dynamic namespaces for multiplexing the traffic from different running remote browser instances
 export const createSocketConnection = (
-    server: httpServer,
+    io: Namespace,
     callback: (socket: Socket) => void,
     ) => {
-    const io = new Server(server);
-
-    const onConnection = (socket: Socket) => {
+    const onConnection = async (socket: Socket) => {
         logger.log('info',"Client connected");
         registerInputHandlers(io, socket);
         socket.on('disconnect', () => logger.log('info', "Client disconnected"));

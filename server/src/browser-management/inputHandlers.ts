@@ -1,4 +1,4 @@
-import { Server, Socket } from 'socket.io';
+import {Namespace, Socket} from 'socket.io';
 
 import logger from "../logger";
 import { Coordinates, ScrollDeltas } from '../interfaces/Input';
@@ -88,7 +88,7 @@ const handleRefresh = async () => {
     }
 };
 
-const registerInputHandlers = (io: Server, socket: Socket) => {
+const registerInputHandlers = (io: Namespace, socket: Socket) => {
     socket.on("input:mousedown", handleMousedown);
     socket.on("input:wheel", handleWheel);
     socket.on("input:mousemove", handleMousemove);

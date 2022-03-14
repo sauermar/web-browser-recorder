@@ -11,11 +11,14 @@ import routes from './routes';
 import { BrowserPool } from "./browser-management/classes/BrowserPool";
 import logger from './logger'
 import { SERVER_PORT } from "./constants/config";
+import {Server} from "socket.io";
 
 const app = express();
 app.use(cors());
 
-export const server = http.createServer(app);
+const server = http.createServer(app);
+
+export const io = new Server(server);
 export const browserPool = new BrowserPool();
 
 app.use('/record', routes.record);
