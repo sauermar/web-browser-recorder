@@ -3,7 +3,7 @@ import { AxiosResponse } from "axios";
 const axios = require('axios').default;
 
 
-export const startRecording = () : string|void => {
+export const startRecording = () : string => {
     axios.get('http://localhost:8080/record/start')
         .then((response : AxiosResponse<string>)  => {
             console.log(response);
@@ -16,6 +16,7 @@ export const startRecording = () : string|void => {
         .catch((error: any) => {
             console.log(error);
         });
+    return '';
 };
 
 export const stopRecording = (id: string): void => {

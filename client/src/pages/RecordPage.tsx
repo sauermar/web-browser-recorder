@@ -1,14 +1,18 @@
-import React, { FC, useEffect } from 'react';
+import React, {FC, useEffect, useState} from 'react';
 
 import NavBar from "../components/molecules/NavBar";
 import { BrowserWindow } from "../components/organisms/BrowserWindow";
 import { startRecording, stopRecording } from "../RemoteBrowserAPI";
+import { SocketProvider } from "../context/socket";
 
 
 export const RecordPage: FC = () => {
 
+    const [id, setId] = useState<string>('');
+
     useEffect(() => {
         const id = startRecording();
+        setId(id);
         if (id) {
             // cleanup function when the component dismounts
             return () => {
@@ -18,12 +22,14 @@ export const RecordPage: FC = () => {
     }, []);
 
     return (
-        <div>
-            <NavBar
-                initialAddress={'https://'}
-            >
-            </NavBar>
-            <BrowserWindow></BrowserWindow>
-        </div>
+        <SocketProvider id={id}>
+            <div>
+                <NavBar
+                    initialAddress={'https://'}
+                >
+                </NavBar>
+                <BrowserWindow></BrowserWindow>
+            </div>
+        </SocketProvider>
     );
 };
