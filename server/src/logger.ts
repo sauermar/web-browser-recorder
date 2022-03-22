@@ -6,7 +6,6 @@ import { DEBUG, LOGS_PATH } from "./constants/config";
 
 const logger = createLogger({
     format: combine(
-        colorize(),
         timestamp(),
         printf(info => `${info.timestamp} ${info.level}: ${info.message}`),
     ),
