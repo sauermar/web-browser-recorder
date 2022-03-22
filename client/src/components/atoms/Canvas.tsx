@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useRef, useContext } from 'react';
 import { SocketContext } from '../../context/socket';
+import log from '../../api/loggerAPI';
 
 interface CreateRefCallback {
 
@@ -63,7 +64,7 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
                 const coordinates = getCoordinates(event);
                 if (lastMousePosition.current.x !== coordinates.x ||
                     lastMousePosition.current.y !== coordinates.y) {
-                    console.log('mousemove event registered');
+                    log.debug('mousemove event registered');
                     lastMousePosition.current = coordinates;
                     socket.emit('input:mousemove', coordinates);
                 }
@@ -103,7 +104,7 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
 
     useEffect(() => {
 
-        console.log('Effect from canvas');
+        log.info('Effect from canvas');
         if (canvasRef.current) {
             onCreateRef(canvasRef);
             canvasRef.current.addEventListener('mousedown', onMouseEvent);

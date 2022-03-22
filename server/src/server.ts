@@ -22,6 +22,7 @@ export const io = new Server(server);
 export const browserPool = new BrowserPool();
 
 app.use('/record', routes.record);
+app.use('/log', routes.log);
 
 app.get('/', function (req, res) {
     return res.send('Welcome to the BR recorder server :-)');

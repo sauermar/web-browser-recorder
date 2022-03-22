@@ -2,7 +2,7 @@ import React, {FC, useEffect, useState} from 'react';
 
 import NavBar from "../components/molecules/NavBar";
 import { BrowserWindow } from "../components/organisms/BrowserWindow";
-import { startRecording, stopRecording } from "../RemoteBrowserAPI";
+import { startRecording, stopRecording } from "../api/RemoteBrowserAPI";
 import { SocketProvider } from "../context/socket";
 
 

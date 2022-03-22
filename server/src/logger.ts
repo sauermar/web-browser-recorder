@@ -1,5 +1,5 @@
 import { createLogger, format, transports } from 'winston';
-const { combine, colorize, timestamp, printf } = format;
+const { combine, timestamp, printf } = format;
 
 import { DEBUG, LOGS_PATH } from "./constants/config";
 
