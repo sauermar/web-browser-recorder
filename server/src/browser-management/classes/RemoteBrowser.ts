@@ -24,6 +24,11 @@ export class RemoteBrowser {
         this.socket = socket;
     }
 
+    /**
+     * Constructor for asynchronous properties.
+     * Must be called right after creating an instance of RemoteBrowser class.
+     * @param options remote browser options
+     */
     public initialize = async(options: RemoteBrowserOptions) : Promise<void> => {
         // initialize the browser instance
         this.browser = <Browser>(await options.browser.launch(options.launchOptions));
@@ -35,6 +40,9 @@ export class RemoteBrowser {
         this.client = await this.currentPage.context().newCDPSession(this.currentPage);
     };
 
+    /**
+     * Initiates screencast of the remote browser.
+     */
     private startScreencast = async() : Promise<void> => {
         if (!this.client) {
             logger.log('warn','client is not initialized');
@@ -44,6 +52,9 @@ export class RemoteBrowser {
         logger.log('info',`Browser started with screencasting.`);
     };
 
+    /**
+     * Sends a screenshot every time the browser active page updates.
+     */
     public subscribeToScreencast = async() : Promise<void> => {
         await this.startScreencast();
         if (!this.client) {
@@ -66,6 +77,9 @@ export class RemoteBrowser {
         });
     };
 
+    /**
+     * Terminates the remote browser.
+     */
     public switchOff = async() : Promise<void> => {
         if (this.browser) {
             await this.stopScreencast();
@@ -76,6 +90,9 @@ export class RemoteBrowser {
         }
     };
 
+    /**
+     * Unsubscribes the browser from screencast.
+     */
     private stopScreencast = async() : Promise<void> => {
         if (!this.client) {
             logger.log('error','client is not initialized');
@@ -85,6 +102,10 @@ export class RemoteBrowser {
         logger.log('info',`Browser stopped with screencasting.`);
     };
 
+    /**
+     * Helper for emitting the screenshot of browser's active page through websocket.
+     * @param payload the screenshot binary data
+     */
     private emitScreenshot = (payload: any) : void => {
         const dataWithMimeType = ('data:image/jpeg;base64,').concat(payload);
         this.socket.emit('screencast', dataWithMimeType);

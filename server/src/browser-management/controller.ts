@@ -1,3 +1,6 @@
+/**
+ * Main class determining the flow of remote browser management.
+ */
 import { Socket } from "socket.io";
 import { uuid } from 'uuidv4';
 
@@ -6,6 +9,10 @@ import { server, browserPool } from "../server";
 import { RemoteBrowser } from "./classes/RemoteBrowser";
 import { RemoteBrowserOptions } from "../interfaces/Input";
 
+/**
+ * Starts a remote browser recording session.
+ * @param options remote browser options
+ */
 export const createRemoteBrowser = (options: RemoteBrowserOptions): string => {
     const id = uuid();
     createSocketConnection(
@@ -19,6 +26,10 @@ export const createRemoteBrowser = (options: RemoteBrowserOptions): string => {
     return id;
 };
 
+/**
+ * Terminates a remote browser recording session.
+ * @param id remote browser recording session's id
+ */
 export const destroyRemoteBrowser = async (id: string) : Promise<boolean> => {
     const browserSession = browserPool.getRemoteBrowser(id);
     if (browserSession) {

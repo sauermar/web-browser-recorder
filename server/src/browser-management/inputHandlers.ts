@@ -1,3 +1,6 @@
+/**
+ * A set of functions handling user input on a remote browser recording session from client.
+ */
 import { Server, Socket } from 'socket.io';
 
 import logger from "../logger";
@@ -88,7 +91,11 @@ const handleRefresh = async () => {
     }
 };
 
-const registerInputHandlers = (io: Server, socket: Socket) => {
+/**
+ * Helper function for registering the handlers onto established websocket connection.
+ * @param socket websocket with established connection
+ */
+const registerInputHandlers = (socket: Socket) => {
     socket.on("input:mousedown", handleMousedown);
     socket.on("input:wheel", handleWheel);
     socket.on("input:mousemove", handleMousemove);

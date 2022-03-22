@@ -1,3 +1,7 @@
+/**
+ * Server side logger set up. Uses winston library with customized log format
+ * and multiple logging outputs.
+ */
 import { createLogger, format, transports } from 'winston';
 const { combine, colorize, timestamp, printf } = format;
 
