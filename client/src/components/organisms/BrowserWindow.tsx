@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { SocketContext } from '../../context/socket';
-import Canvas from "../atoms/Canvas";
+import Canvas from "../atoms/canvas";
 
 const VIEWPORT_W = 1280;
 const VIEWPORT_H = 720;
 
 
-export const BrowserWindow : React.FC = () => {
+export const BrowserWindow = () => {
 
     const [canvasRef, setCanvasReference] = useState<React.RefObject<HTMLCanvasElement> | undefined>(undefined);
     const [screenShot, setScreenShot] = useState<string>("");

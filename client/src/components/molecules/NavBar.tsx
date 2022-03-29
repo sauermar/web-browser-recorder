@@ -7,7 +7,7 @@ import { definition as faArrowLeft } from '@fortawesome/free-solid-svg-icons/faA
 import { definition as faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
 import { definition as faRedo } from '@fortawesome/free-solid-svg-icons/faRedo';
 
-import { NavBarButton } from '../atoms/Button.style';
+import { NavBarButton } from '../atoms/buttons';
 import UrlForm from './UrlForm';
 import {Socket} from "socket.io-client";
 import {useContext, useEffect, useState} from "react";

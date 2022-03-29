@@ -1,23 +1,19 @@
 import styled from 'styled-components';
 
-interface NavBarButtonProps {
-    disabled: boolean,
-}
-
-export const NavBarButton = styled.button`
+export const NavBarButton = styled.button<{ disabled: boolean }>`
     margin-left: 5px;
     margin-right: 5px;
-    padding: 0px;
+    padding: 0;
     border: none;
     background-color: transparent;
-    cursor: ${(props: NavBarButtonProps) => props.disabled ? 'default' : 'pointer'};
+    cursor: ${({ disabled }) => disabled ? 'default' : 'pointer'};
     width: 24px;
     height: 24px;
     border-radius: 12px;
     outline: none;
-    color: ${(props: NavBarButtonProps) => props.disabled ? '#999' : '#333'};
+    color: ${({ disabled }) => disabled ? '#999' : '#333'};
 
-    ${(props: NavBarButtonProps) => props.disabled ? null : `
+    ${({ disabled }) => disabled ? null : `
         &:hover {
             background-color: #ddd;
         }
@@ -29,9 +25,9 @@ export const NavBarButton = styled.button`
 
 export const UrlFormButton = styled.button`
     position: absolute;
-    top: 0px;
-    right: 0px;
-    padding: 0px;
+    top: 0;
+    right: 0;
+    padding: 0;
     border: none;
     background-color: transparent;
     cursor: pointer;

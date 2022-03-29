@@ -9,7 +9,7 @@ import cors from 'cors';
  // load .env config to the process - allows a custom configuration for server
 import 'dotenv/config';
 
-import routes from './routes';
+import { recordRoutes } from './routes';
 import { BrowserPool } from "./browser-management/classes/BrowserPool";
 import logger from './logger'
 import { SERVER_PORT } from "./constants/config";
@@ -22,7 +22,7 @@ export const server = http.createServer(app);
 export const browserPool = new BrowserPool();
 
 // subscription for api routes
-app.use('/record', routes.record);
+app.use('/record', recordRoutes);
 
 app.get('/', function (req, res) {
     return res.send('Welcome to the BR recorder server :-)');

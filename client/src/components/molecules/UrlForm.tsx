@@ -3,8 +3,8 @@ import type { FC, SyntheticEvent, } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { definition as faAngleRight } from '@fortawesome/free-solid-svg-icons/faAngleRight';
 
-import { NavBarForm, NavBarInput } from "../atoms/Form.style";
-import { UrlFormButton } from "../atoms/Button.style";
+import { NavBarForm, NavBarInput } from "../atoms/form";
+import { UrlFormButton } from "../atoms/buttons";
 import { SocketContext } from '../../context/socket';
 import {Socket} from "socket.io-client";
 
