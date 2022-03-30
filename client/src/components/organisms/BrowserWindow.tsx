@@ -2,8 +2,8 @@ import React, { useEffect, useState, useContext } from 'react';
 import { SocketContext } from '../../context/socket';
 import Canvas from "../atoms/canvas";
 
-const VIEWPORT_W = 1280;
-const VIEWPORT_H = 720;
+const VIEWPORT_W = 950;
+const VIEWPORT_H = 590;
 
 
 export const BrowserWindow = () => {

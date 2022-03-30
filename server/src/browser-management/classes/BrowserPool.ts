@@ -45,7 +45,7 @@ export class BrowserPool {
         logger.log('debug', `Remote browser with id: ${id} retrieved from the pool`);
         return this.pool[id];
     };
-    
+
     //TODO: move the logic where it makes more sense
     public getActiveBrowserId = () => {
         if (!Object.keys(this.pool)[0]) {

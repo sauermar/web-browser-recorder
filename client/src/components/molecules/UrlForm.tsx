@@ -41,7 +41,6 @@ const UrlForm: FC<Props> = ({
                 new URL(address);
                 setCurrentAddress(address);
             } catch (e) {
-                // TODO: make an alert from this
                 alert('ERROR: not a valid url!');
             }
         }

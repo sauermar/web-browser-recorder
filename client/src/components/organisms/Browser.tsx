@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from "styled-components";
-import NavBar from "../molecules/NavBar";
+import BrowserNavBar from "../molecules/BrowserNavBar";
 import { BrowserWindow } from "./BrowserWindow";
 
 export const Browser = () => (
   <BrowserWrapper>
-    <NavBar initialAddress={'https://'}/>
+    <BrowserNavBar initialAddress={'https://'}/>
     <BrowserWindow/>
   </BrowserWrapper>
 );
