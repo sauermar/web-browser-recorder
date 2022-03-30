@@ -1,24 +1,48 @@
-import React, {createContext, useMemo} from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 const SERVER_ENDPOINT = 'http://localhost:8080';
 
-// the socket client connection is recomputed whenever id changes -> the new browser has been initialized
-const socket =
-     io(`${SERVER_ENDPOINT}/test`, {
+interface SocketState {
+  socket: Socket | null;
+  setId: (id: string) => void;
+};
+
+class SocketStore implements Partial<SocketState>{
+  socket = null;
+};
+
+const socketStore = new SocketStore();
+const socketStoreContext = createContext<SocketState>(socketStore as SocketState);
+
+export const useSocketStore = () => useContext(socketStoreContext);
+
+export const SocketProvider = ({ children }: { children: JSX.Element }) => {
+  const [socket, setSocket] = useState<Socket | null>(socketStore.socket);
+
+  const setId = useCallback((id: string) => {
+    console.log(id);
+    // the socket client connection is recomputed whenever id changes -> the new browser has been initialized
+    const socket =
+      io(`${SERVER_ENDPOINT}/${id}`, {
         transports: ["websocket"],
         rejectUnauthorized: false
-    });
+      });
 
-const SocketContext = createContext<Socket>(socket);
+    socket.on('connect', () => console.log('connected to socket'));
+    socket.on("connect_error", (err) => console.log(`connect_error due to ${err.message}`));
 
-socket.on('connect', () => console.log('connected to socket'));
-socket.on("connect_error", (err) => console.log(`connect_error due to ${err.message}`));
-
-const SocketProvider = ({ children, id }: any) => {
+    setSocket(socket);
+  }, [setSocket]);
 
     return (
-        <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
+        <socketStoreContext.Provider
+          value={{
+            socket,
+            setId,
+          }}
+        >
+          {children}
+        </socketStoreContext.Provider>
     );
 };
-export { SocketContext, SocketProvider };

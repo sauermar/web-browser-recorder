@@ -11,7 +11,7 @@ import { NavBarButton } from '../atoms/Button.style';
 import UrlForm from './UrlForm';
 import {Socket} from "socket.io-client";
 import {useContext, useEffect, useState} from "react";
-import {SocketContext} from "../../context/socket";
+import { useSocketStore } from "../../context/socket";
 
 const StyledNavBar = styled.div`
     display: flex;
@@ -35,7 +35,7 @@ const NavBar: FC<NavBarProps> = ({
    initialAddress,
 }) => {
     // context:
-    const socket = useContext(SocketContext);
+    const { socket } = useSocketStore();
     //state:
     const [history, setHistory] = useState<string[]>([initialAddress]);
     const [historyIndex, setHistoryIndex] = useState<number>(0);
@@ -49,7 +49,7 @@ const NavBar: FC<NavBarProps> = ({
     };
 
     useEffect(() => {
-        if (currentAddress !== initialAddress) {
+        if (currentAddress !== initialAddress && socket) {
             handleGoTo(socket, currentAddress);
         }
     }, [historyIndex, currentAddress, initialAddress, socket]);
@@ -84,7 +84,11 @@ const NavBar: FC<NavBarProps> = ({
 
             <NavBarButton
                 type="button"
-                onClick={() => handleRefresh(socket)}
+                onClick={() => {
+                  if (socket) {
+                    handleRefresh(socket)
+                  }
+                }}
                 disabled={ history.length === 1 }
             >
                 <FontAwesomeIcon

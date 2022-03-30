@@ -3,33 +3,31 @@ import React, {FC, useEffect, useState} from 'react';
 import NavBar from "../components/molecules/NavBar";
 import { BrowserWindow } from "../components/organisms/BrowserWindow";
 import { startRecording, stopRecording } from "../api/RemoteBrowserAPI";
-import { SocketProvider } from "../context/socket";
+import { useSocketStore } from "../context/socket";
 
 
 export const RecordPage: FC = () => {
-
-    const [id, setId] = useState<string>('');
+  const { setId } = useSocketStore();
 
     useEffect(() => {
-        const id = startRecording();
-        setId(id);
-        if (id) {
+        startRecording().then((id) => {
+          setId(id);
+          if (id) {
             // cleanup function when the component dismounts
             return () => {
-                stopRecording(id);
-            };
+              stopRecording(id);
+          };
         }
-    }, []);
+      });
+    }, [setId]);
 
     return (
-        <SocketProvider id={id}>
-            <div>
-                <NavBar
-                    initialAddress={'https://'}
-                >
-                </NavBar>
-                <BrowserWindow></BrowserWindow>
-            </div>
-        </SocketProvider>
+        <div>
+            <NavBar
+                initialAddress={'https://'}
+            >
+            </NavBar>
+            <BrowserWindow></BrowserWindow>
+        </div>
     );
 };

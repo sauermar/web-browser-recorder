@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useRef, useContext } from 'react';
-import { SocketContext } from '../../context/socket';
+import { useSocketStore } from '../../context/socket';
 import log from '../../api/loggerAPI';
 
 interface CreateRefCallback {
@@ -47,59 +47,63 @@ const throttle = (callback: any, limit: number) => {
 const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const socket = useContext(SocketContext);
+    const { socket } = useSocketStore();
 
     const lastMousePosition = useRef<Coordinates>({ x: 0, y: 0 });
      //const lastWheelPosition = useRef<ScrollDeltas>({ deltaX: 0, deltaY: 0 });
 
     const onMouseEvent = useCallback((event: MouseEvent) => {
-        switch (event.type){
-            case 'mousedown':
-                console.log('click registered and emitted');
-                const clickCoordinates = getCoordinates(event);
-                console.log(clickCoordinates);
-                socket.emit('input:mousedown', clickCoordinates);
-                break;
-            case 'mousemove':
-                const coordinates = getCoordinates(event);
-                if (lastMousePosition.current.x !== coordinates.x ||
-                    lastMousePosition.current.y !== coordinates.y) {
-                    log.debug('mousemove event registered');
-                    lastMousePosition.current = coordinates;
-                    socket.emit('input:mousemove', coordinates);
-                }
-                break;
-            case 'wheel':
-                console.log('wheel canvas event registered');
-                const wheelEvent= event as WheelEvent;
-                const deltas = {
-                    deltaX: Math.round(wheelEvent.deltaX),
-                    deltaY: Math.round(wheelEvent.deltaY),
-                };
-                console.log(deltas);
-                socket.emit('input:wheel', deltas);
-                break;
-            default:
-                console.log('Default mouseEvent registered');
-                return;
+        if (socket) {
+            switch (event.type) {
+                case 'mousedown':
+                    console.log('click registered and emitted');
+                    const clickCoordinates = getCoordinates(event);
+                    console.log(clickCoordinates);
+                    socket.emit('input:mousedown', clickCoordinates);
+                    break;
+                case 'mousemove':
+                    const coordinates = getCoordinates(event);
+                    if (lastMousePosition.current.x !== coordinates.x ||
+                      lastMousePosition.current.y !== coordinates.y) {
+                        log.debug('mousemove event registered');
+                        lastMousePosition.current = coordinates;
+                        socket.emit('input:mousemove', coordinates);
+                    }
+                    break;
+                case 'wheel':
+                    console.log('wheel canvas event registered');
+                    const wheelEvent = event as WheelEvent;
+                    const deltas = {
+                        deltaX: Math.round(wheelEvent.deltaX),
+                        deltaY: Math.round(wheelEvent.deltaY),
+                    };
+                    console.log(deltas);
+                    socket.emit('input:wheel', deltas);
+                    break;
+                default:
+                    console.log('Default mouseEvent registered');
+                    return;
+            }
         }
-    }, []);
+    }, [socket]);
 
     const onKeyboardEvent = useCallback((event: KeyboardEvent) => {
-        switch (event.type) {
-            case 'keydown':
-                console.log('Keydown event was triggered on canvas');
-                socket.emit('input:keydown', event.key);
-                break;
-            case 'keyup':
-                console.log('Keyup event was triggered on canvas');
-                socket.emit('input:keyup', event.key);
-                break;
-            default:
-                console.log('Default keyEvent registered');
-                return;
+        if (socket) {
+            switch (event.type) {
+                case 'keydown':
+                    console.log('Keydown event was triggered on canvas');
+                    socket.emit('input:keydown', event.key);
+                    break;
+                case 'keyup':
+                    console.log('Keyup event was triggered on canvas');
+                    socket.emit('input:keyup', event.key);
+                    break;
+                default:
+                    console.log('Default keyEvent registered');
+                    return;
+            }
         }
-    }, []);
+    }, [socket]);
 
 
     useEffect(() => {

@@ -1,13 +1,16 @@
 import React from 'react';
 
 import { RecordPage } from "./pages/RecordPage";
+import { SocketProvider } from "./context/socket";
 
-function App() {
+function App () {
 
   return (
-      <div>
-          <RecordPage></RecordPage>
-      </div>
+    <div>
+      <SocketProvider>
+        <RecordPage/>
+      </SocketProvider>
+    </div>
   );
 }
 
