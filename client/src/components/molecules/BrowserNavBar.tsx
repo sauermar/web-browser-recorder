@@ -19,7 +19,7 @@ const StyledNavBar = styled.div`
     background-color: #f6f6f6;
 `;
 
-type NavBarProps = {
+interface NavBarProps {
     initialAddress: string;
 };
 

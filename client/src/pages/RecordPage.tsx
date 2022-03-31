@@ -1,11 +1,16 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import styled from "styled-components";
 
 import { startRecording, stopRecording } from "../RemoteBrowserAPI";
-import { Browser } from "../components/organisms/Browser";
+import { BrowserContent } from "../components/organisms/BrowserContent";
 import { NavBar } from "../components/molecules/NavBar";
+import { SlidingPanel } from "../components/organisms/SlidingPanel";
+import { ToggleButton } from "../components/molecules/ToggleButton";
 
 export const RecordPage: FC = () => {
+
+  const [openLeftPanel, setOpenLeftPanel] = useState<boolean>(true);
+  const [isChecked, setIsChecked] = useState<boolean>(true);
 
   useEffect(() => {
     const id = startRecording();
@@ -18,7 +23,12 @@ export const RecordPage: FC = () => {
   return (
     <Layout>
       <NavBar/>
-      <Browser/>
+      <StyledSlidingPanel type={'left'} size={30} isOpen={openLeftPanel}/>
+      <BrowserContent/>
+      <ToggleButton isChecked={isChecked} onChange={() => {
+        setIsChecked(!isChecked);
+        setOpenLeftPanel(!openLeftPanel);
+      }}>Left</ToggleButton>
     </Layout>
   );
 };
@@ -31,6 +41,11 @@ const Layout = styled.div`
   grid-template-rows: 50px auto;
   grid-template-areas: 
     "navbar navbar navbar"
-    "recording browser actions"
+    "workflow browser actions"
   ;
 `;
+
+const StyledSlidingPanel = styled(SlidingPanel)`
+  grid-area: workflow;
+`;
+

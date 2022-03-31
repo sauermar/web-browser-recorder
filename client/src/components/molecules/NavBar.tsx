@@ -5,6 +5,7 @@ import styled from "styled-components";
 export const NavBar = () => {
   return (
     <NavBarWrapper>
+      <ProjectName>Recorder</ProjectName>
       <NavBarLine/>
     </NavBarWrapper>
   );
@@ -19,5 +20,9 @@ const NavBarLine = styled.hr`
 
 const NavBarWrapper = styled.div`
   grid-area: navbar;
-  padding-top: 40px;
+`;
+
+const ProjectName = styled.b`
+  padding: 15px;
+  display: inline-block;
 `;
