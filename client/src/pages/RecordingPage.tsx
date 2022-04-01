@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Grid, Switch, Slide } from '@mui/material';
+import { Grid, Switch, Slide, Paper } from '@mui/material';
 import styled from "styled-components";
 
 export const RecordingPage = () => {
@@ -10,13 +10,17 @@ export const RecordingPage = () => {
 
   return (
     <div>
-    <div>parent</div>
+      <NavBar/>
       <Grid container direction="row" spacing={0} alignItems="stretch" justifyContent="center">
-        <Grid item xs={ panelsState["left"] ? 3 : 0} >
+        <Grid item xs={ panelsState["left"] ? 3 : 0} style={{ display: "flex", flexDirection: "row" }}>
             <Slide direction="right" in={panelsState["left"]} mountOnEnter unmountOnExit>
-              <StyledDiv>
-                <p>Hello</p>
-              </StyledDiv>
+              <Paper
+                sx={{
+                  height: '100%',
+                  width: '100%',
+                  backgroundColor: 'lightgray',
+                }}
+              />
             </Slide>
         </Grid>
         <Grid item xs>
@@ -44,9 +48,13 @@ export const RecordingPage = () => {
   );
 };
 
+const NavBar = styled.div`
+  padding: 20px;
+`;
+
 const StyledDiv = styled.div`
   display: flex;
-  background-color: rebeccapurple;
+  background-color: lightgray;
 `;
 
 const StyledDiv2 = styled.div`
