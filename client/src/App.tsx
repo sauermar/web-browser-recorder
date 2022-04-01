@@ -1,18 +1,16 @@
 import React from 'react';
-import './App.css';
 
-import { SocketProvider } from './context/socket';
 import { RecordPage } from "./pages/RecordPage";
-import { RecordingPage } from "./pages/RecordingPage";
+import { SocketProvider } from "./context/socket";
 
-function App() {
+function App () {
 
   return (
+    <div>
       <SocketProvider>
-        <div>
-            <RecordingPage/>
-        </div>
+        <RecordPage/>
       </SocketProvider>
+    </div>
   );
 }
 

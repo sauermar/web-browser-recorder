@@ -1,7 +1,7 @@
 /**
  * A set of functions handling user input on a remote browser recording session from client.
  */
-import { Server, Socket } from 'socket.io';
+import { Server, Namespace, Socket } from 'socket.io';
 
 import logger from "../logger";
 import { Coordinates, ScrollDeltas } from '../interfaces/Input';

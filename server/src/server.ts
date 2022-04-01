@@ -13,16 +13,19 @@ import { recordRoutes } from './routes';
 import { BrowserPool } from "./browser-management/classes/BrowserPool";
 import logger from './logger'
 import { SERVER_PORT } from "./constants/config";
+import {Server} from "socket.io";
 
 const app = express();
 // enabling cors for communication with client on a different port/domain
 app.use(cors());
 
-export const server = http.createServer(app);
+const server = http.createServer(app);
+
+export const io = new Server(server);
 export const browserPool = new BrowserPool();
 
-// subscription for api routes
-app.use('/record', recordRoutes);
+app.use('/record', routes.record);
+app.use('/log', routes.log);
 
 app.get('/', function (req, res) {
     return res.send('Welcome to the BR recorder server :-)');

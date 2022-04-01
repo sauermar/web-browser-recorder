@@ -11,26 +11,24 @@ export const BrowserWindow = () => {
     const [canvasRef, setCanvasReference] = useState<React.RefObject<HTMLCanvasElement> | undefined>(undefined);
     const [screenShot, setScreenShot] = useState<string>("");
 
-    const socket = useContext(SocketContext);
+    const { socket } = useSocketStore();
 
     useEffect(() =>  {
         console.log('Effect from BrWindow');
 
-        socket.on("screencast", data => {
-            setScreenShot(data);
-        });
-
-        if (canvasRef?.current) {
-
-            drawImage(screenShot, canvasRef.current);
-
-        } else {
-
-            console.log('Canvas is not initialized');
-
+        if (socket) {
+            socket.on("screencast", data => {
+                setScreenShot(data);
+            });
         }
 
-    }, [screenShot, canvasRef]);
+        if (canvasRef?.current) {
+            drawImage(screenShot, canvasRef.current);
+        } else {
+            console.log('Canvas is not initialized');
+        }
+
+    }, [screenShot, canvasRef, socket]);
 
     return (
         <Canvas

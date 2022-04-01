@@ -22,7 +22,7 @@ const UrlForm: FC<Props> = ({
     // states:
     const [address, setAddress] = useState<string>(currentAddress);
     // context:
-    const socket = useContext(SocketContext);
+    const { socket } = useSocketStore();
 
     const areSameAddresses = address === currentAddress;
 
@@ -34,7 +34,9 @@ const UrlForm: FC<Props> = ({
         event.preventDefault();
 
         if (areSameAddresses) {
-            handleRefresh(socket);
+            if (socket) {
+                handleRefresh(socket);
+            }
         } else {
             try {
                 // try the validity of url

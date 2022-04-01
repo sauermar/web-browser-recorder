@@ -1,6 +1,7 @@
-/**
- * Default file for exporting api routes.
- */
-import recordRoutes from './record';
+import record from './record';
+import log from './log';
 
-export { recordRoutes };
+export default {
+    record,
+    log,
+};
