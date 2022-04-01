@@ -7,7 +7,7 @@ import { createRemoteBrowser, destroyRemoteBrowser } from '../browser-management
 import { chromium } from "playwright";
 import logger from "../logger";
 
-const router = Router();
+export const router = Router();
 
 /**
  * Logs information about remote browser recording session.
@@ -49,5 +49,3 @@ router.get('/stop/:browserId', async (req, res) => {
     const success = await destroyRemoteBrowser(req.params.browserId);
     return res.send(success);
 });
-
-export default router;

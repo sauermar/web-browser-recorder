@@ -1,7 +1,7 @@
-import record from './record';
-import log from './log';
+import { router as record}  from './record';
+import { router as log} from './log';
 
-export default {
+export {
     record,
     log,
 };

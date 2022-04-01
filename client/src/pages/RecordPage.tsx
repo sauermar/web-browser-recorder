@@ -1,8 +1,5 @@
 import React, {FC, useEffect, useState} from 'react';
 import styled from "styled-components";
-
-import NavBar from "../components/molecules/NavBar";
-import { BrowserWindow } from "../components/organisms/BrowserWindow";
 import { startRecording, stopRecording } from "../api/RemoteBrowserAPI";
 import { useSocketStore } from "../context/socket";
 import { BrowserContent } from "../components/organisms/BrowserContent";

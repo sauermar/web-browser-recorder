@@ -4,7 +4,7 @@ import logger from "../logger";
 import ErrnoException = NodeJS.ErrnoException;
 import { LOGS_PATH } from "../constants/config";
 
-const router = Router();
+export const router = Router();
 
 router.post('/',(req, res) => {
     console.dir(req.body);
@@ -17,5 +17,3 @@ router.post('/',(req, res) => {
         })
     }
 });
-
-export default router;

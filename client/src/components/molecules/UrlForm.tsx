@@ -5,7 +5,7 @@ import { definition as faAngleRight } from '@fortawesome/free-solid-svg-icons/fa
 
 import { NavBarForm, NavBarInput } from "../atoms/form";
 import { UrlFormButton } from "../atoms/buttons";
-import { SocketContext } from '../../context/socket';
+import { useSocketStore } from '../../context/socket';
 import {Socket} from "socket.io-client";
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
     setCurrentAddress: (address: string) => void;
 };
 
-const UrlForm: FC<Props> = ({
+export const UrlForm: FC<Props> = ({
     currentAddress,
     handleRefresh,
     setCurrentAddress,
@@ -65,5 +65,3 @@ const UrlForm: FC<Props> = ({
         </NavBarForm>
     );
 };
-
-export default UrlForm;

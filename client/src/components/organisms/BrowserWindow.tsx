@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { SocketContext } from '../../context/socket';
+import { useSocketStore } from '../../context/socket';
 import Canvas from "../atoms/canvas";
 
 const VIEWPORT_W = 950;
