@@ -1,10 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useSocketStore } from '../../context/socket';
 import Canvas from "../atoms/canvas";
-
-export const VIEWPORT_W = 937;
-export const VIEWPORT_H = 580;
-
+import {BROWSER_H, BROWSER_W} from "../../constants/const";
 
 export const BrowserWindow = () => {
 
@@ -33,8 +30,8 @@ export const BrowserWindow = () => {
     return (
         <Canvas
             onCreateRef={setCanvasReference}
-            width={VIEWPORT_W}
-            height={VIEWPORT_H}
+            width={BROWSER_W}
+            height={BROWSER_H}
         />
     );
 };

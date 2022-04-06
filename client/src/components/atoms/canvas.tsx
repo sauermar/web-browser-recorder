@@ -1,6 +1,8 @@
 import React, {useCallback, useEffect, useRef} from 'react';
 import { useSocketStore } from '../../context/socket';
 import log from '../../api/loggerAPI';
+import {ONE_PERCENT_OF_BROWSER_W, ONE_PERCENT_OF_BROWSER_H,
+    ONE_PERCENT_OF_VIEWPORT_H, ONE_PERCENT_OF_VIEWPORT_W} from "../../constants/const";
 
 interface CreateRefCallback {
 
@@ -44,6 +46,45 @@ const throttle = (callback: any, limit: number) => {
     }
 }
 
+const mapPixelFromSmallerToLarger = (
+  onePercentOfSmallerScreen: number,
+  onePercentOfLargerScreen: number,
+  pixel: number
+) : number => {
+    const xPercentOfScreen = pixel / onePercentOfSmallerScreen;
+    return Math.round(xPercentOfScreen * onePercentOfLargerScreen);
+};
+
+const getMappedCoordinates = (event: MouseEvent, canvas: HTMLCanvasElement | null): Coordinates => {
+    const clientCoordinates = getCoordinates(event, canvas);
+    console.log(clientCoordinates);
+    const mappedX = mapPixelFromSmallerToLarger(
+      ONE_PERCENT_OF_BROWSER_W,
+      ONE_PERCENT_OF_VIEWPORT_W,
+      clientCoordinates.x,
+    );
+    const mappedY = mapPixelFromSmallerToLarger(
+      ONE_PERCENT_OF_BROWSER_H,
+      ONE_PERCENT_OF_VIEWPORT_H,
+      clientCoordinates.y,
+    );
+
+    return {
+        x: mappedX,
+        y: mappedY
+    };
+};
+
+const getCoordinates = (event: MouseEvent, canvas: HTMLCanvasElement | null): Coordinates => {
+    if (!canvas) {
+        return { x: 0, y: 0};
+    }
+    return {
+        x: event.pageX - canvas.offsetLeft,
+        y: event.pageY - canvas.offsetTop
+    };
+};
+
 const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -57,12 +98,12 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
             switch (event.type) {
                 case 'mousedown':
                     console.log('click registered and emitted');
-                    const clickCoordinates = getCoordinates(event);
+                    const clickCoordinates = getMappedCoordinates(event, canvasRef.current);
                     console.log(clickCoordinates);
                     socket.emit('input:mousedown', clickCoordinates);
                     break;
                 case 'mousemove':
-                    const coordinates = getCoordinates(event);
+                    const coordinates = getMappedCoordinates(event, canvasRef.current);
                     if (lastMousePosition.current.x !== coordinates.x ||
                       lastMousePosition.current.y !== coordinates.y) {
                         log.debug('mousemove event registered');
@@ -132,17 +173,6 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
         }
 
     }, [onMouseEvent]);
-
-    const getCoordinates = (event: MouseEvent): Coordinates => {
-        if (!canvasRef.current) {
-            return { x: 0, y: 0};
-        }
-        const canvas: HTMLCanvasElement = canvasRef.current;
-        return {
-            x: event.pageX - canvas.offsetLeft,
-            y: event.pageY - canvas.offsetTop
-        };
-    };
 
     return (
             <canvas tabIndex={0} ref={canvasRef}  height={height} width={width} />
