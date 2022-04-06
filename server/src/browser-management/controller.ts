@@ -8,6 +8,7 @@ import { createSocketConnection } from "../socket-connection/connection";
 import { io, browserPool } from "../server";
 import { RemoteBrowser } from "./classes/RemoteBrowser";
 import { RemoteBrowserOptions } from "../interfaces/Input";
+import logger from "../logger";
 
 /**
  * Starts a remote browser recording session.
@@ -34,6 +35,7 @@ export const createRemoteBrowser = (options: RemoteBrowserOptions): string => {
 export const destroyRemoteBrowser = async (id: string) : Promise<boolean> => {
     const browserSession = browserPool.getRemoteBrowser(id);
     if (browserSession) {
+        logger.log('debug', `Switching off the browser with id: ${id}`);
         await browserSession.switchOff();
     }
     return browserPool.deleteRemoteBrowser(id);

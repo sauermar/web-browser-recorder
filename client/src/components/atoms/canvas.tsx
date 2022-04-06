@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useContext } from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
 import { useSocketStore } from '../../context/socket';
 import log from '../../api/loggerAPI';
 
@@ -147,14 +147,6 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
     return (
             <canvas tabIndex={0} ref={canvasRef}  height={height} width={width} />
     );
-
-};
-
-Canvas.defaultProps = {
-
-    width: window.innerWidth,
-
-    height: window.innerHeight,
 
 };
 

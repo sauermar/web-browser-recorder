@@ -1,17 +1,15 @@
 import React from 'react';
 import styled from "styled-components";
 import BrowserNavBar from "../molecules/BrowserNavBar";
-import { BrowserWindow } from "./BrowserWindow";
-import { ToggleButton } from "../molecules/ToggleButton";
+import { BrowserWindow, VIEWPORT_W } from "./BrowserWindow";
 
 export const BrowserContent = () => (
     <BrowserContentWrapper>
-      <BrowserNavBar initialAddress={'https://'}/>
+      <BrowserNavBar initialAddress={'https://'} browserWidth={VIEWPORT_W}/>
       <BrowserWindow/>
     </BrowserContentWrapper>
 );
 
 const BrowserContentWrapper = styled.div`
   grid-area: browser;
-  padding: 10px;
 `;

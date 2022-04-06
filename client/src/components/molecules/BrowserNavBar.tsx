@@ -13,14 +13,16 @@ import {Socket} from "socket.io-client";
 import {useContext, useEffect, useState} from "react";
 import {useSocketStore} from "../../context/socket";
 
-const StyledNavBar = styled.div`
+const StyledNavBar = styled.div<{ browserWidth: number }>`
     display: flex;
     padding: 5px;
     background-color: #f6f6f6;
+    width: ${({ browserWidth }) => browserWidth}px;
 `;
 
 interface NavBarProps {
     initialAddress: string;
+    browserWidth: number;
 };
 
 const handleRefresh = (socket: Socket) : void => {
@@ -33,6 +35,7 @@ const handleGoTo = (socket : Socket, address: string) : void => {
 
 const BrowserNavBar: FC<NavBarProps> = ({
    initialAddress,
+  browserWidth,
 }) => {
     // context:
     const { socket } = useSocketStore();
@@ -55,7 +58,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
     }, [historyIndex, currentAddress, initialAddress, socket]);
 
     return (
-        <StyledNavBar>
+        <StyledNavBar browserWidth={browserWidth}>
             <NavBarButton
                 type="button"
                 onClick={() => {
