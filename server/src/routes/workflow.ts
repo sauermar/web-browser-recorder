@@ -23,7 +23,7 @@ router.all('/', (req, res, next) => {
 router.get('/:browserId', (req, res) => {
   const activeBrowser = browserPool.getRemoteBrowser(req.params.browserId);
   let workflowFile = null;
-  if (activeBrowser) {
+  if (activeBrowser && activeBrowser.generator) {
     workflowFile = activeBrowser.generator.getWorkflowFile();
   }
   return res.send(workflowFile);

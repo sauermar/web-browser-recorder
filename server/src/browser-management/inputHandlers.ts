@@ -11,12 +11,10 @@ const handleMousedown = async ( { x, y }: Coordinates) => {
     logger.log('debug', 'Handling mousedown event emitted from client');
     const id = browserPool.getActiveBrowserId();
     const activeBrowser = browserPool.getRemoteBrowser(id);
-    if (activeBrowser) {
+    if (activeBrowser && activeBrowser.generator) {
         await activeBrowser.currentPage!.mouse.click(x, y);
         logger.log('info', `Clicked on position x:${x}, y:${y}`);
         activeBrowser.generator.onClick({x,y});
-        const workflow = activeBrowser.generator.getWorkflowFile();
-        activeBrowser.emitWorkflow(workflow);
     } else {
         logger.log('warn', `Did not clicked, because there is no active browser`);
     }
@@ -74,9 +72,10 @@ const handleChangeUrl = async (url: string) => {
     logger.log('debug', 'Handling changing of url')
     const id = browserPool.getActiveBrowserId();
     const activeBrowser = browserPool.getRemoteBrowser(id);
-    if (activeBrowser && url) {
+    if (activeBrowser && url && activeBrowser.generator) {
         await activeBrowser.currentPage!.goto(url);
         logger.log('info', `Went to ${url}`);
+        activeBrowser.generator.onChangeUrl(url);
     } else {
         logger.log('warn', `Did not go to ${url}, because there is no active browser`);
     }

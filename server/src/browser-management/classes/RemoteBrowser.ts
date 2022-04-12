@@ -22,11 +22,10 @@ export class RemoteBrowser {
 
     public currentPage : Page | null = null;
 
-    public generator: WorkflowGenerator;
+    public generator: WorkflowGenerator | null = null;
 
     public constructor(socket: Socket){
         this.socket = socket;
-        this.generator = new WorkflowGenerator();
     }
 
     /**
@@ -43,6 +42,7 @@ export class RemoteBrowser {
         this.pages = this.pages.concat([this.currentPage]);
         //initialize CDP session
         this.client = await this.currentPage.context().newCDPSession(this.currentPage);
+        this.generator = new WorkflowGenerator(this.currentPage, this.socket);
     };
 
     /**
@@ -115,10 +115,5 @@ export class RemoteBrowser {
         const dataWithMimeType = ('data:image/jpeg;base64,').concat(payload);
         this.socket.emit('screencast', dataWithMimeType);
         logger.log('debug',`Screenshot emitted`);
-    };
-
-    public emitWorkflow = (workflow: WorkflowFile) => {
-      this.socket.emit('workflow', workflow);
-      logger.log('debug',`Workflow emitted`);
     };
 };
