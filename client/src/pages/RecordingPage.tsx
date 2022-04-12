@@ -4,8 +4,8 @@ import styled from "styled-components";
 import { NavBar } from "../components/molecules/NavBar";
 import { BrowserContent } from "../components/organisms/BrowserContent";
 import { useSocketStore } from "../context/socket";
-import { startRecording, stopRecording } from "../api/RemoteBrowserAPI";
-import { PauseCircle, PlayCircle, StopCircle } from "@mui/icons-material";
+import { startRecording, stopRecording } from "../api/remoteBrowser";
+import { SidePanel } from "../components/organisms/SidePanel";
 
 // very frontend minimalistic prototype using MUI framework
 export const RecordingPage = () => {
@@ -33,24 +33,8 @@ export const RecordingPage = () => {
       <NavBar/>
       <Grid container direction="row" spacing={0}>
         <Grid item xs={ panelsState["left"] ? 2 : 0} style={{ display: "flex", flexDirection: "row" }}>
-            <Slide direction="right" in={panelsState["left"]} mountOnEnter unmountOnExit>
-              <Paper
-                sx={{
-                  height: '100%',
-                  width: '100%',
-                  backgroundColor: 'lightgray',
-                  alignItems: "center",
-                }}
-              >
-                <RecordingIcons/>
-                <Button variant="outlined" size="medium"   sx={{
-                  width: 236,
-                  color: 'darkgray',
-                  outline: 'darkgrey',
-                }}>Rule 1</Button>
-
-              </Paper>
-            </Slide>
+          {/*<Slide direction="right" in={panelsState["left"]} mountOnEnter unmountOnExit>*/}
+              <SidePanel/>
         </Grid>
         <Grid item xs>
             <BrowserContent/>
@@ -82,19 +66,3 @@ export const RecordingPage = () => {
 const RightSwitch = styled(Switch)`
   float: right;
 `;
-
-const RecordingIcons = () => {
-  return (
-    <Stack direction="row" spacing={1}>
-      <IconButton aria-label="pause" size="large">
-        <PauseCircle sx={{ fontSize: 40 }}/>
-      </IconButton>
-      <IconButton aria-label="play" size="large">
-        <PlayCircle sx={{ fontSize: 40 }}/>
-      </IconButton>
-      <IconButton aria-label="stop" size="large">
-        <StopCircle sx={{ fontSize: 40 }}/>
-      </IconButton>
-    </Stack>
-  );
-};

@@ -14,6 +14,9 @@ const handleMousedown = async ( { x, y }: Coordinates) => {
     if (activeBrowser) {
         await activeBrowser.currentPage!.mouse.click(x, y);
         logger.log('info', `Clicked on position x:${x}, y:${y}`);
+        activeBrowser.generator.onClick({x,y});
+        const workflow = activeBrowser.generator.getWorkflowFile();
+        activeBrowser.emitWorkflow(workflow);
     } else {
         logger.log('warn', `Did not clicked, because there is no active browser`);
     }

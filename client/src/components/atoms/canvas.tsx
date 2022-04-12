@@ -1,8 +1,7 @@
 import React, {useCallback, useEffect, useRef} from 'react';
 import { useSocketStore } from '../../context/socket';
-import log from '../../api/loggerAPI';
-import {ONE_PERCENT_OF_BROWSER_W, ONE_PERCENT_OF_BROWSER_H,
-    ONE_PERCENT_OF_VIEWPORT_H, ONE_PERCENT_OF_VIEWPORT_W} from "../../constants/const";
+import log from '../../api/logger';
+import { getMappedCoordinates } from "../../functions/inputHelpers";
 
 interface CreateRefCallback {
 
@@ -23,66 +22,9 @@ interface CanvasProps {
 /**
  * Interface for mouse's x,y coordinates
  */
-interface Coordinates {
+export interface Coordinates {
     x: number;
     y: number;
-};
-
-interface ScrollDeltas {
-    deltaX: number;
-    deltaY: number;
-}
-
-const throttle = (callback: any, limit: number) => {
-    let wait = false;
-    return (...args: any[]) => {
-        if (!wait) {
-            callback(...args);
-            wait = true;
-            setTimeout(function () {
-                wait = false;
-            }, limit);
-        }
-    }
-}
-
-const mapPixelFromSmallerToLarger = (
-  onePercentOfSmallerScreen: number,
-  onePercentOfLargerScreen: number,
-  pixel: number
-) : number => {
-    const xPercentOfScreen = pixel / onePercentOfSmallerScreen;
-    return Math.round(xPercentOfScreen * onePercentOfLargerScreen);
-};
-
-const getMappedCoordinates = (event: MouseEvent, canvas: HTMLCanvasElement | null): Coordinates => {
-    const clientCoordinates = getCoordinates(event, canvas);
-    console.log(clientCoordinates);
-    const mappedX = mapPixelFromSmallerToLarger(
-      ONE_PERCENT_OF_BROWSER_W,
-      ONE_PERCENT_OF_VIEWPORT_W,
-      clientCoordinates.x,
-    );
-    const mappedY = mapPixelFromSmallerToLarger(
-      ONE_PERCENT_OF_BROWSER_H,
-      ONE_PERCENT_OF_VIEWPORT_H,
-      clientCoordinates.y,
-    );
-
-    return {
-        x: mappedX,
-        y: mappedY
-    };
-};
-
-const getCoordinates = (event: MouseEvent, canvas: HTMLCanvasElement | null): Coordinates => {
-    if (!canvas) {
-        return { x: 0, y: 0};
-    }
-    return {
-        x: event.pageX - canvas.offsetLeft,
-        y: event.pageY - canvas.offsetTop
-    };
 };
 
 const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {

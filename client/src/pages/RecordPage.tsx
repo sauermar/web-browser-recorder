@@ -1,6 +1,6 @@
 import React, {FC, useEffect, useState} from 'react';
 import styled from "styled-components";
-import { startRecording, stopRecording } from "../api/RemoteBrowserAPI";
+import { startRecording, stopRecording } from "../api/remoteBrowser";
 import { useSocketStore } from "../context/socket";
 import { BrowserContent } from "../components/organisms/BrowserContent";
 import { NavBar } from "../components/molecules/NavBar";

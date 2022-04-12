@@ -5,11 +5,13 @@ const SERVER_ENDPOINT = 'http://localhost:8080';
 
 interface SocketState {
   socket: Socket | null;
+  id: string;
   setId: (id: string) => void;
 };
 
 class SocketStore implements Partial<SocketState>{
   socket = null;
+  id = '';
 };
 
 const socketStore = new SocketStore();
@@ -19,6 +21,7 @@ export const useSocketStore = () => useContext(socketStoreContext);
 
 export const SocketProvider = ({ children }: { children: JSX.Element }) => {
   const [socket, setSocket] = useState<Socket | null>(socketStore.socket);
+  const [id, setActiveId] = useState<string>(socketStore.id);
 
   const setId = useCallback((id: string) => {
     console.log(id);
@@ -33,12 +36,14 @@ export const SocketProvider = ({ children }: { children: JSX.Element }) => {
     socket.on("connect_error", (err) => console.log(`connect_error due to ${err.message}`));
 
     setSocket(socket);
+    setActiveId(id);
   }, [setSocket]);
 
     return (
         <socketStoreContext.Provider
           value={{
             socket,
+            id,
             setId,
           }}
         >

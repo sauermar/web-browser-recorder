@@ -7,6 +7,8 @@ import { Socket } from "socket.io";
 
 import logger from '../../logger';
 import { RemoteBrowserOptions } from "../../interfaces/Input";
+import { WorkflowGenerator } from "../../workflow-management/generator";
+import { WorkflowFile } from "@wbr-project/wbr-interpret";
 
 export class RemoteBrowser {
 
@@ -20,8 +22,11 @@ export class RemoteBrowser {
 
     public currentPage : Page | null = null;
 
+    public generator: WorkflowGenerator;
+
     public constructor(socket: Socket){
         this.socket = socket;
+        this.generator = new WorkflowGenerator();
     }
 
     /**
@@ -110,5 +115,10 @@ export class RemoteBrowser {
         const dataWithMimeType = ('data:image/jpeg;base64,').concat(payload);
         this.socket.emit('screencast', dataWithMimeType);
         logger.log('debug',`Screenshot emitted`);
+    };
+
+    public emitWorkflow = (workflow: WorkflowFile) => {
+      this.socket.emit('workflow', workflow);
+      logger.log('debug',`Workflow emitted`);
     };
 };
