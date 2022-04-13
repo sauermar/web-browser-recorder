@@ -4,20 +4,33 @@ import { PauseCircle, PlayCircle, StopCircle } from "@mui/icons-material";
 import { getActiveWorkflow } from "../../api/workflow";
 import { useSocketStore } from '../../context/socket';
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
-import { WhereWhatPair } from "@wbr-project/wbr-interpret/build/workflow";
+import { Pair } from "../molecules/Pair";
+
+const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) => {
+  getActiveWorkflow(id).then(
+    (response ) => {
+      if (response){
+        callback(response);
+      } else {
+        throw new Error("No workflow found");
+      }
+    }
+  ).catch((error) => {console.log(error)})
+};
 
 export const SidePanel = () => {
   const [workflow, setWorkflow] = useState<WorkflowFile | null>(null);
 
   const { id, socket } = useSocketStore();
 
-  const fetchWorkflow = () => {
-    getActiveWorkflow(id).then(
-      (response ) => {
-        setWorkflow(response);
-      }
-    ).catch((error) => {console.log(error)})
-  };
+  useEffect(() => {
+    let interval = setInterval(() =>{
+    if (id) {
+      fetchWorkflow(id, setWorkflow);
+      console.log("Fetching workflow successful!!!!!!");
+    }}, (1000 * 60 * 15));
+    return () => clearInterval(interval)
+  }, [id]);
 
   useEffect(() => {
     if (socket) {
@@ -25,7 +38,6 @@ export const SidePanel = () => {
         setWorkflow(data);
       });
     }
-
   }, [workflow, socket]);
 
   return (
@@ -39,13 +51,10 @@ export const SidePanel = () => {
     >
       <RecordingIcons/>
       {workflow ?
-        workflow.workflow.map((object, i) =>
-          <Button variant="outlined" size="medium"   sx={{
-            width: 236,
-            color: 'darkgray',
-            outline: 'darkgrey',
-          }} >Rule{i}</Button>
+        workflow.workflow.map((pair, i) =>
+          <Pair index={i} pair={pair}/>
         ) : null}
+
     </Paper>
   );
 

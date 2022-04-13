@@ -33,8 +33,11 @@ export const RecordingPage = () => {
       <NavBar/>
       <Grid container direction="row" spacing={0}>
         <Grid item xs={ panelsState["left"] ? 2 : 0} style={{ display: "flex", flexDirection: "row" }}>
-          {/*<Slide direction="right" in={panelsState["left"]} mountOnEnter unmountOnExit>*/}
+          <Slide direction="right" in={panelsState["left"]} mountOnEnter unmountOnExit>
+            <div>
               <SidePanel/>
+            </div>
+          </Slide>
         </Grid>
         <Grid item xs>
             <BrowserContent/>
