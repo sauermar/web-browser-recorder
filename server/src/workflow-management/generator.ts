@@ -43,13 +43,17 @@ export class WorkflowGenerator {
     this.addPairToWorkflowAndNotifyClient(pair);
   };
 
-  public onChangeUrl = (url: string) => {
+  public onChangeUrl = () => {
+    const previousUrl = this.workflowRecord.workflow[this.workflowRecord.workflow.length - 1]?.where.url;
     const pair: WhereWhatPair = {
-      where: { url: this.page.url() },
+      where: {},
       what: [{
         action: 'goto',
-        args: [url],
+        args: [this.page.url()],
       }],
+    }
+    if (previousUrl) {
+      pair.where.url = previousUrl;
     }
     this.addPairToWorkflowAndNotifyClient(pair);
   };

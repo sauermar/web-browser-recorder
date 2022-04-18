@@ -75,7 +75,7 @@ const handleChangeUrl = async (url: string) => {
     if (activeBrowser && url && activeBrowser.generator) {
         await activeBrowser.currentPage!.goto(url);
         logger.log('info', `Went to ${url}`);
-        activeBrowser.generator.onChangeUrl(url);
+        activeBrowser.generator.onChangeUrl();
     } else {
         logger.log('warn', `Did not go to ${url}, because there is no active browser`);
     }
