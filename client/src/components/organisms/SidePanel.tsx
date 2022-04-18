@@ -52,7 +52,7 @@ export const SidePanel = () => {
       <RecordingIcons/>
       {workflow ?
         workflow.workflow.map((pair, i) =>
-          <Pair index={i} pair={pair}/>
+          <Pair key={i} index={i} pair={pair}/>
         ) : null}
 
     </Paper>

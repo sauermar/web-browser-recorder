@@ -27,3 +27,19 @@ export const stopRecording = (id: string): void => {
             console.log(error);
         });
 };
+
+//TODO this is for development only, needs to be rewritten
+export const getActiveBrowserId = async(): Promise<string> => {
+    try {
+        const response = await axios.get('http://localhost:8080/record/active');
+        console.log(response);
+        if (response.status === 200) {
+            return response.data;
+        } else {
+            throw new Error('Couldn\'t get active browser');
+        }
+    } catch(error: any) {
+        console.log(error);
+        return '';
+    }
+};

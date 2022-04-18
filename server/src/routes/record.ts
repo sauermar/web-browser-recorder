@@ -3,7 +3,7 @@
  */
 import { Router } from 'express';
 
-import { createRemoteBrowser, destroyRemoteBrowser } from '../browser-management/controller'
+import { createRemoteBrowser, destroyRemoteBrowser, getActiveBrowserId } from '../browser-management/controller'
 import { chromium } from "playwright";
 import logger from "../logger";
 
@@ -48,4 +48,11 @@ router.post('/start', (req, res) => {
 router.get('/stop/:browserId', async (req, res) => {
     const success = await destroyRemoteBrowser(req.params.browserId);
     return res.send(success);
+});
+
+// development only
+//TODO remove this endpoint and reprogram it
+router.get('/active', (req, res) => {
+    const id = getActiveBrowserId();
+    return res.send(id);
 });

@@ -40,3 +40,9 @@ export const destroyRemoteBrowser = async (id: string) : Promise<boolean> => {
     }
     return browserPool.deleteRemoteBrowser(id);
 };
+
+//TODO reprogram this
+// just for development
+export const getActiveBrowserId = () => {
+    return browserPool.getActiveBrowserId();
+};
