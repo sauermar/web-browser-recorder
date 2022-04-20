@@ -14,7 +14,7 @@ const handleMousedown = async ( { x, y }: Coordinates) => {
     if (activeBrowser && activeBrowser.generator) {
         await activeBrowser.currentPage!.mouse.click(x, y);
         logger.log('info', `Clicked on position x:${x}, y:${y}`);
-        activeBrowser.generator.onClick({x,y});
+        await activeBrowser.generator.onClick({x,y});
     } else {
         logger.log('warn', `Did not clicked, because there is no active browser`);
     }
