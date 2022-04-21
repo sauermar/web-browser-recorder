@@ -1,10 +1,10 @@
 /**
  * A set of functions handling user input on a remote browser recording session from client.
  */
-import { Server, Namespace, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 
 import logger from "../logger";
-import { Coordinates, ScrollDeltas } from '../interfaces/Input';
+import { Coordinates, ScrollDeltas, KeyboardInput } from '../interfaces/Input';
 import { browserPool } from "../server";
 
 const handleMousedown = async ( { x, y }: Coordinates) => {
@@ -12,9 +12,9 @@ const handleMousedown = async ( { x, y }: Coordinates) => {
     const id = browserPool.getActiveBrowserId();
     const activeBrowser = browserPool.getRemoteBrowser(id);
     if (activeBrowser && activeBrowser.generator) {
+        await activeBrowser.generator.onClick({x,y});
         await activeBrowser.currentPage!.mouse.click(x, y);
         logger.log('info', `Clicked on position x:${x}, y:${y}`);
-        await activeBrowser.generator.onClick({x,y});
     } else {
         logger.log('warn', `Did not clicked, because there is no active browser`);
     }
@@ -32,7 +32,7 @@ const handleWheel = async ( { deltaX, deltaY }: ScrollDeltas) => {
     }
 };
 
-const handleMousemove = async ({x, y}: Coordinates) => {
+const handleMousemove = async ({ x, y }: Coordinates) => {
     logger.log('debug', 'Handling mouseover event emitted from client');
     const id = browserPool.getActiveBrowserId();
     const activeBrowser = browserPool.getRemoteBrowser(id);
@@ -44,12 +44,14 @@ const handleMousemove = async ({x, y}: Coordinates) => {
     }
 }
 
-const handleKeydown = async (key: string) => {
+const handleKeydown = async ({ key, coordinates }: KeyboardInput) => {
     logger.log('debug', 'Handling keydown event')
     const id = browserPool.getActiveBrowserId();
     const activeBrowser = browserPool.getRemoteBrowser(id);
     if (activeBrowser) {
         await activeBrowser.currentPage!.keyboard.down(key);
+        await activeBrowser.generator?.onKeyboardInput(key, coordinates);
+
         logger.log('info', `Key ${key} pressed`);
     } else {
         logger.log('warn', `Did not press ${key} key, because there is no active browser`);
@@ -73,9 +75,9 @@ const handleChangeUrl = async (url: string) => {
     const id = browserPool.getActiveBrowserId();
     const activeBrowser = browserPool.getRemoteBrowser(id);
     if (activeBrowser && url && activeBrowser.generator) {
+        activeBrowser.generator.onChangeUrl(url);
         await activeBrowser.currentPage!.goto(url);
         logger.log('info', `Went to ${url}`);
-        activeBrowser.generator.onChangeUrl();
     } else {
         logger.log('warn', `Did not go to ${url}, because there is no active browser`);
     }

@@ -75,7 +75,7 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
             switch (event.type) {
                 case 'keydown':
                     console.log('Keydown event was triggered on canvas');
-                    socket.emit('input:keydown', event.key);
+                    socket.emit('input:keydown', { key: event.key, coordinates: lastMousePosition.current });
                     break;
                 case 'keyup':
                     console.log('Keyup event was triggered on canvas');

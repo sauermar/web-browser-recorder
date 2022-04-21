@@ -14,3 +14,8 @@ export interface RemoteBrowserOptions {
     browser: BrowserType
     launchOptions: LaunchOptions
 };
+
+export interface KeyboardInput {
+    key: string;
+    coordinates: Coordinates;
+}
