@@ -68,6 +68,17 @@ export class WorkflowGenerator {
     this.addPairToWorkflowAndNotifyClient(pair);
   };
 
+  public onScroll = () => {
+    const pair: WhereWhatPair = {
+      where: { url: this.page.url() },
+      what: [{
+        action: 'scroll',
+        args: [],
+      }],
+    }
+    this.addPairToWorkflowAndNotifyClient(pair);
+  };
+
   public getWorkflowFile = () => {
     return this.workflowRecord;
   };

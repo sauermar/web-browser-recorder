@@ -25,6 +25,7 @@ const handleWheel = async ( { deltaX, deltaY }: ScrollDeltas) => {
     const id = browserPool.getActiveBrowserId();
     const activeBrowser = browserPool.getRemoteBrowser(id);
     if (activeBrowser) {
+        activeBrowser.generator?.onScroll();
         await activeBrowser.currentPage!.mouse.wheel(deltaX, deltaY);
         logger.log('info', `Scrolled horizontally ${deltaX} pixels and vertically ${deltaY} pixels`);
     } else {
