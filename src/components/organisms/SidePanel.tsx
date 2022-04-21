@@ -1,4 +1,4 @@
-import { Button, IconButton, Paper, Stack } from "@mui/material";
+import { IconButton, Paper, Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { PauseCircle, PlayCircle, StopCircle } from "@mui/icons-material";
 import { getActiveWorkflow } from "../../api/workflow";

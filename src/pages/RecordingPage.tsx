@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Grid, Switch, Slide, Paper, Button, IconButton, Stack } from '@mui/material';
-import styled from "styled-components";
+import React, { useEffect } from 'react';
+import { Grid, Paper} from '@mui/material';
 import { NavBar } from "../components/molecules/NavBar";
 import { BrowserContent } from "../components/organisms/BrowserContent";
 import { useSocketStore } from "../context/socket";
@@ -9,10 +8,6 @@ import { SidePanel } from "../components/organisms/SidePanel";
 
 // frontend minimalistic prototype using MUI framework
 export const RecordingPage = () => {
-  const [panelsState, setPanelsState] = useState({
-    left: true,
-    right: true,
-  });
 
   const { setId } = useSocketStore();
 
@@ -43,40 +38,22 @@ export const RecordingPage = () => {
     <div>
       <NavBar/>
       <Grid container direction="row" spacing={0}>
-        <Grid item xs={ panelsState["left"] ? 2 : 0} style={{ display: "flex", flexDirection: "row" }}>
-          <Slide direction="right" in={panelsState["left"]} mountOnEnter unmountOnExit>
-            <div>
-              <SidePanel/>
-            </div>
-          </Slide>
+        <Grid item xs={ 2 } style={{ display: "flex", flexDirection: "row" }}>
+            <SidePanel/>
         </Grid>
         <Grid item xs>
             <BrowserContent/>
-          <Switch defaultChecked={panelsState["left"]} onClick={() => {
-            setPanelsState({...panelsState, ["left"]: !panelsState["left"]});
-          }} />
-          <RightSwitch defaultChecked={panelsState["right"]} onClick={() => {
-            setPanelsState({...panelsState, ["right"]: !panelsState["right"]});
-          }} />
         </Grid>
-        <Grid item xs={panelsState["right"] ? 2 : 0}>
-          {(panelsState["right"]) && (
-            <Slide direction="left" in={panelsState["right"]} mountOnEnter unmountOnExit>
-              <Paper
-                sx={{
-                  height: '100%',
-                  width: '100%',
-                  backgroundColor: 'lightgray',
-                  alignItems: "center",
-                }}/>
-            </Slide>
-          )}
+        <Grid item xs={ 2 }>
+            <Paper
+              sx={{
+                height: '100%',
+                width: '100%',
+                backgroundColor: 'lightgray',
+                alignItems: "center",
+              }}/>
         </Grid>
       </Grid>
     </div>
   );
 };
-
-const RightSwitch = styled(Switch)`
-  float: right;
-`;

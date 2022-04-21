@@ -157,3 +157,79 @@
 2022-04-21T22:00:55.926Z info: Moved over position x:209, y:118
 2022-04-21T22:00:55.927Z info: Moved over position x:226, y:74
 2022-04-21T22:00:55.945Z info: Moved over position x:260, y:9
+2022-04-21T22:10:15.177Z info: Server listening on port 8080
+2022-04-21T22:10:20.944Z warn: No active browser in the pool
+2022-04-21T22:10:20.949Z warn: No active browser in the pool
+2022-04-21T22:10:20.981Z info: Client connected
+2022-04-21T22:10:20.994Z info: Client connected
+2022-04-21T22:10:23.067Z info: Browser started with screencasting.
+2022-04-21T22:10:23.095Z info: Browser started with screencasting.
+2022-04-21T22:13:02.572Z info: Browser stopped with screencasting.
+2022-04-21T22:13:02.573Z info: Client connected
+2022-04-21T22:13:02.585Z info: Client connected
+2022-04-21T22:13:02.733Z warn: Remote browser with id: b2b92de0-3935-45a2-b717-17128e34b02c does not exist in the pool
+2022-04-21T22:13:03.845Z info: Browser started with screencasting.
+2022-04-21T22:13:03.944Z info: Browser started with screencasting.
+2022-04-21T22:13:21.685Z info: Browser stopped with screencasting.
+2022-04-21T22:13:21.689Z info: Client connected
+2022-04-21T22:13:22.725Z info: Browser started with screencasting.
+2022-04-21T22:13:36.713Z info: Moved over position x:12, y:135
+2022-04-21T22:13:36.714Z info: Moved over position x:78, y:384
+2022-04-21T22:13:36.715Z info: Moved over position x:137, y:610
+2022-04-21T22:13:39.020Z info: Moved over position x:414, y:664
+2022-04-21T22:13:41.989Z info: Moved over position x:15, y:289
+2022-04-21T22:13:41.991Z info: Moved over position x:33, y:282
+2022-04-21T22:13:42.008Z info: Moved over position x:59, y:264
+2022-04-21T22:13:42.009Z info: Moved over position x:83, y:243
+2022-04-21T22:13:42.027Z info: Moved over position x:111, y:205
+2022-04-21T22:13:42.049Z info: Moved over position x:123, y:176
+2022-04-21T22:13:42.063Z info: Moved over position x:129, y:149
+2022-04-21T22:13:42.075Z info: Moved over position x:129, y:132
+2022-04-21T22:13:42.093Z info: Moved over position x:124, y:109
+2022-04-21T22:13:42.108Z info: Moved over position x:120, y:98
+2022-04-21T22:13:42.125Z info: Moved over position x:115, y:88
+2022-04-21T22:13:42.141Z info: Moved over position x:111, y:86
+2022-04-21T22:13:42.158Z info: Moved over position x:103, y:82
+2022-04-21T22:13:42.176Z info: Moved over position x:93, y:76
+2022-04-21T22:13:42.191Z info: Moved over position x:89, y:73
+2022-04-21T22:13:42.208Z info: Moved over position x:86, y:72
+2022-04-21T22:13:42.225Z info: Moved over position x:83, y:71
+2022-04-21T22:13:42.242Z info: Moved over position x:83, y:70
+2022-04-21T22:13:42.274Z info: Moved over position x:83, y:61
+2022-04-21T22:13:42.292Z info: Moved over position x:88, y:41
+2022-04-21T22:13:42.308Z info: Moved over position x:89, y:29
+2022-04-21T22:13:45.946Z info: Moved over position x:19, y:401
+2022-04-21T22:13:45.961Z info: Moved over position x:66, y:392
+2022-04-21T22:13:45.977Z info: Moved over position x:120, y:387
+2022-04-21T22:13:45.993Z info: Moved over position x:171, y:384
+2022-04-21T22:13:46.010Z info: Moved over position x:279, y:379
+2022-04-21T22:13:46.026Z info: Moved over position x:369, y:377
+2022-04-21T22:13:46.044Z info: Moved over position x:427, y:377
+2022-04-21T22:13:46.060Z info: Moved over position x:505, y:377
+2022-04-21T22:13:46.076Z info: Moved over position x:588, y:379
+2022-04-21T22:13:46.094Z info: Moved over position x:685, y:384
+2022-04-21T22:13:46.110Z info: Moved over position x:745, y:390
+2022-04-21T22:13:46.128Z info: Moved over position x:799, y:395
+2022-04-21T22:13:46.144Z info: Moved over position x:823, y:396
+2022-04-21T22:13:46.160Z info: Moved over position x:825, y:396
+2022-04-21T22:13:46.320Z info: Moved over position x:825, y:395
+2022-04-21T22:13:46.361Z info: Moved over position x:823, y:395
+2022-04-21T22:13:46.361Z info: Moved over position x:825, y:395
+2022-04-21T22:13:46.378Z info: Moved over position x:837, y:394
+2022-04-21T22:13:46.395Z info: Moved over position x:859, y:389
+2022-04-21T22:13:46.412Z info: Moved over position x:911, y:384
+2022-04-21T22:13:46.427Z info: Moved over position x:945, y:384
+2022-04-21T22:13:46.444Z info: Moved over position x:993, y:382
+2022-04-21T22:13:46.461Z info: Moved over position x:1037, y:375
+2022-04-21T22:13:46.476Z info: Moved over position x:1056, y:372
+2022-04-21T22:13:46.494Z info: Moved over position x:1094, y:365
+2022-04-21T22:13:46.509Z info: Moved over position x:1125, y:355
+2022-04-21T22:13:46.528Z info: Moved over position x:1150, y:348
+2022-04-21T22:13:46.544Z info: Moved over position x:1182, y:336
+2022-04-21T22:13:46.560Z info: Moved over position x:1202, y:331
+2022-04-21T22:13:46.576Z info: Moved over position x:1224, y:328
+2022-04-21T22:13:46.594Z info: Moved over position x:1239, y:325
+2022-04-21T22:13:46.611Z info: Moved over position x:1257, y:323
+2022-04-21T22:13:46.628Z info: Moved over position x:1277, y:322
+2022-04-21T22:13:55.364Z info: Moved over position x:1164, y:43
+2022-04-21T22:13:55.381Z info: Moved over position x:1279, y:155
