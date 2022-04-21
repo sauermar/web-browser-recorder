@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { RecordPage } from "./pages/RecordPage";
 import { SocketProvider } from "./context/socket";
 import { RecordingPage } from "./pages/RecordingPage";
 
