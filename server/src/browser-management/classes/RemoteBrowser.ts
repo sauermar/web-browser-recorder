@@ -18,7 +18,7 @@ export class RemoteBrowser {
 
     private client : CDPSession | null = null;
 
-    private readonly socket : Socket;
+    private socket : Socket;
 
     public currentPage : Page | null = null;
 
@@ -115,5 +115,9 @@ export class RemoteBrowser {
         const dataWithMimeType = ('data:image/jpeg;base64,').concat(payload);
         this.socket.emit('screencast', dataWithMimeType);
         logger.log('debug',`Screenshot emitted`);
+    };
+
+    public updateSocket = (socket: Socket) : void => {
+        this.socket = socket;
     };
 };

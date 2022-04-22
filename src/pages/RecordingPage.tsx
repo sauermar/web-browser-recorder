@@ -11,7 +11,7 @@ export const RecordingPage = () => {
 
   const [browserId, setBrowserId] = React.useState('');
 
-  const { setId, resetId } = useSocketStore();
+  const { setId } = useSocketStore();
 
   useEffect(() => {
     let isCancelled = false;
@@ -21,7 +21,7 @@ export const RecordingPage = () => {
       if (!isCancelled) {
         if (id) {
           console.log('Recording in progress', id);
-          resetId(id);
+          setId(id);
           setBrowserId(id);
         } else {
           const newId = await startRecording()

@@ -2,8 +2,6 @@
  * Handles Socket.io connections on the server side.
  */
 import {Namespace, Socket} from 'socket.io';
-
-
 import logger from "../logger";
 import registerInputHandlers from '../browser-management/inputHandlers'
 
@@ -18,9 +16,9 @@ export const createSocketConnection = (
     callback: (socket: Socket) => void,
     ) => {
     const onConnection = async (socket: Socket) => {
-        logger.log('info',"Client connected");
+        logger.log('info',"Client connected " + socket.id);
         registerInputHandlers(socket);
-        socket.on('disconnect', () => logger.log('info', "Client disconnected"));
+        socket.on('disconnect', () => logger.log('info', "Client disconnected " + socket.id));
         callback(socket);
     }
 

@@ -15,15 +15,22 @@ import logger from "../logger";
  * @param options remote browser options
  */
 export const createRemoteBrowser = (options: RemoteBrowserOptions): string => {
-    const id = uuid();
+    const id = getActiveBrowserId() || uuid();
     createSocketConnection(
         io.of(id),
         async (socket: Socket) => {
-        const browserSession = new RemoteBrowser(socket);
-        await browserSession.initialize(options);
-        await browserSession.subscribeToScreencast();
-        browserPool.addRemoteBrowser(id, browserSession);
-    });
+            // browser is already active
+            const activeId = getActiveBrowserId();
+            if (activeId) {
+                const remoteBrowser = browserPool.getRemoteBrowser(activeId);
+                remoteBrowser?.updateSocket(socket);
+            } else {
+                const browserSession = new RemoteBrowser(socket);
+                await browserSession.initialize(options);
+                await browserSession.subscribeToScreencast();
+                browserPool.addRemoteBrowser(id, browserSession);
+            }
+        });
     return id;
 };
 
