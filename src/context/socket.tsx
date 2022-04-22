@@ -7,6 +7,7 @@ interface SocketState {
   socket: Socket | null;
   id: string;
   setId: (id: string) => void;
+  resetId: (id: string) => void;
 };
 
 class SocketStore implements Partial<SocketState>{
@@ -39,12 +40,17 @@ export const SocketProvider = ({ children }: { children: JSX.Element }) => {
     setActiveId(id);
   }, [setSocket]);
 
+  const resetId = useCallback((id: string) => {
+    setActiveId(id);
+  }, []);
+
     return (
         <socketStoreContext.Provider
           value={{
             socket,
             id,
             setId,
+            resetId,
           }}
         >
           {children}

@@ -18,7 +18,6 @@ export const createRemoteBrowser = (options: RemoteBrowserOptions): string => {
     const id = uuid();
     createSocketConnection(
         io.of(id),
-        //io.of('test'),
         async (socket: Socket) => {
         const browserSession = new RemoteBrowser(socket);
         await browserSession.initialize(options);

@@ -9,29 +9,37 @@ import { SidePanel } from "../components/organisms/SidePanel";
 // frontend minimalistic prototype using MUI framework
 export const RecordingPage = () => {
 
-  const { setId } = useSocketStore();
+  const [browserId, setBrowserId] = React.useState('');
+
+  const { setId, resetId } = useSocketStore();
 
   useEffect(() => {
-    getActiveBrowserId().then(id => {
-      if (id) {
-        stopRecording(id);
-        console.log('recording was stopped');
-        console.log('Recording in progress', id);
-        setId(id);
+    let isCancelled = false;
+    console.log('RecordingPage.useEffect called');
+    const handleRecording = async() => {
+      const id = await getActiveBrowserId();
+      if (!isCancelled) {
+        if (id) {
+          console.log('Recording in progress', id);
+          resetId(id);
+          setBrowserId(id);
+        } else {
+          const newId = await startRecording()
+          setId(newId);
+          setBrowserId(newId);
+        }
       }
-      else {
-        startRecording().then((id) => {
-          setId(id);
-          if (id) {
-            // cleanup function when the component dismounts
-            return () => {
-              console.log('recording was stopped');
-              stopRecording(id);
-            };
-          }
-        });
+    };
+
+    handleRecording();
+
+    return () => {
+      isCancelled = true;
+      console.log('RecordingPage unmounting');
+      if (browserId) {
+        stopRecording(browserId);
       }
-    });
+    }
   }, [setId]);
 
   return (
