@@ -28,3 +28,27 @@ router.get('/:browserId', (req, res) => {
   }
   return res.send(workflowFile);
 });
+
+router.delete('/pair/:index', (req, res) => {
+  const id = browserPool.getActiveBrowserId();
+  const browser = browserPool.getRemoteBrowser(id);
+  if (browser && browser.generator) {
+    browser.generator?.removePairFromWorkflow(parseInt(req.params.index));
+    const workflowFile = browser.generator?.getWorkflowFile();
+    return res.send(workflowFile);
+  }
+  return res.send(null);
+});
+
+router.post('/pair/:index', (req, res) => {
+  const id = browserPool.getActiveBrowserId();
+  const browser = browserPool.getRemoteBrowser(id);
+  logger.log('debug', `Adding pair to workflow`);
+  if (browser && browser.generator) {
+    logger.log('debug', `Adding pair to workflow: ${req.body}`);
+    browser.generator?.addPairToWorkflow(parseInt(req.params.index), req.body);
+    const workflowFile = browser.generator?.getWorkflowFile();
+    return res.send(workflowFile);
+  }
+  return res.send(null);
+});

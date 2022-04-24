@@ -119,5 +119,6 @@ export class RemoteBrowser {
 
     public updateSocket = (socket: Socket) : void => {
         this.socket = socket;
+        this.generator?.updateSocket(socket);
     };
 };

@@ -15,7 +15,7 @@ const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) =
         throw new Error("No workflow found");
       }
     }
-  ).catch((error) => {console.log(error)})
+  ).catch((error) => {console.log(error.message)})
 };
 
 export const SidePanel = () => {
@@ -24,10 +24,16 @@ export const SidePanel = () => {
   const { id, socket } = useSocketStore();
 
   useEffect(() => {
+    // fetch the workflow every time the id changes
+    if (id) {
+      fetchWorkflow(id, setWorkflow);
+      console.log("Fetching workflow successful");
+    }
+    // fetch workflow in 15min intervals
     let interval = setInterval(() =>{
     if (id) {
       fetchWorkflow(id, setWorkflow);
-      console.log("Fetching workflow successful!!!!!!");
+      console.log("Fetching workflow successful");
     }}, (1000 * 60 * 15));
     return () => clearInterval(interval)
   }, [id]);
@@ -52,7 +58,7 @@ export const SidePanel = () => {
       <RecordingIcons/>
       {workflow ?
         workflow.workflow.map((pair, i) =>
-          <Pair key={i} index={i} pair={pair}/>
+          <Pair key={i} index={i} pair={pair} updateWorkflow={setWorkflow}/>
         ) : null}
 
     </Paper>

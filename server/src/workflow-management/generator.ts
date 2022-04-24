@@ -8,7 +8,7 @@ import { getFullPath } from "./selector";
 
 export class WorkflowGenerator {
 
-  private readonly socket : Socket;
+  private socket : Socket;
 
   private readonly page: Page;
 
@@ -81,5 +81,26 @@ export class WorkflowGenerator {
 
   public getWorkflowFile = () => {
     return this.workflowRecord;
+  };
+
+  public removePairFromWorkflow = (index: number) => {
+    if (index < this.workflowRecord.workflow.length) {
+      this.workflowRecord.workflow.splice(index, 1);
+      logger.log('debug', `pair ${index}: Removed from workflow file.`);
+    }
+  };
+
+  public addPairToWorkflow = (index: number, pair: WhereWhatPair) => {
+    if (index + 1 < this.workflowRecord.workflow.length) {
+      this.workflowRecord.workflow.splice(index + 1, 0, pair);
+      logger.log('debug', `pair ${index}: Added to workflow file.`);
+    } else if (index + 1 === this.workflowRecord.workflow.length) {
+      this.workflowRecord.workflow.push(pair);
+      logger.log('debug', `pair ${index}: Added to workflow file.`);
+    }
+  };
+
+  public updateSocket = (socket: Socket) : void => {
+    this.socket = socket;
   };
 }
