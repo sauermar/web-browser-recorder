@@ -9,6 +9,7 @@ import { io, browserPool } from "../server";
 import { RemoteBrowser } from "./classes/RemoteBrowser";
 import { RemoteBrowserOptions } from "../interfaces/Input";
 import logger from "../logger";
+import { interpretWorkflow } from "../workflow-management/interpretation";
 
 /**
  * Starts a remote browser recording session.
@@ -51,4 +52,23 @@ export const destroyRemoteBrowser = async (id: string) : Promise<boolean> => {
 // just for development
 export const getActiveBrowserId = () => {
     return browserPool.getActiveBrowserId();
+};
+
+export const interpretWholeWorkflow = async() => {
+    const id = getActiveBrowserId();
+    const browser = browserPool.getRemoteBrowser(id);
+    if (browser && browser.generator) {
+        const workflow = await browser.generator.getWorkflowFile();
+        logger.log('info', `Workflow: ${JSON.stringify(workflow)}`);
+        await browser.initializeNewPage();
+        if (browser.currentPage) {
+            const result = await interpretWorkflow(workflow, browser.currentPage);
+            logger.log('info', `Result: ${result}`);
+        } else {
+            logger.log('error', 'Could not get a new page, returned undefined');
+        }
+    } else {
+        logger.log('error', 'Cannot interpret the workflow: No active browser or generator.');
+    }
+
 };

@@ -3,7 +3,12 @@
  */
 import { Router } from 'express';
 
-import { createRemoteBrowser, destroyRemoteBrowser, getActiveBrowserId } from '../browser-management/controller'
+import {
+    createRemoteBrowser,
+    destroyRemoteBrowser,
+    getActiveBrowserId,
+    interpretWholeWorkflow
+} from '../browser-management/controller'
 import { chromium } from "playwright";
 import logger from "../logger";
 
@@ -55,4 +60,9 @@ router.get('/stop/:browserId', async (req, res) => {
 router.get('/active', (req, res) => {
     const id = getActiveBrowserId();
     return res.send(id);
+});
+
+router.get('/interpret', async (req, res) => {
+    await interpretWholeWorkflow();
+    return res.send('interpretation done');
 });

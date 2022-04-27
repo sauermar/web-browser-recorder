@@ -1,5 +1,7 @@
 import { Page } from "playwright";
 import { Coordinates } from "../interfaces/Input";
+import { What, WhereWhatPair, Workflow } from "@wbr-project/wbr-interpret/build/workflow";
+import logger from "../logger";
 
 export const getFullPath = async (page: Page, coordinates: Coordinates) => {
   return await page.evaluate(
@@ -30,4 +32,14 @@ export const getFullPath = async (page: Page, coordinates: Coordinates) => {
     { x: coordinates.x, y: coordinates.y },
   );
 };
+
+export const selectorAlreadyInWorkflow = (selector: string, workflow: Workflow) => {
+  return workflow.find((pair: WhereWhatPair) => {
+    if (pair.where.selectors?.includes(selector)) {
+      if (pair.where.selectors?.length === 1) {
+        return pair;
+      }
+    }
+  });
+}
 

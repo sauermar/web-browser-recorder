@@ -3,7 +3,7 @@ import { Grid, Paper} from '@mui/material';
 import { NavBar } from "../components/molecules/NavBar";
 import { BrowserContent } from "../components/organisms/BrowserContent";
 import { useSocketStore } from "../context/socket";
-import { startRecording, stopRecording, getActiveBrowserId } from "../api/remoteBrowser";
+import { startRecording, stopRecording, getActiveBrowserId } from "../api/recording";
 import { SidePanel } from "../components/organisms/SidePanel";
 
 // frontend minimalistic prototype using MUI framework

@@ -16,11 +16,11 @@ export class RemoteBrowser {
 
     private pages : Page[] = [];
 
-    private client : CDPSession | null = null;
+    private client : CDPSession | null | undefined = null;
 
     private socket : Socket;
 
-    public currentPage : Page | null = null;
+    public currentPage : Page | null | undefined = null;
 
     public generator: WorkflowGenerator | null = null;
 
@@ -120,5 +120,15 @@ export class RemoteBrowser {
     public updateSocket = (socket: Socket) : void => {
         this.socket = socket;
         this.generator?.updateSocket(socket);
+    };
+
+    public initializeNewPage = async (options?: Object) : Promise<void> => {
+        const newPage = options ? await this.browser?.newPage(options)
+          : await this.browser?.newPage();
+
+        await this.currentPage?.close();
+        this.currentPage = newPage;
+        this.client = await this.currentPage?.context().newCDPSession(this.currentPage);
+        await this.subscribeToScreencast();
     };
 };
