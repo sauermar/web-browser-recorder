@@ -65,9 +65,6 @@ export class WorkflowGenerator {
         }
       ],
     }
-    if (this.page.url() === "about:blank") {
-      delete pair.where.url;
-    }
     this.addPairToWorkflowAndNotifyClient(pair);
   };
 
