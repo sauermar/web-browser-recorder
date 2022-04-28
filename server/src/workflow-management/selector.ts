@@ -1,7 +1,9 @@
 import { Page } from "playwright";
 import { Coordinates } from "../interfaces/Input";
-import { What, WhereWhatPair, Workflow } from "@wbr-project/wbr-interpret/build/workflow";
+import { WhereWhatPair, WorkflowFile } from "@wbr-project/wbr-interpret";
 import logger from "../logger";
+
+type Workflow = WorkflowFile["workflow"];
 
 export const getFullPath = async (page: Page, coordinates: Coordinates) => {
   return await page.evaluate(

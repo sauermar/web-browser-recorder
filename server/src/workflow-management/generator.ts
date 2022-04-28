@@ -1,6 +1,6 @@
 import { Coordinates } from "../interfaces/Input";
 import { WorkflowFile } from '@wbr-project/wbr-interpret';
-import { WhereWhatPair } from "@wbr-project/wbr-interpret/build/workflow";
+import { WhereWhatPair } from "@wbr-project/wbr-interpret";
 import logger from "../logger";
 import { Socket } from "socket.io";
 import { Page } from "playwright";
