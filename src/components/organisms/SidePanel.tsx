@@ -5,7 +5,6 @@ import { useSocketStore } from '../../context/socket';
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
 import { Pair } from "../molecules/Pair";
 import { InterpretationIcons } from "../molecules/InterpretationIcons";
-import { GenericModal } from "../atoms/GenericModal";
 
 const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) => {
   getActiveWorkflow(id).then(

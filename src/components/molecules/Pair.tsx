@@ -1,10 +1,12 @@
 import React, { FC, useState } from 'react';
 import { BasicModal } from "./Modal";
 import { Button, IconButton } from "@mui/material";
-import { WhereWhatPair } from "@wbr-project/wbr-interpret/build/workflow";
 import { Add, Clear } from "@mui/icons-material";
 import { AddEmptyPair, deletePair } from "../../api/workflow";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
+
+type WhereWhatPair = WorkflowFile["workflow"][number];
+
 
 interface PairProps {
   index: number;
