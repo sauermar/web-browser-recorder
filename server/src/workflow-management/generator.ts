@@ -62,10 +62,6 @@ export class WorkflowGenerator {
         {
         action: 'goto',
         args: [newUrl],
-        },
-        {
-          action: 'waitForNavigation',
-          args: [1000],
         }
       ],
     }

@@ -1,4 +1,4 @@
-import {WorkflowFile} from "@wbr-project/wbr-interpret";
+import { WhereWhatPair, WorkflowFile } from "@wbr-project/wbr-interpret";
 
 const axios = require('axios').default;
 
@@ -32,13 +32,10 @@ export const deletePair = async(index: number): Promise<WorkflowFile | null> => 
   }
 };
 
-export const AddEmptyPair = async(index: number): Promise<WorkflowFile | null> => {
+export const AddPair = async(index: number, pair: WhereWhatPair): Promise<WorkflowFile | null> => {
   try {
     const response = await axios.post(`http://localhost:8080/workflow/pair/${index}`, {
-      pair: {
-        where: { },
-        what: [{}],
-      }
+      pair,
     });
     console.log(response);
     if (response.status === 200) {

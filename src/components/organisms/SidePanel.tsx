@@ -1,10 +1,12 @@
 import { Paper } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { getActiveWorkflow } from "../../api/workflow";
+import { AddPair, getActiveWorkflow } from "../../api/workflow";
 import { useSocketStore } from '../../context/socket';
-import { WorkflowFile } from "@wbr-project/wbr-interpret";
+import { WhereWhatPair, WorkflowFile } from "@wbr-project/wbr-interpret";
 import { Pair } from "../molecules/Pair";
 import { InterpretationIcons } from "../molecules/InterpretationIcons";
+import { GenericModal } from "../atoms/GenericModal";
+import { AddButton } from "../atoms/AddButton";
 
 const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) => {
   getActiveWorkflow(id).then(
@@ -20,6 +22,7 @@ const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) =
 
 export const SidePanel = () => {
   const [workflow, setWorkflow] = useState<WorkflowFile | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const { id, socket } = useSocketStore();
 
@@ -46,6 +49,18 @@ export const SidePanel = () => {
     }
   }, [workflow, socket]);
 
+  const addFirstPair = (pair: WhereWhatPair) => {
+    AddPair(0, pair).then((updatedWorkflow) => {
+      setWorkflow(updatedWorkflow);
+    }).catch((error) => {
+      console.error(error);
+    });
+  };
+
+  const handleAddPair = () => {
+    setShowEditModal(true);
+  };
+
   return (
     <Paper
       sx={{
@@ -56,6 +71,12 @@ export const SidePanel = () => {
       }}
     >
       <InterpretationIcons/>
+      <AddButton handleClick={handleAddPair}></AddButton>
+      <GenericModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSubmitOfPair={addFirstPair} />
+
       {workflow ?
         workflow.workflow.map((pair, i, workflow) =>
           <Pair key={workflow.length - i} index={workflow.length - i} pair={pair} updateWorkflow={setWorkflow}/>

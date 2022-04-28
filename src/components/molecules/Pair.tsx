@@ -1,9 +1,10 @@
 import React, { FC, useState } from 'react';
 import { BasicModal } from "./Modal";
-import { Button, IconButton } from "@mui/material";
-import { Add, Clear } from "@mui/icons-material";
-import { AddEmptyPair, deletePair } from "../../api/workflow";
+import { Button, Stack } from "@mui/material";
+import { AddPair, deletePair } from "../../api/workflow";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
+import { AddButton } from "../atoms/AddButton";
+import { ClearButton } from "../atoms/ClearButton";
 
 type WhereWhatPair = WorkflowFile["workflow"][number];
 
@@ -26,14 +27,14 @@ export const Pair: FC<PairProps> = ({index, pair, updateWorkflow}) => {
   };
 
   const handleDelete = () => {
-    deletePair(index).then((updatedWorkflow) => {
+    deletePair(index - 1).then((updatedWorkflow) => {
       updateWorkflow(updatedWorkflow);
     }).catch((error) => {
       console.error(error);
     });
   };
   const handleAdd = () => {
-    AddEmptyPair(index).then((updatedWorkflow) => {
+    AddPair(index - 1, {where: {}, what:[]}).then((updatedWorkflow) => {
       updateWorkflow(updatedWorkflow);
     }).catch((error) => {
       console.error(error);
@@ -49,12 +50,10 @@ export const Pair: FC<PairProps> = ({index, pair, updateWorkflow}) => {
     }} onClick={handleOpen}>
        {pair?.what[0].action}
     </Button>
-      <IconButton aria-label="add" size="small" onClick={handleAdd}>
-        <Add sx={{ fontSize: 20 }}/>
-      </IconButton>
-      <IconButton aria-label="clear" size="small" onClick={handleDelete}>
-        <Clear sx={{ fontSize: 20 }}/>
-      </IconButton>
+      <Stack direction="column" spacing={0}>
+        <AddButton handleClick={handleAdd}/>
+        <ClearButton handleClick={handleDelete}/>
+      </Stack>
       <BasicModal open={open} onClose={handleClose} title={pair?.what[0].action } content={createContent(pair)}/>
     </div>
     );
