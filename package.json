@@ -43,9 +43,9 @@
   "scripts": {
     "start": "concurrently -k \"npm run server\" \"npm run client\"",
     "server": "./node_modules/.bin/nodemon server/src/server.ts",
-    "client": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "client": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject",
     "lint": "./node_modules/.bin/eslint ."
   },
@@ -75,6 +75,7 @@
     "@types/styled-components": "^5.1.23",
     "concurrently": "^7.0.0",
     "nodemon": "^2.0.15",
+    "react-app-rewired": "^2.2.1",
     "ts-node": "^10.4.0"
   }
 }

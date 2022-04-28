@@ -14,7 +14,7 @@ const handleMousedown = async ( { x, y }: Coordinates) => {
     if (activeBrowser && activeBrowser.generator) {
         await activeBrowser.generator.onClick({x,y});
         await activeBrowser.currentPage!.mouse.click(x, y);
-        logger.log('info', `Clicked on position x:${x}, y:${y}`);
+        logger.log('debug', `Clicked on position x:${x}, y:${y}`);
     } else {
         logger.log('warn', `Did not clicked, because there is no active browser`);
     }
@@ -25,9 +25,8 @@ const handleWheel = async ( { deltaX, deltaY }: ScrollDeltas) => {
     const id = browserPool.getActiveBrowserId();
     const activeBrowser = browserPool.getRemoteBrowser(id);
     if (activeBrowser) {
-        activeBrowser.generator?.onScroll();
         await activeBrowser.currentPage!.mouse.wheel(deltaX, deltaY);
-        logger.log('info', `Scrolled horizontally ${deltaX} pixels and vertically ${deltaY} pixels`);
+        logger.log('debug', `Scrolled horizontally ${deltaX} pixels and vertically ${deltaY} pixels`);
     } else {
         logger.log('warn', `Did not scroll, because there is no active browser`);
     }
@@ -39,7 +38,7 @@ const handleMousemove = async ({ x, y }: Coordinates) => {
     const activeBrowser = browserPool.getRemoteBrowser(id);
     if (activeBrowser) {
         await activeBrowser.currentPage!.mouse.move(x, y);
-        logger.log('info', `Moved over position x:${x}, y:${y}`);
+        logger.log('debug', `Moved over position x:${x}, y:${y}`);
     } else {
         logger.log('warn', `Did not move, because there is no active browser`);
     }
@@ -53,7 +52,7 @@ const handleKeydown = async ({ key, coordinates }: KeyboardInput) => {
         await activeBrowser.currentPage!.keyboard.down(key);
         await activeBrowser.generator?.onKeyboardInput(key, coordinates);
 
-        logger.log('info', `Key ${key} pressed`);
+        logger.log('debug', `Key ${key} pressed`);
     } else {
         logger.log('warn', `Did not press ${key} key, because there is no active browser`);
     }
@@ -65,7 +64,7 @@ const handleKeyup = async (key: string) => {
     const activeBrowser = browserPool.getRemoteBrowser(id);
     if (activeBrowser) {
         await activeBrowser.currentPage!.keyboard.up(key);
-        logger.log('info', `Key ${key} unpressed`);
+        logger.log('debug', `Key ${key} unpressed`);
     } else {
         logger.log('warn', `Did not unpress ${key} key, because there is no active browser`);
     }
@@ -78,7 +77,7 @@ const handleChangeUrl = async (url: string) => {
     if (activeBrowser && url && activeBrowser.generator) {
         activeBrowser.generator.onChangeUrl(url);
         await activeBrowser.currentPage!.goto(url);
-        logger.log('info', `Went to ${url}`);
+        logger.log('debug', `Went to ${url}`);
     } else {
         logger.log('warn', `Did not go to ${url}, because there is no active browser`);
     }
@@ -90,7 +89,7 @@ const handleRefresh = async () => {
     const activeBrowser = browserPool.getRemoteBrowser(id);
     if (activeBrowser) {
         await activeBrowser.currentPage!.reload();
-        logger.log('info', `Page refreshed.`);
+        logger.log('debug', `Page refreshed.`);
     } else {
         logger.log('warn', `Did not refresh the page, because there is no active browser`);
     }
