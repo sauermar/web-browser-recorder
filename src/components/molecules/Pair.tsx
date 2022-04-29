@@ -25,7 +25,10 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
   const disableEdit = () => setEdit(false);
 
   const handleOpen = () => setOpen(true);
-  const handleClose = () =>setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    disableEdit();
+  }
 
   const handleDelete = () => {
     deletePair(index - 1).then((updatedWorkflow) => {
@@ -68,6 +71,7 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
             />
             <Button
               onClick={enableEdit}
+              variant="contained"
             >
               Edit
             </Button>

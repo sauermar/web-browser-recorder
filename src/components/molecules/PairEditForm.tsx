@@ -93,10 +93,16 @@ export const PairEditForm: FC<PairEditFormProps> = ({ onSubmitOfPair, numberOfPa
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{display: "grid"}}>
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        display: "grid",
+        padding: "0px 30px 0px 30px",
+        marginTop: "36px",
+      }}
+    >
       <TextField sx={{
         display:"block",
-        marginTop: "40px",
         marginBottom: "20px"
       }} id="index" label="Index" type="number"
        InputProps={{ inputProps: { min: 1 } }}
@@ -106,8 +112,14 @@ export const PairEditForm: FC<PairEditFormProps> = ({ onSubmitOfPair, numberOfPa
         onChange={handleInputChange}
         error={errors.index ? true : false} helperText={errors.index}
       />
-      <TextField required sx={{marginBottom: "20px"}}
-        onChange={handleInputChange} id="title" label="Title" variant="filled"/>
+      <TextField
+        required
+        sx={{marginBottom: "20px"}}
+        onChange={handleInputChange}
+        id="title"
+        label="Title"
+        variant="outlined"
+      />
       <TextField multiline sx={{marginBottom: "20px"}}
         id="where" label="Where" variant="outlined" onChange={handleInputChange}
                  defaultValue='{
@@ -122,7 +134,13 @@ export const PairEditForm: FC<PairEditFormProps> = ({ onSubmitOfPair, numberOfPa
                          "args":[""]
                          }]'
                  error={errors.what ? true : false} helperText={errors.what}/>
-      <Button type="submit" >Submit</Button>
+      <Button
+        type="submit"
+        variant="contained"
+        sx={{ padding: "8px 20px", }}
+      >
+        Submit
+      </Button>
     </form>
   );
 };
