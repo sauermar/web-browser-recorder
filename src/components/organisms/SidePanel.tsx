@@ -7,6 +7,7 @@ import { Pair } from "../molecules/Pair";
 import { InterpretationIcons } from "../molecules/InterpretationIcons";
 import { GenericModal } from "../atoms/GenericModal";
 import { AddButton } from "../atoms/AddButton";
+import { PairEditForm } from "../molecules/PairEditForm";
 
 const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) => {
   getActiveWorkflow(id).then(
@@ -49,12 +50,13 @@ export const SidePanel = () => {
     }
   }, [workflow, socket]);
 
-  const addFirstPair = (pair: WhereWhatPair) => {
-    AddPair(0, pair).then((updatedWorkflow) => {
+  const addPair = (pair: WhereWhatPair, index: number) => {
+    AddPair((index - 1), pair).then((updatedWorkflow) => {
       setWorkflow(updatedWorkflow);
     }).catch((error) => {
       console.error(error);
     });
+    setShowEditModal(false);
   };
 
   const handleAddPair = () => {
@@ -75,7 +77,9 @@ export const SidePanel = () => {
       <GenericModal
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
-        onSubmitOfPair={addFirstPair} />
+      >
+        <PairEditForm onSubmitOfPair={addPair} numberOfPairs={workflow ? workflow.workflow.length : 0}></PairEditForm>
+      </GenericModal>
 
       {workflow ?
         workflow.workflow.map((pair, i, workflow) =>

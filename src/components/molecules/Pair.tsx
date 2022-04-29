@@ -1,9 +1,8 @@
 import React, { FC, useState } from 'react';
 import { BasicModal } from "./Modal";
-import { Button, Stack } from "@mui/material";
-import { AddPair, deletePair } from "../../api/workflow";
+import { Button } from "@mui/material";
+import { deletePair } from "../../api/workflow";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
-import { AddButton } from "../atoms/AddButton";
 import { ClearButton } from "../atoms/ClearButton";
 
 type WhereWhatPair = WorkflowFile["workflow"][number];
@@ -33,13 +32,6 @@ export const Pair: FC<PairProps> = ({index, pair, updateWorkflow}) => {
       console.error(error);
     });
   };
-  const handleAdd = () => {
-    AddPair(index - 1, {where: {}, what:[]}).then((updatedWorkflow) => {
-      updateWorkflow(updatedWorkflow);
-    }).catch((error) => {
-      console.error(error);
-    });
-  };
 
   return (
     <div>
@@ -49,11 +41,8 @@ export const Pair: FC<PairProps> = ({index, pair, updateWorkflow}) => {
       color: "black",
     }} onClick={handleOpen}>
        {pair?.what[0].action}
+      <ClearButton handleClick={handleDelete}/>
     </Button>
-      <Stack direction="column" spacing={0}>
-        <AddButton handleClick={handleAdd}/>
-        <ClearButton handleClick={handleDelete}/>
-      </Stack>
       <BasicModal open={open} onClose={handleClose} title={pair?.what[0].action } content={createContent(pair)}/>
     </div>
     );
