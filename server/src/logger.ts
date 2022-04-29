@@ -17,7 +17,7 @@ const logger = createLogger({
     transports: [
         new transports.Console({ level: DEBUG ? 'debug' : 'info' }),
         new transports.File({ filename: `${LOGS_PATH}/error.log`, level: 'error' }),
-        new transports.File({ filename: `${LOGS_PATH}/combined.log`, level: DEBUG ? 'debug' : 'info' }),
+        new transports.File({ filename: `${LOGS_PATH}/combined.log`, level: 'debug' }),
     ],
 });
 
