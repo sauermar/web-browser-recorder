@@ -73,13 +73,15 @@ export const SidePanel = () => {
       }}
     >
       <InterpretationIcons/>
-      <AddButton handleClick={handleAddPair}></AddButton>
+      <AddButton handleClick={handleAddPair} title="Add Pair"/>
       <GenericModal
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
       >
         <PairEditForm onSubmitOfPair={addPair} numberOfPairs={workflow ? workflow.workflow.length : 0}></PairEditForm>
       </GenericModal>
+
+      <hr/>
 
       {workflow ?
         workflow.workflow.map((pair, i, workflow) =>

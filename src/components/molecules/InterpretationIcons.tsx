@@ -12,13 +12,13 @@ export const InterpretationIcons = () => {
 
   return (
     <Stack direction="row" spacing={1}>
-      <IconButton aria-label="pause" size="large">
+      <IconButton aria-label="pause" size="large" title="Pause">
         <PauseCircle sx={{ fontSize: 40 }}/>
       </IconButton>
-      <IconButton aria-label="play" size="large" onClick={handlePlay}>
+      <IconButton aria-label="play" size="large" title="Play" onClick={handlePlay}>
         <PlayCircle sx={{ fontSize: 40 }}/>
       </IconButton>
-      <IconButton aria-label="stop" size="large">
+      <IconButton aria-label="stop" size="large" title="Stop">
         <StopCircle sx={{ fontSize: 40 }}/>
       </IconButton>
     </Stack>

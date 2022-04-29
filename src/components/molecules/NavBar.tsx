@@ -5,24 +5,19 @@ import styled from "styled-components";
 export const NavBar = () => {
   return (
     <NavBarWrapper>
-      <ProjectName>Recorder</ProjectName>
-      <NavBarLine/>
+      <ProjectName>Web Browser Recorder</ProjectName>
     </NavBarWrapper>
   );
 };
 
-const NavBarLine = styled.hr`
-  height: 2px;
-  border-width: 0;
-  color: silver;
-  background-color: silver;
-`;
-
 const NavBarWrapper = styled.div`
   grid-area: navbar;
+  background-color: dimgray;
 `;
 
 const ProjectName = styled.b`
-  padding: 15px;
+  padding: 20px;
   display: inline-block;
+  color: white;
+  font-size: 1.5em;
 `;
