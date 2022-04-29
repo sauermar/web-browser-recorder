@@ -25,6 +25,7 @@ export const createRemoteBrowser = (options: RemoteBrowserOptions): string => {
             if (activeId) {
                 const remoteBrowser = browserPool.getRemoteBrowser(activeId);
                 remoteBrowser?.updateSocket(socket);
+                await remoteBrowser?.makeAndEmitScreenshot();
             } else {
                 const browserSession = new RemoteBrowser(socket);
                 await browserSession.initialize(options);

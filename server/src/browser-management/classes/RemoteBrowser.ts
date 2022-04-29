@@ -122,6 +122,13 @@ export class RemoteBrowser {
         this.generator?.updateSocket(socket);
     };
 
+    public makeAndEmitScreenshot = async() : Promise<void> => {
+        const screenshot = await this.currentPage?.screenshot();
+        if (screenshot) {
+            this.emitScreenshot(screenshot.toString('base64'));
+        }
+    };
+
     public initializeNewPage = async (options?: Object) : Promise<void> => {
         const newPage = options ? await this.browser?.newPage(options)
           : await this.browser?.newPage();
