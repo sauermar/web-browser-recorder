@@ -1,8 +1,9 @@
 import { WhereWhatPair, WorkflowFile } from "@wbr-project/wbr-interpret";
+import { emptyWorkflow } from "../shared/constants";
 
 const axios = require('axios').default;
 
-export const getActiveWorkflow = async(id: string) : Promise<WorkflowFile | null> => {
+export const getActiveWorkflow = async(id: string) : Promise<WorkflowFile> => {
   try {
     const response = await axios.get(`http://localhost:8080/workflow/${id}`)
     console.log(response);
@@ -13,11 +14,11 @@ export const getActiveWorkflow = async(id: string) : Promise<WorkflowFile | null
     }
   } catch(error: any) {
     console.log(error);
-    return null;
+    return emptyWorkflow;
   }
 };
 
-export const deletePair = async(index: number): Promise<WorkflowFile | null> => {
+export const deletePair = async(index: number): Promise<WorkflowFile> => {
   try {
    const response = await axios.delete(`http://localhost:8080/workflow/pair/${index}`);
     console.log(response);
@@ -28,11 +29,11 @@ export const deletePair = async(index: number): Promise<WorkflowFile | null> => 
     }
   } catch (error: any) {
     console.log(error);
-    return null;
+    return emptyWorkflow;
   }
 };
 
-export const AddPair = async(index: number, pair: WhereWhatPair): Promise<WorkflowFile | null> => {
+export const AddPair = async(index: number, pair: WhereWhatPair): Promise<WorkflowFile> => {
   try {
     const response = await axios.post(`http://localhost:8080/workflow/pair/${index}`, {
       pair,
@@ -45,6 +46,6 @@ export const AddPair = async(index: number, pair: WhereWhatPair): Promise<Workfl
     }
   } catch (error: any) {
     console.log(error);
-    return null;
+    return emptyWorkflow;
   }
 };

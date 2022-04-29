@@ -1,13 +1,11 @@
 import { Paper } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { AddPair, getActiveWorkflow } from "../../api/workflow";
+import { getActiveWorkflow } from "../../api/workflow";
 import { useSocketStore } from '../../context/socket';
-import { WhereWhatPair, WorkflowFile } from "@wbr-project/wbr-interpret";
+import { WorkflowFile } from "@wbr-project/wbr-interpret";
 import { Pair } from "../molecules/Pair";
-import { InterpretationIcons } from "../molecules/InterpretationIcons";
-import { GenericModal } from "../atoms/GenericModal";
-import { AddButton } from "../atoms/AddButton";
-import { PairEditForm } from "../molecules/PairEditForm";
+import { SidePanelHeader } from "../molecules/SidePanelHeader";
+import { emptyWorkflow } from "../../shared/constants";
 
 const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) => {
   getActiveWorkflow(id).then(
@@ -22,10 +20,9 @@ const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) =
 };
 
 export const SidePanel = () => {
-  const [workflow, setWorkflow] = useState<WorkflowFile | null>(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-
   const { id, socket } = useSocketStore();
+
+  const [workflow, setWorkflow] = useState<WorkflowFile>(emptyWorkflow);
 
   useEffect(() => {
     // fetch the workflow every time the id changes
@@ -50,19 +47,6 @@ export const SidePanel = () => {
     }
   }, [workflow, socket]);
 
-  const addPair = (pair: WhereWhatPair, index: number) => {
-    AddPair((index - 1), pair).then((updatedWorkflow) => {
-      setWorkflow(updatedWorkflow);
-    }).catch((error) => {
-      console.error(error);
-    });
-    setShowEditModal(false);
-  };
-
-  const handleAddPair = () => {
-    setShowEditModal(true);
-  };
-
   return (
     <Paper
       sx={{
@@ -72,22 +56,20 @@ export const SidePanel = () => {
         alignItems: "center",
       }}
     >
-      <InterpretationIcons/>
-      <AddButton handleClick={handleAddPair} title="Add Pair"/>
-      <GenericModal
-        isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
-      >
-        <PairEditForm onSubmitOfPair={addPair} numberOfPairs={workflow ? workflow.workflow.length : 0}></PairEditForm>
-      </GenericModal>
-
-      <hr/>
-
-      {workflow ?
-        workflow.workflow.map((pair, i, workflow) =>
-          <Pair key={workflow.length - i} index={workflow.length - i} pair={pair} updateWorkflow={setWorkflow}/>
-        ) : null}
-
+      <SidePanelHeader
+        updateWorkflow={setWorkflow}
+        numberOfPairs={workflow.workflow.length}
+      />
+      {
+        workflow.workflow.map((pair, i, workflow, ) =>
+          <Pair
+            key={workflow.length - i}
+            index={workflow.length - i}
+            pair={pair}
+            updateWorkflow={setWorkflow}
+            numberOfPairs={workflow.length}
+          />)
+      }
     </Paper>
   );
 
