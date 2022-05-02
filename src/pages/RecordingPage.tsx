@@ -4,7 +4,8 @@ import { NavBar } from "../components/molecules/NavBar";
 import { BrowserContent } from "../components/organisms/BrowserContent";
 import { useSocketStore } from "../context/socket";
 import { startRecording, stopRecording, getActiveBrowserId } from "../api/recording";
-import { SidePanel } from "../components/organisms/SidePanel";
+import { LeftSidePanel } from "../components/organisms/LeftSidePanel";
+import { RightSidePanel } from "../components/organisms/RightSidePanel";
 
 // frontend minimalistic prototype using MUI framework
 export const RecordingPage = () => {
@@ -47,19 +48,13 @@ export const RecordingPage = () => {
       <NavBar/>
       <Grid container direction="row" spacing={0}>
         <Grid item xs={ 2 } style={{ display: "flex", flexDirection: "row" }}>
-            <SidePanel/>
+            <LeftSidePanel/>
         </Grid>
         <Grid item xs>
             <BrowserContent/>
         </Grid>
         <Grid item xs={ 2 }>
-            <Paper
-              sx={{
-                height: '100%',
-                width: '100%',
-                backgroundColor: 'lightgray',
-                alignItems: "center",
-              }}/>
+            <RightSidePanel/>
         </Grid>
       </Grid>
     </div>

@@ -19,7 +19,7 @@ const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) =
   ).catch((error) => {console.log(error.message)})
 };
 
-export const SidePanel = () => {
+export const LeftSidePanel = () => {
   const { id, socket } = useSocketStore();
 
   const [workflow, setWorkflow] = useState<WorkflowFile>(emptyWorkflow);
