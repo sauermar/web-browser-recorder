@@ -5,12 +5,26 @@ import React, { FC } from "react";
 interface AddButtonProps {
   handleClick: () => void;
   size?: "small" | "medium" | "large";
-  title?: string
+  title?: string;
+  disabled?: boolean;
+  hoverEffect?: boolean;
 }
 
-export const AddButton: FC<AddButtonProps> = ({ handleClick, size , title}) => {
+export const AddButton: FC<AddButtonProps> = (
+  { handleClick,
+    size ,
+    title,
+    disabled = false,
+    hoverEffect= true,
+  }) => {
   return (
-    <IconButton aria-label="add" size={size || "small"} onClick={handleClick}>
+    <IconButton
+      aria-label="add"
+      size={size || "small"}
+      onClick={handleClick}
+      disabled={disabled}
+      sx={hoverEffect ? {} : {'&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}
+    >
       <Add/>  {title}
     </IconButton>
   );

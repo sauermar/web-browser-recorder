@@ -39,6 +39,7 @@ export const SidePanelHeader: FC<SidePanelHeaderProps> = (
     <AddButton
       handleClick={handleAddPair}
       title="Add Pair"
+      hoverEffect={false}
     />
     <GenericModal
       isOpen={showEditModal}

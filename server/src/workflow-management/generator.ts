@@ -5,6 +5,7 @@ import logger from "../logger";
 import { Socket } from "socket.io";
 import { Page } from "playwright";
 import { getFullPath, selectorAlreadyInWorkflow } from "./selector";
+import { ScrollSettings } from "../../../src/shared/types";
 
 export class WorkflowGenerator {
 
@@ -80,12 +81,12 @@ export class WorkflowGenerator {
     this.addPairToWorkflowAndNotifyClient(pair);
   };
 
-  public onScroll = () => {
+  public scroll = ({ scrollPages }: ScrollSettings) => {
     const pair: WhereWhatPair = {
       where: { url: this.page.url() },
       what: [{
         action: 'scroll',
-        args: [],
+        args: [scrollPages],
       }],
     }
     this.addPairToWorkflowAndNotifyClient(pair);
