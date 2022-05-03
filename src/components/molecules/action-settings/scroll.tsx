@@ -1,13 +1,14 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
 import { TextField } from "@mui/material";
+import { ScrollSettings as Settings } from "../../../shared/types";
 
 export const ScrollSettings = forwardRef((props, ref) => {
-  const [scrollPages, setScrollPages] = React.useState('0');
+  const [settings, setSettings] = React.useState<Settings>({
+    scrollPages: 0,
+  });
   useImperativeHandle(ref, () => ({
     getSettings() {
-      return {
-        scrollPages,
-      }
+      return settings;
     }
   }));
 
@@ -17,7 +18,11 @@ export const ScrollSettings = forwardRef((props, ref) => {
       type="number"
       label="Number of scroll pages"
       required
-      onChange={(e) => setScrollPages(e.target.value)}
+      onChange={(e) => setSettings(
+        {
+          ...settings,
+          scrollPages: parseInt(e.target.value),
+        })}
     />
   );
 });

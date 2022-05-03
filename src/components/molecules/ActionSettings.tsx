@@ -4,7 +4,6 @@ import { Button } from "@mui/material";
 import { ActionDescription } from "../organisms/RightSidePanel";
 import * as Settings from "./action-settings";
 import { useSocketStore } from "../../context/socket";
-import { ScrollSettings } from "../../shared/types";
 
 interface ActionSettingsProps {
   action: string;
@@ -17,6 +16,8 @@ export const ActionSettings = ({action}: ActionSettingsProps) => {
 
   const DisplaySettings = () => {
     switch (action) {
+      case "screenshot":
+        return <Settings.ScreenshotSettings ref={settingsRef} />;
       case 'scroll':
         return <Settings.ScrollSettings ref={settingsRef}/>;
       default:

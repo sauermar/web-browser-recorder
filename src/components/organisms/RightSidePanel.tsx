@@ -13,6 +13,10 @@ export const RightSidePanel = () => {
     {
       id: 0,
       text: 'scroll'
+    },
+    {
+      id: 1,
+      text: 'screenshot'
     }
   ];
 

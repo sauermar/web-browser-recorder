@@ -5,7 +5,7 @@ import logger from "../logger";
 import { Socket } from "socket.io";
 import { Page } from "playwright";
 import { getFullPath, selectorAlreadyInWorkflow } from "./selector";
-import { ScrollSettings } from "../../../src/shared/types";
+import { ScreenshotSettings, ScrollSettings } from "../../../src/shared/types";
 
 export class WorkflowGenerator {
 
@@ -87,6 +87,17 @@ export class WorkflowGenerator {
       what: [{
         action: 'scroll',
         args: [scrollPages],
+      }],
+    }
+    this.addPairToWorkflowAndNotifyClient(pair);
+  };
+
+  public screenshot = (settings: ScreenshotSettings) => {
+    const pair: WhereWhatPair = {
+      where: { url: this.page.url() },
+      what: [{
+        action: 'screenshot',
+        args: [settings],
       }],
     }
     this.addPairToWorkflowAndNotifyClient(pair);
