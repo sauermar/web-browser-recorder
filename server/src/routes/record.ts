@@ -7,7 +7,7 @@ import {
     createRemoteBrowser,
     destroyRemoteBrowser,
     getActiveBrowserId,
-    interpretWholeWorkflow
+    interpretWholeWorkflow, stopRunningInterpretation
 } from '../browser-management/controller'
 import { chromium } from "playwright";
 import logger from "../logger";
@@ -65,4 +65,9 @@ router.get('/active', (req, res) => {
 router.get('/interpret', async (req, res) => {
     await interpretWholeWorkflow();
     return res.send('interpretation done');
+});
+
+router.get('/interpret/stop', async (req, res) => {
+    await stopRunningInterpretation();
+    return res.send('interpretation stopped');
 });

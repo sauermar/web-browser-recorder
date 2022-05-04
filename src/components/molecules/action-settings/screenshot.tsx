@@ -9,9 +9,7 @@ export const ScreenshotSettings = forwardRef((props, ref) => {
   const [settings, setSettings] = React.useState<Settings>({ });
   useImperativeHandle(ref, () => ({
     getSettings() {
-      return {
-        settings,
-      }
+      return settings;
     }
   }));
 

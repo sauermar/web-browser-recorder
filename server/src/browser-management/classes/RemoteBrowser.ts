@@ -8,7 +8,7 @@ import { Socket } from "socket.io";
 import logger from '../../logger';
 import { RemoteBrowserOptions } from "../../interfaces/Input";
 import { WorkflowGenerator } from "../../workflow-management/generator";
-import { WorkflowFile } from "@wbr-project/wbr-interpret";
+import Interpreter, { WorkflowFile } from "@wbr-project/wbr-interpret";
 
 export class RemoteBrowser {
 
@@ -23,6 +23,8 @@ export class RemoteBrowser {
     public currentPage : Page | null | undefined = null;
 
     public generator: WorkflowGenerator | null = null;
+
+    public interpreter: Interpreter | null = null;
 
     public constructor(socket: Socket){
         this.socket = socket;
@@ -138,4 +140,5 @@ export class RemoteBrowser {
         this.client = await this.currentPage?.context().newCDPSession(this.currentPage);
         await this.subscribeToScreencast();
     };
+
 };
