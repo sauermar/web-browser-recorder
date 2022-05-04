@@ -78,7 +78,13 @@ export const stopRunningInterpretation = async() => {
     const id = getActiveBrowserId();
     const browser = browserPool.getRemoteBrowser(id);
     if (browser) {
-        await stopInterpretation(browser);
+        if (browser.interpreter) {
+            logger.log('info', 'Stopping the interpretation.');
+            await stopInterpretation(browser.interpreter);
+            browser.interpreter = null;
+        } else {
+            logger.log('error', 'Cannot stop the interpretation: No active interpreter.');
+        }
     } else {
         logger.log('error', 'Cannot stop interpretation: No active browser or generator.');
     }

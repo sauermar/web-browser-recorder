@@ -6,7 +6,7 @@ import { RemoteBrowser } from "../browser-management/classes/RemoteBrowser";
 export const interpretWorkflow = async (workflow: WorkflowFile, browser: RemoteBrowser) => {
   const options = {
     serializableCallback: console.log,
-    binaryCallback: (data: string) => fs.writeFileSync("output", data)
+    binaryCallback: (data: string, mimetype: string) => fs.writeFileSync("output", data)
   }
 
   const interpreter = new Interpreter(workflow, options);
@@ -19,11 +19,6 @@ export const interpretWorkflow = async (workflow: WorkflowFile, browser: RemoteB
   }
 };
 
-export const stopInterpretation = async (browser: RemoteBrowser) => {
-  if (browser.interpreter) {
-    await browser.interpreter.stop();
-    browser.interpreter = null;
-  } else {
-    console.log("No interpretation running");
-  }
+export const stopInterpretation = async (interpreter: Interpreter) => {
+    await interpreter.stop();
 };
