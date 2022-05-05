@@ -129,6 +129,14 @@ export class WorkflowGenerator {
     }
   };
 
+  public updatePairInWorkflow = (index: number, pair: WhereWhatPair) => {
+    if (index <= this.workflowRecord.workflow.length && index >= 0) {
+      this.workflowRecord.workflow[this.workflowRecord.workflow.length - (index + 1)] = pair;
+    } else {
+      logger.log('error', `Update pair ${index}: Index out of range.`);
+    }
+  };
+
   public updateSocket = (socket: Socket) : void => {
     this.socket = socket;
   };

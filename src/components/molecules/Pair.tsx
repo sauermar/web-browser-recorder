@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react';
 import { Button, Stack } from "@mui/material";
-import { deletePair } from "../../api/workflow";
+import { AddPair, deletePair, UpdatePair } from "../../api/workflow";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
 import { ClearButton } from "../atoms/ClearButton";
 import { GenericModal } from "../atoms/GenericModal";
@@ -40,6 +40,24 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
     });
   };
 
+  const handleEdit = (pair: WhereWhatPair, newIndex: number) => {
+    console.log(newIndex, index)
+  if (newIndex !== index){
+    AddPair((newIndex - 1), pair).then((updatedWorkflow) => {
+      updateWorkflow(updatedWorkflow);
+    }).catch((error) => {
+      console.error(error);
+    });
+  } else {
+    UpdatePair((index - 1), pair).then((updatedWorkflow) => {
+      updateWorkflow(updatedWorkflow);
+    }).catch((error) => {
+      console.error(error);
+    });
+  }
+    handleClose();
+  };
+
   return (
     <div>
       <Stack direction="row">
@@ -66,7 +84,7 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
         { edit
           ?
             <PairEditForm
-              onSubmitOfPair={disableEdit}
+              onSubmitOfPair={handleEdit}
               numberOfPairs={numberOfPairs}
               index={index.toString()}
               title={index.toString()}

@@ -51,7 +51,7 @@ export const PairEditForm: FC<PairEditFormProps> = (
     setPairProps({ ...pairProps, [id]: value });
   };
 
-  const handleSubmit = (event: React.SyntheticEvent) => {
+  const validateAndSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
     let whereFromPair, whatFromPair;
     // validate where
@@ -113,7 +113,7 @@ export const PairEditForm: FC<PairEditFormProps> = (
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={validateAndSubmit}
       style={{
         display: "grid",
         padding: "0px 30px 0px 30px",
