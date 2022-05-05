@@ -82,6 +82,7 @@ export const stopRunningInterpretation = async() => {
             logger.log('info', 'Stopping the interpretation.');
             await stopInterpretation(browser.interpreter);
             browser.interpreter = null;
+            browser.currentPage = null;
         } else {
             logger.log('error', 'Cannot stop the interpretation: No active interpreter.');
         }
