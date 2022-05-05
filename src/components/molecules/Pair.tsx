@@ -1,12 +1,13 @@
 import React, { FC, useState } from 'react';
-import { Button, Stack, Typography } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import { deletePair } from "../../api/workflow";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
 import { ClearButton } from "../atoms/ClearButton";
 import { GenericModal } from "../atoms/GenericModal";
 import { PairEditForm } from "./PairEditForm";
 import { PairDisplayDiv } from "../atoms/PairDisplayDiv";
-import { ControlledTreeView } from "../atoms/TreeView";
+import TreeItem from "@mui/lab/TreeItem";
+import { EditButton } from "../atoms/EditButton";
 
 type WhereWhatPair = WorkflowFile["workflow"][number];
 
@@ -41,26 +42,23 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
 
   return (
     <div>
-      <ControlledTreeView/>
-      <Stack direction="row" spacing={0}>
-      <Button
-        variant="outlined"
-        color="primary"
-        size="medium"
-        sx={{
-          width: 170,
-          color: "black",
-        }}
-        onClick={handleOpen}
-      >
-        <div>
-        <span>{index}</span>
-        {pair?.what[0].action}
-        </div>
-      </Button>
-      <ClearButton
-        handleClick={handleDelete}
-      />
+      <Stack direction="row">
+        <TreeItem sx={{padding: '4px'}} nodeId={index.toString()} key={index.toString()} label={index}>
+          {
+            pair.what.map((pair, i) => {
+              const id = `${index.toString()}.${i.toString()}`;
+              return <TreeItem nodeId={id} key={id} label={pair.action}/>
+            })
+          }
+        </TreeItem>
+        <Stack direction="row" spacing={0} sx={{position: 'fixed', left:'150px'}}>
+          <EditButton
+            handleClick={handleOpen}
+          />
+          <ClearButton
+            handleClick={handleDelete}
+          />
+        </Stack>
       </Stack>
       <GenericModal isOpen={open} onClose={handleClose}>
         { edit

@@ -3,9 +3,9 @@ import React, { useEffect, useState } from "react";
 import { getActiveWorkflow } from "../../api/workflow";
 import { useSocketStore } from '../../context/socket';
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
-import { Pair } from "../molecules/Pair";
 import { SidePanelHeader } from "../molecules/SidePanelHeader";
 import { emptyWorkflow } from "../../shared/constants";
+import { LeftSidePanelContent } from "../molecules/LeftSidePanelContent";
 
 const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) => {
   getActiveWorkflow(id).then(
@@ -60,16 +60,10 @@ export const LeftSidePanel = () => {
         updateWorkflow={setWorkflow}
         numberOfPairs={workflow.workflow.length}
       />
-      {
-        workflow.workflow.map((pair, i, workflow, ) =>
-          <Pair
-            key={workflow.length - i}
-            index={workflow.length - i}
-            pair={pair}
-            updateWorkflow={setWorkflow}
-            numberOfPairs={workflow.length}
-          />)
-      }
+      <LeftSidePanelContent
+        workflow={workflow}
+        updateWorkflow={setWorkflow}
+      />
     </Paper>
   );
 
