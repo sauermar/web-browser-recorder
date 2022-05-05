@@ -68,11 +68,15 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
             <PairEditForm
               onSubmitOfPair={disableEdit}
               numberOfPairs={numberOfPairs}
+              index={index.toString()}
+              title={index.toString()}
+              where={pair.where ? JSON.stringify(pair.where) : undefined}
+              what={pair.what ? JSON.stringify(pair.what) : undefined}
             />
           :
           <div>
             <PairDisplayDiv
-              title={pair?.what[0]?.action}
+              title={index.toString() || pair?.what[0]?.action}
               pair={pair}
             />
             <Button

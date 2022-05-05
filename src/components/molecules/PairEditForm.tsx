@@ -12,13 +12,25 @@ interface PairProps {
 interface PairEditFormProps {
   onSubmitOfPair: (value: WhereWhatPair, index: number) => void;
   numberOfPairs: number;
+  index?: string;
+  title?: string;
+  where?: string;
+  what?: string;
 }
 
-export const PairEditForm: FC<PairEditFormProps> = ({ onSubmitOfPair, numberOfPairs }) => {
+export const PairEditForm: FC<PairEditFormProps> = (
+  {
+    onSubmitOfPair,
+    numberOfPairs,
+    index,
+    title,
+    where,
+    what,
+  }) => {
   const [pairProps, setPairProps] = React.useState<PairProps>({
-    where: null,
-    what: null,
-    index: "1",
+    where: where || null,
+    what: what || null,
+    index: index || "1",
   });
   const [errors, setErrors] = React.useState<PairProps>({
     where: null,
@@ -126,20 +138,15 @@ export const PairEditForm: FC<PairEditFormProps> = ({ onSubmitOfPair, numberOfPa
         id="title"
         label="Title"
         variant="outlined"
+        defaultValue={title || ''}
       />
       <TextField multiline sx={{marginBottom: "20px"}}
         id="where" label="Where" variant="outlined" onChange={handleInputChange}
-                 defaultValue='{
-                         "url":"",
-                         "selectors":[""]
-                         }'
+                 defaultValue={ where || '{"url":"","selectors":[""]}' }
                  error={errors.where ? true : false} helperText={errors.where}/>
       <TextField multiline sx={{marginBottom: "20px"}}
         id="what" label="What" variant="outlined" onChange={handleInputChange}
-                 defaultValue='[{
-                         "action":"",
-                         "args":[""]
-                         }]'
+                 defaultValue={ what || '[{"action":"","args":[""]}]' }
                  error={errors.what ? true : false} helperText={errors.what}/>
       <Button
         type="submit"
