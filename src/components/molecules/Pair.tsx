@@ -67,7 +67,7 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
           <div>
             <PairDisplayDiv
               title={pair?.what[0].action}
-              content={createContent(pair)}
+              pair={pair}
             />
             <Button
               onClick={enableEdit}
@@ -80,9 +80,4 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
       </GenericModal>
     </div>
     );
-};
-
-const createContent = (pair: WhereWhatPair): string => {
-  return `where: ${JSON.stringify(pair?.where)},` +
-   `what: ${JSON.stringify(pair?.what)}`;
 };
