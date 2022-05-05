@@ -45,9 +45,11 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
       <Stack direction="row">
         <TreeItem sx={{padding: '4px'}} nodeId={index.toString()} key={index.toString()} label={index}>
           {
-            pair.what.map((pair, i) => {
-              const id = `${index.toString()}.${i.toString()}`;
-              return <TreeItem nodeId={id} key={id} label={pair.action}/>
+            pair.what.map((what, i) => {
+              if (what) {
+                const id = `${index.toString()}.${i.toString()}`;
+                return <TreeItem nodeId={id} key={id} label={what.action}/>
+              }
             })
           }
         </TreeItem>
@@ -70,7 +72,7 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
           :
           <div>
             <PairDisplayDiv
-              title={pair?.what[0].action}
+              title={pair?.what[0]?.action}
               pair={pair}
             />
             <Button

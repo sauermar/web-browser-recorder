@@ -37,7 +37,7 @@ export const AddPair = async(index: number, pair: WhereWhatPair): Promise<Workfl
   try {
     const response = await axios.post(`http://localhost:8080/workflow/pair/${index}`, {
       pair,
-    });
+    }, {headers: {'Content-Type': 'application/json'}});
     console.log(response);
     if (response.status === 200) {
       return response.data;

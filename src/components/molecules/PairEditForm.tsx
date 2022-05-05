@@ -55,6 +55,7 @@ export const PairEditForm: FC<PairEditFormProps> = ({ onSubmitOfPair, numberOfPa
     } catch (e) {
       const { message } = e as Error;
       setErrors({ ...errors, where: message });
+      return;
     }
     // validate what
     try {
@@ -64,7 +65,8 @@ export const PairEditForm: FC<PairEditFormProps> = ({ onSubmitOfPair, numberOfPa
           ? JSON.parse(pairProps.what): [],
       };
       const result = Preprocessor.validateWorkflow({workflow: [whatFromPair]});
-      console.log(result);
+      console.log(JSON.stringify({workflow: [whatFromPair]}, null, 2))
+      console.log(result, 'result');
       setErrors({ ...errors, "what": null });
     } catch (e) {
       const { message } = e as Error;
@@ -75,21 +77,26 @@ export const PairEditForm: FC<PairEditFormProps> = ({ onSubmitOfPair, numberOfPa
     const index = parseInt(pairProps?.index, 10);
     if (index > (numberOfPairs + 1)) {
       if (numberOfPairs === 0) {
-        setErrors({ ...errors, index: 'Index of the first pair must be 1' });
+        setErrors(prevState => ({
+          ...prevState,
+          index: 'Index of the first pair must be 1'
+        }));
+        return;
       } else {
-        setErrors({ ...errors, index: `Index must be in the range 1-${numberOfPairs + 1}` });
+        setErrors(prevState => ({
+          ...prevState,
+          index: `Index must be in the range 1-${numberOfPairs + 1}`
+        }));
+        return;
       }
     } else {
       setErrors({ ...errors, index: '' });
     }
-
-    if (!errors.where || !errors.what || !errors.index) {
       // submit the pair
       onSubmitOfPair({
         where: whereFromPair?.where || {},
         what: whatFromPair?.what || [],
       }, index);
-    }
   };
 
   return (
