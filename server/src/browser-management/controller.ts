@@ -63,8 +63,8 @@ export const interpretWholeWorkflow = async() => {
         logger.log('info', `Workflow: ${JSON.stringify(workflow)}`);
         await browser.initializeNewPage();
         if (browser.currentPage) {
-            const result = await interpretWorkflow(workflow, browser);
-            logger.log('info', `Result: ${result}`);
+            await interpretWorkflow(workflow, browser);
+            browser.interpreter = null;
         } else {
             logger.log('error', 'Could not get a new page, returned undefined');
         }
