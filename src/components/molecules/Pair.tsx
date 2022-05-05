@@ -1,11 +1,12 @@
 import React, { FC, useState } from 'react';
-import { Button } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import { deletePair } from "../../api/workflow";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
 import { ClearButton } from "../atoms/ClearButton";
 import { GenericModal } from "../atoms/GenericModal";
 import { PairEditForm } from "./PairEditForm";
 import { PairDisplayDiv } from "../atoms/PairDisplayDiv";
+import { ControlledTreeView } from "../atoms/TreeView";
 
 type WhereWhatPair = WorkflowFile["workflow"][number];
 
@@ -40,7 +41,8 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
 
   return (
     <div>
-      <span>{index}</span>
+      <ControlledTreeView/>
+      <Stack direction="row" spacing={0}>
       <Button
         variant="outlined"
         color="primary"
@@ -51,11 +53,15 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
         }}
         onClick={handleOpen}
       >
+        <div>
+        <span>{index}</span>
         {pair?.what[0].action}
-        <ClearButton
-          handleClick={handleDelete}
-        />
+        </div>
       </Button>
+      <ClearButton
+        handleClick={handleDelete}
+      />
+      </Stack>
       <GenericModal isOpen={open} onClose={handleClose}>
         { edit
           ?
