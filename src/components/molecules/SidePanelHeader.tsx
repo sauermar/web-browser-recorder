@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react';
-import { InterpretationIcons } from "./InterpretationIcons";
+import { InterpretationButtons } from "./InterpretationButtons";
 import { AddButton } from "../atoms/AddButton";
 import { GenericModal } from "../atoms/GenericModal";
 import { PairEditForm } from "./PairEditForm";
@@ -35,10 +35,10 @@ export const SidePanelHeader: FC<SidePanelHeaderProps> = (
 
  return (
    <div>
-    <InterpretationIcons/>
+    <InterpretationButtons/>
     <AddButton
       handleClick={handleAddPair}
-      title="Add Pair"
+      title="Add rule"
       hoverEffect={false}
     />
     <GenericModal
