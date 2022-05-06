@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react';
-import { Button, Stack } from "@mui/material";
+import { Stack, Button } from "@mui/material";
 import { AddPair, deletePair, UpdatePair } from "../../api/workflow";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
 import { ClearButton } from "../atoms/ClearButton";
@@ -8,6 +8,7 @@ import { PairEditForm } from "./PairEditForm";
 import { PairDisplayDiv } from "../atoms/PairDisplayDiv";
 import TreeItem from "@mui/lab/TreeItem";
 import { EditButton } from "../atoms/EditButton";
+import { BreakpointButton } from "../atoms/BreakpointButton";
 
 type WhereWhatPair = WorkflowFile["workflow"][number];
 
@@ -22,6 +23,7 @@ interface PairProps {
 export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs }) => {
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [breakpoint, setBreakpoint] = useState(false);
 
   const enableEdit = () => setEdit(true);
   const disableEdit = () => setEdit(false);
@@ -61,7 +63,24 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
   return (
     <div>
       <Stack direction="row">
-        <TreeItem sx={{padding: '4px'}} nodeId={index.toString()} key={index.toString()} label={index}>
+        <div style={{position: 'sticky', maxWidth:'20px'}}>
+          {breakpoint
+            ? <BreakpointButton  handleClick={() => setBreakpoint(false)}/>
+            : <button style={{
+              padding:'10px 15px',
+              backgroundColor: 'transparent',
+              borderRight: '6px solid gray',
+              borderTop: 'none',
+              borderBottom: 'none',
+              borderLeft: 'none',
+            }} onClick={()=>setBreakpoint(true)}></button>
+          }
+        </div>
+        <TreeItem sx={{
+          padding: '4px',
+          position: 'relative',
+          left: '18%',
+        }} nodeId={index.toString()} key={index.toString()} label={index}>
           {
             pair.what.map((what, i) => {
               if (what) {
@@ -71,7 +90,7 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
             })
           }
         </TreeItem>
-        <Stack direction="row" spacing={0} sx={{position: 'fixed', left:'150px'}}>
+        <Stack direction="row" spacing={0} style={{position: 'sticky', marginLeft:'40px'}}>
           <EditButton
             handleClick={handleOpen}
           />

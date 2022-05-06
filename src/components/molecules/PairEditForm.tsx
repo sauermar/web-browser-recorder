@@ -55,36 +55,30 @@ export const PairEditForm: FC<PairEditFormProps> = (
     event.preventDefault();
     let whereFromPair, whatFromPair;
     // validate where
-    try {
       whereFromPair = {
         where: pairProps.where && pairProps.where !== '{"url":"","selectors":[""] }'
           ? JSON.parse(pairProps.where)
           : {},
         what: [],
       };
-      Preprocessor.validateWorkflow({workflow: [whereFromPair]});
+      const validationError = Preprocessor.validateWorkflow({workflow: [whereFromPair]});
       setErrors({ ...errors, where: null });
-    } catch (e) {
-      const { message } = e as Error;
-      setErrors({ ...errors, where: message });
+    if (validationError) {
+      setErrors({ ...errors, where: validationError.message });
       return;
     }
     // validate what
-    try {
       whatFromPair = {
         where: {},
         what: pairProps.what && pairProps.what !== '[{"action":"","args":[""] }]'
           ? JSON.parse(pairProps.what): [],
       };
-      const result = Preprocessor.validateWorkflow({workflow: [whatFromPair]});
-      console.log(JSON.stringify({workflow: [whatFromPair]}, null, 2))
-      console.log(result, 'result');
+      const validationErrorWhat = Preprocessor.validateWorkflow({workflow: [whatFromPair]});
       setErrors({ ...errors, "what": null });
-    } catch (e) {
-      const { message } = e as Error;
-      setErrors({ ...errors, "what": message });
-      return;
-    }
+      if (validationErrorWhat) {
+        setErrors({ ...errors, what: validationErrorWhat.message });
+        return;
+      }
     //validate index
     const index = parseInt(pairProps?.index, 10);
     if (index > (numberOfPairs + 1)) {
