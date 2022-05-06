@@ -9,7 +9,8 @@ interface ClearButtonProps {
 
 export const ClearButton: FC<ClearButtonProps> = ({ handleClick, size }) => {
   return (
-    <IconButton aria-label="add" size={size || "small"} onClick={handleClick}>
+    <IconButton aria-label="add" size={size || "small"} onClick={handleClick}
+    sx={{'&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}>
       <Clear/>
     </IconButton>
   );

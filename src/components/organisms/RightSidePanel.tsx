@@ -1,27 +1,18 @@
 import React from 'react';
-import { Button, Paper, Stack } from "@mui/material";
-import { Dropdown, IDropdownItem } from "../atoms/Dropdown";
+import { Button, MenuItem, Paper, Stack } from "@mui/material";
+import { Dropdown as  MuiDropdown } from '../atoms/DropdownMui';
 import styled from "styled-components";
 import { ActionSettings } from "../molecules/ActionSettings";
+import { SelectChangeEvent } from "@mui/material/Select/Select";
 
 export const RightSidePanel = () => {
 
   const [action, setAction] = React.useState<string>('');
   const [isSettingsDisplayed, setIsSettingsDisplayed] = React.useState<boolean>(false);
 
-  const dropdownActions = [
-    {
-      id: 0,
-      text: 'scroll'
-    },
-    {
-      id: 1,
-      text: 'screenshot'
-    }
-  ];
-
-  const onDropdownActionClick = (action: IDropdownItem) => {
-    setAction(action.text);
+  const handleActionSelect = (event: SelectChangeEvent) => {
+    const { value } = event.target;
+    setAction(value);
     setIsSettingsDisplayed(true);
   };
 
@@ -51,11 +42,14 @@ export const RightSidePanel = () => {
 
       <ActionDescription>Type of action:</ActionDescription>
       <ActionTypeWrapper>
-        <Dropdown
-          items={dropdownActions}
-          activatorText="Custom action"
-          onItemClick={onDropdownActionClick}
-        />
+        <MuiDropdown
+          id="action"
+          label="Action"
+          value={action}
+          handleSelect={handleActionSelect}>
+            <MenuItem value="scroll">scroll</MenuItem>
+            <MenuItem value="screenshot">screenshot</MenuItem>
+        </MuiDropdown>
       </ActionTypeWrapper>
 
       {isSettingsDisplayed &&

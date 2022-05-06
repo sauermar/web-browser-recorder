@@ -69,7 +69,7 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
             : <button style={{
               padding:'10px 15px',
               backgroundColor: 'transparent',
-              borderRight: '6px solid gray',
+              borderRight: '3px solid gray',
               borderTop: 'none',
               borderBottom: 'none',
               borderLeft: 'none',
@@ -79,9 +79,10 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
         <TreeItem sx={{
           padding: '4px',
           position: 'relative',
-          left: '18%',
+          left: '10%',
         }} nodeId={index.toString()} key={index.toString()} label={index}>
           {
+            //eslint-disable-next-line
             pair.what.map((what, i) => {
               if (what) {
                 const id = `${index.toString()}.${i.toString()}`;
@@ -90,7 +91,8 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
             })
           }
         </TreeItem>
-        <Stack direction="row" spacing={0} style={{position: 'sticky', marginLeft:'40px'}}>
+        <Stack direction="row" spacing={0}
+               style={{position: 'sticky', marginLeft:'50px'}}>
           <EditButton
             handleClick={handleOpen}
           />
