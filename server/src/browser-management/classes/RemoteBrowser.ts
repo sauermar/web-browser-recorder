@@ -28,6 +28,8 @@ export class RemoteBrowser {
 
     public interpreter: Interpreter | null = null;
 
+    private interpretationIsPaused: boolean = false;
+
     public constructor(socket: Socket){
         this.socket = socket;
     }
@@ -47,6 +49,12 @@ export class RemoteBrowser {
         //initialize CDP session
         this.client = await this.currentPage.context().newCDPSession(this.currentPage);
         this.generator = new WorkflowGenerator(this.currentPage, this.socket);
+        this.socket.on('pause', () => {
+            this.interpretationIsPaused = true;
+        });
+        this.socket.on('resume', () => {
+            this.interpretationIsPaused = false;
+        });
     };
 
     /**
@@ -159,9 +167,14 @@ export class RemoteBrowser {
                 this.interpreter = interpreter;
 
                   interpreter.on('flag', async (page, resume) => {
-                    console.log(`Flag: ${page.url()}`);
-                    console.log(`Inside of the flag callback`);
-                    resume();
+                    if (this.interpretationIsPaused) {
+                        logger.log('debug',`Paused inside of flag: ${page.url()}`);
+                        this.currentPage = page;
+                        this.generator!.page= page;
+                    } else {
+                        resume();
+                    }
+                    this.socket.on('resume', () => resume());
                   })
 
                 if (this.currentPage) {

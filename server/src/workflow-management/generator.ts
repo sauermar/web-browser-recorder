@@ -12,7 +12,7 @@ export class WorkflowGenerator {
 
   private socket : Socket;
 
-  private readonly page: Page;
+  public page: Page;
 
   public constructor(page: Page, socket: Socket) {
     this.page = page;
@@ -50,10 +50,14 @@ export class WorkflowGenerator {
   };
 
   public onClick = async (coordinates: Coordinates) => {
+    let where: WhereWhatPair["where"] = { url: this.page.url() };
     const selector = await getFullPath(this.page, coordinates);
     logger.log('debug', `Element's selector: ${selector}`);
+    if (selector) {
+      where.selectors = [selector];
+    }
     const pair: WhereWhatPair = {
-      where: { url: this.page.url(), selectors:[selector] },
+      where,
       what: [{
         action: 'click',
         args: [selector],
@@ -76,9 +80,13 @@ export class WorkflowGenerator {
   };
 
   public onKeyboardInput = async (key: string, coordinates: Coordinates) => {
+    let where: WhereWhatPair["where"] = { url: this.page.url() };
     const selector = await getFullPath(this.page, coordinates);
+    if (selector) {
+      where.selectors = [selector];
+    }
     const pair: WhereWhatPair = {
-      where: { url: this.page.url(), selectors: [selector] },
+      where,
       what: [{
         action: 'press',
         args: [selector, key],
