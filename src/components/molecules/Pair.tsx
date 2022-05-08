@@ -73,7 +73,7 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
               borderTop: 'none',
               borderBottom: 'none',
               borderLeft: 'none',
-            }} onClick={()=>setBreakpoint(true)}></button>
+            }} onClick={()=>setBreakpoint(true)}/>
           }
         </div>
         <TreeItem sx={{

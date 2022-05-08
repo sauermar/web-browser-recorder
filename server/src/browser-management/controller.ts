@@ -9,7 +9,6 @@ import { io, browserPool } from "../server";
 import { RemoteBrowser } from "./classes/RemoteBrowser";
 import { RemoteBrowserOptions } from "../interfaces/Input";
 import logger from "../logger";
-import { interpretWorkflow, stopInterpretation } from "../workflow-management/interpretation";
 
 /**
  * Starts a remote browser recording session.
@@ -58,18 +57,10 @@ export const getActiveBrowserId = () => {
 export const interpretWholeWorkflow = async() => {
     const id = getActiveBrowserId();
     const browser = browserPool.getRemoteBrowser(id);
-    if (browser && browser.generator) {
-        const workflow = await browser.generator.getWorkflowFile();
-        logger.log('info', `Workflow: ${JSON.stringify(workflow)}`);
-        await browser.initializeNewPage();
-        if (browser.currentPage) {
-            await interpretWorkflow(workflow, browser);
-            browser.interpreter = null;
-        } else {
-            logger.log('error', 'Could not get a new page, returned undefined');
-        }
+    if (browser) {
+        await browser.interpretCurrentRecording();
     } else {
-        logger.log('error', 'Cannot interpret the workflow: No active browser or generator.');
+        logger.log('error', 'Cannot interpret the workflow: No active browser.');
     }
 
 };
@@ -78,14 +69,7 @@ export const stopRunningInterpretation = async() => {
     const id = getActiveBrowserId();
     const browser = browserPool.getRemoteBrowser(id);
     if (browser) {
-        if (browser.interpreter) {
-            logger.log('info', 'Stopping the interpretation.');
-            await stopInterpretation(browser.interpreter);
-            browser.interpreter = null;
-            browser.currentPage = null;
-        } else {
-            logger.log('error', 'Cannot stop the interpretation: No active interpreter.');
-        }
+        await browser.stopCurrentInterpretation();
     } else {
         logger.log('error', 'Cannot stop interpretation: No active browser or generator.');
     }

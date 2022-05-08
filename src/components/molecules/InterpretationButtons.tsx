@@ -1,7 +1,7 @@
 import { IconButton, Stack } from "@mui/material";
 import { PauseCircle, PlayCircle, StopCircle } from "@mui/icons-material";
 import React from "react";
-import { interpretCurrentRecording, stopCurrentRecording } from "../../api/recording";
+import { interpretCurrentRecording, stopCurrentInterpretation } from "../../api/recording";
 
 export const InterpretationButtons = () => {
 
@@ -12,7 +12,11 @@ export const InterpretationButtons = () => {
 
   const handleStop = async () => {
     console.log("handling stop");
-    await stopCurrentRecording();
+    await stopCurrentInterpretation();
+  };
+
+  const handlePause = async () => {
+    console.log("handling pause");
   };
 
   return (

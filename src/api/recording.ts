@@ -58,7 +58,7 @@ export const interpretCurrentRecording = async(): Promise<void> => {
     }
 };
 
-export const stopCurrentRecording = async(): Promise<void> => {
+export const stopCurrentInterpretation = async(): Promise<void> => {
   try {
     const response = await axios.get('http://localhost:8080/record/interpret/stop');
     console.log(response);

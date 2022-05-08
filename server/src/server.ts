@@ -18,7 +18,6 @@ import {Server} from "socket.io";
 const app = express();
 // enabling cors for communication with client on a different port/domain
 app.use(cors());
-app.use(express.urlencoded());
 app.use(express.json())
 
 const server = http.createServer(app);

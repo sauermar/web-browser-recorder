@@ -9,6 +9,8 @@ import logger from '../../logger';
 import { RemoteBrowserOptions } from "../../interfaces/Input";
 import { WorkflowGenerator } from "../../workflow-management/generator";
 import Interpreter, { WorkflowFile } from "@wbr-project/wbr-interpret";
+import { saveFile } from "../../workflow-management/storage";
+import fs from "fs";
 
 export class RemoteBrowser {
 
@@ -131,7 +133,7 @@ export class RemoteBrowser {
         }
     };
 
-    public initializeNewPage = async (options?: Object) : Promise<void> => {
+    private initializeNewPage = async (options?: Object) : Promise<void> => {
         const newPage = options ? await this.browser?.newPage(options)
           : await this.browser?.newPage();
 
@@ -139,6 +141,52 @@ export class RemoteBrowser {
         this.currentPage = newPage;
         this.client = await this.currentPage?.context().newCDPSession(this.currentPage);
         await this.subscribeToScreencast();
+    };
+
+    public interpretCurrentRecording = async () : Promise<void> => {
+        if (this.generator) {
+            const workflow = await this.generator.getWorkflowFile();
+            // save current interpreted workflow for debugging
+            await saveFile( '../workflow.json', JSON.stringify(workflow, null, 2));
+            await this.initializeNewPage();
+            if (this.currentPage) {
+                const options = {
+                    serializableCallback: console.log,
+                    binaryCallback: (data: string, mimetype: string) => fs.writeFileSync("output", data)
+                }
+
+                const interpreter = new Interpreter(workflow, options);
+                this.interpreter = interpreter;
+
+                  interpreter.on('flag', async (page, resume) => {
+                    console.log(`Flag: ${page.url()}`);
+                    console.log(`Inside of the flag callback`);
+                    resume();
+                  })
+
+                if (this.currentPage) {
+                    await interpreter.run(
+                      this.currentPage
+                    );
+                }
+                this.interpreter = null;
+            } else {
+                logger.log('error', 'Could not get a new page, returned undefined');
+            }
+        } else {
+            logger.log('error', 'Generator is not initialized');
+        }
+    };
+
+    public stopCurrentInterpretation = async () : Promise<void> => {
+        if (this.interpreter) {
+            logger.log('info', 'Stopping the interpretation.');
+            await this.interpreter.stop();
+            this.interpreter = null;
+            this.currentPage = null;
+        } else {
+            logger.log('error', 'Cannot stop: No active interpretation.');
+        }
     };
 
 };

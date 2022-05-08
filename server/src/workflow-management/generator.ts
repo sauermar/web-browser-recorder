@@ -35,6 +35,11 @@ export class WorkflowGenerator {
       }
     }
     if (!matched) {
+      // adding flag as a top action to every pair for pausing/resuming
+      pair.what.unshift({
+        action: 'flag',
+        args: [],
+      })
       // we want to have the most specific selectors at the beginning of the workflow
       this.workflowRecord.workflow.unshift(pair);
     }

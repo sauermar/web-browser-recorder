@@ -28,6 +28,7 @@ const generateScreenshot = async (settings: ScreenshotSettings) => {
 const registerActionHandlers = (socket: Socket) => {
   socket.on("action:scroll", generateScroll);
   socket.on("action:screenshot", generateScreenshot);
+
 };
 
 export default registerActionHandlers;
