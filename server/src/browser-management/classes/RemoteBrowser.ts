@@ -30,6 +30,8 @@ export class RemoteBrowser {
 
     private interpretationIsPaused: boolean = false;
 
+    private interpretationResume: (() => void) | null = null;
+
     public constructor(socket: Socket){
         this.socket = socket;
     }
@@ -54,6 +56,18 @@ export class RemoteBrowser {
         });
         this.socket.on('resume', () => {
             this.interpretationIsPaused = false;
+            if (this.interpretationResume) {
+                this.interpretationResume();
+            } else {
+                logger.log('debug',"Resume called but no resume function is set");
+            }
+        });
+        this.socket.on('step', () => {
+            if (this.interpretationResume) {
+                this.interpretationResume();
+            } else {
+                logger.log('debug', "Step called but no resume function is set");
+            }
         });
     };
 
@@ -168,21 +182,28 @@ export class RemoteBrowser {
 
                   interpreter.on('flag', async (page, resume) => {
                     if (this.interpretationIsPaused) {
+                        this.interpretationResume = resume;
                         logger.log('debug',`Paused inside of flag: ${page.url()}`);
+                        console.log(`Is paused`);
                         this.currentPage = page;
                         this.generator!.page= page;
                     } else {
                         resume();
                     }
-                    this.socket.on('resume', () => resume());
                   })
 
                 if (this.currentPage) {
-                    await interpreter.run(
+                   const result =  await interpreter.run(
                       this.currentPage
                     );
+                    logger.log('debug',`Interpretation finished`);
+                    if (this.interpretationIsPaused) {
+                        this.interpretationIsPaused = false;
+                        this.socket.emit('finished');
+                    }
                 }
                 this.interpreter = null;
+                this.interpretationResume = null;
             } else {
                 logger.log('error', 'Could not get a new page, returned undefined');
             }

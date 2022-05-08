@@ -4,10 +4,19 @@ import React from "react";
 import { interpretCurrentRecording, stopCurrentInterpretation } from "../../api/recording";
 import { useSocketStore } from "../../context/socket";
 
-export const InterpretationButtons = () => {
+interface InterpretationButtonsProps {
+  enableStepping: (isPaused: boolean) => void,
+}
+
+export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsProps) => {
   const [isPaused, setIsPaused] = React.useState(false);
 
   const { socket } = useSocketStore();
+
+  socket?.on('finished', () => {
+    setIsPaused(false);
+    enableStepping(false);
+  });
 
   const handlePlay = async () => {
     console.log("handling play");
@@ -24,9 +33,11 @@ export const InterpretationButtons = () => {
     if (isPaused) {
       socket?.emit("resume");
       setIsPaused(false);
+      enableStepping(false);
     } else {
       socket?.emit("pause");
       setIsPaused(true);
+      enableStepping(true);
     }
   };
 
