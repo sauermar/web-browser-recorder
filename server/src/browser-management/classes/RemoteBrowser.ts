@@ -173,6 +173,12 @@ export class RemoteBrowser {
             await this.initializeNewPage();
             if (this.currentPage) {
                 const options = {
+                    maxConcurrency: 1,
+                    maxRepeats: 5,
+                    debugChannel: {
+                        activeId: (id: any) => this.socket.emit('activePairId', id),
+                        debugMessage: (msg: any) => this.socket.emit('debugMessage', msg),
+                    },
                     serializableCallback: console.log,
                     binaryCallback: (data: string, mimetype: string) => fs.writeFileSync("output", data)
                 }

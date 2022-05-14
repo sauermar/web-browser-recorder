@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Stack, Button } from "@mui/material";
 import { AddPair, deletePair, UpdatePair } from "../../api/workflow";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
@@ -9,18 +9,20 @@ import { PairDisplayDiv } from "../atoms/PairDisplayDiv";
 import TreeItem from "@mui/lab/TreeItem";
 import { EditButton } from "../atoms/EditButton";
 import { BreakpointButton } from "../atoms/BreakpointButton";
+import { useSocketStore } from "../../context/socket";
 
 type WhereWhatPair = WorkflowFile["workflow"][number];
 
 
 interface PairProps {
+  isActive: boolean;
   index: number;
   pair: WhereWhatPair;
   updateWorkflow: (workflow: WorkflowFile) => void;
   numberOfPairs: number;
 }
 
-export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs }) => {
+export const Pair: FC<PairProps> = ({ isActive, index, pair, updateWorkflow, numberOfPairs }) => {
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(false);
   const [breakpoint, setBreakpoint] = useState(false);
@@ -61,7 +63,13 @@ export const Pair: FC<PairProps> = ({ index, pair, updateWorkflow, numberOfPairs
   };
 
   return (
-    <div>
+    <div style={{
+      backgroundColor: isActive ? 'rgba(25, 118, 210, 0.15)' : 'transparent',
+      display: 'flex',
+      flexDirection: 'row',
+      flexGrow: 1,
+      width: "fit-content",
+    }}>
       <Stack direction="row">
         <div style={{position: 'sticky', maxWidth:'20px'}}>
           {breakpoint

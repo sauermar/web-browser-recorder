@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { TreeView } from "@mui/lab";
@@ -6,6 +6,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Pair } from "./Pair";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
+import { useSocketStore } from "../../context/socket";
 
 interface LeftSidePanelContentProps {
   workflow: WorkflowFile;
@@ -14,6 +15,18 @@ interface LeftSidePanelContentProps {
 
 export const LeftSidePanelContent = ({ workflow, updateWorkflow}: LeftSidePanelContentProps) => {
   const [expanded, setExpanded] = React.useState<string[]>([]);
+  const [activeId, setActiveId] = React.useState<number>(0);
+
+  const { socket } = useSocketStore();
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("activePairId", data => {
+        setActiveId(parseInt(data) + 1);
+        console.log("activePairId", data);
+      });
+    }
+  }, [socket, setActiveId]);
 
   const handleToggle = (event: React.SyntheticEvent, nodeIds: string[]) => {
     setExpanded(nodeIds);
@@ -44,6 +57,7 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow}: LeftSidePanelC
         {
           workflow.workflow.map((pair, i, workflow, ) =>
             <Pair
+              isActive={ activeId === i + 1}
               key={workflow.length - i}
               index={workflow.length - i}
               pair={pair}

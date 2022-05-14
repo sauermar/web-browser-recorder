@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Grid, Paper} from '@mui/material';
+import { Grid } from '@mui/material';
 import { NavBar } from "../components/molecules/NavBar";
 import { BrowserContent } from "../components/organisms/BrowserContent";
 import { useSocketStore } from "../context/socket";
@@ -7,7 +7,6 @@ import { startRecording, stopRecording, getActiveBrowserId } from "../api/record
 import { LeftSidePanel } from "../components/organisms/LeftSidePanel";
 import { RightSidePanel } from "../components/organisms/RightSidePanel";
 
-// frontend minimalistic prototype using MUI framework
 export const RecordingPage = () => {
 
   const [browserId, setBrowserId] = React.useState('');
