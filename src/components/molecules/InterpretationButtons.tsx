@@ -1,6 +1,6 @@
 import { IconButton, Stack } from "@mui/material";
 import { PauseCircle, PlayCircle, StopCircle } from "@mui/icons-material";
-import React from "react";
+import React, { useEffect } from "react";
 import { interpretCurrentRecording, stopCurrentInterpretation } from "../../api/recording";
 import { useSocketStore } from "../../context/socket";
 
@@ -13,10 +13,18 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
 
   const { socket } = useSocketStore();
 
-  socket?.on('finished', () => {
-    setIsPaused(false);
-    enableStepping(false);
-  });
+  useEffect(() => {
+    if (socket) {
+      socket.on('finished', () => {
+        setIsPaused(false);
+        enableStepping(false);
+      });
+      socket.on('breakpointHit', () => {
+        setIsPaused(true);
+        enableStepping(true);
+      });
+    }
+  }, [socket, setIsPaused, enableStepping]);
 
   const handlePlay = async () => {
     console.log("handling play");

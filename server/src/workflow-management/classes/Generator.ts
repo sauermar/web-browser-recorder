@@ -1,12 +1,12 @@
-import { Coordinates } from "../interfaces/Input";
+import { Coordinates } from "../../interfaces/Input";
 import { WorkflowFile } from '@wbr-project/wbr-interpret';
 import { WhereWhatPair } from "@wbr-project/wbr-interpret";
-import logger from "../logger";
+import logger from "../../logger";
 import { Socket } from "socket.io";
 import { Page } from "playwright";
-import { getFullPath, selectorAlreadyInWorkflow } from "./selector";
-import { ScreenshotSettings, ScrollSettings } from "../../../src/shared/types";
-import { workflow } from "../routes";
+import { getFullPath, selectorAlreadyInWorkflow } from "../selector";
+import { ScreenshotSettings, ScrollSettings } from "../../../../src/shared/types";
+import { workflow } from "../../routes";
 
 export class WorkflowGenerator {
 

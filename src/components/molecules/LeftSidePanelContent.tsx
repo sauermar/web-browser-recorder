@@ -16,6 +16,7 @@ interface LeftSidePanelContentProps {
 export const LeftSidePanelContent = ({ workflow, updateWorkflow}: LeftSidePanelContentProps) => {
   const [expanded, setExpanded] = React.useState<string[]>([]);
   const [activeId, setActiveId] = React.useState<number>(0);
+  const [breakpoints, setBreakpoints] = React.useState<boolean[]>([]);
 
   const { socket } = useSocketStore();
 
@@ -23,7 +24,9 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow}: LeftSidePanelC
     if (socket) {
       socket.on("activePairId", data => {
         setActiveId(parseInt(data) + 1);
-        console.log("activePairId", data);
+      });
+      socket?.on('finished', () => {
+        setActiveId(0);
       });
     }
   }, [socket, setActiveId]);
@@ -36,6 +39,15 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow}: LeftSidePanelC
     setExpanded((oldExpanded) => {
       const newArray = [...Array(workflow.workflow.length + 1).keys()].map(x => x++).map(x => x.toString());
       return oldExpanded.length === 0 ? newArray: []
+    });
+  };
+
+  const handleBreakpointClick = (id: number) => {
+    setBreakpoints(oldBreakpoints => {
+      const newArray = [...oldBreakpoints, ...Array(workflow.workflow.length - oldBreakpoints.length).fill(false)];
+      newArray[id] = !newArray[id];
+      socket?.emit("breakpoints", newArray);
+      return newArray;
     });
   };
 
@@ -57,6 +69,7 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow}: LeftSidePanelC
         {
           workflow.workflow.map((pair, i, workflow, ) =>
             <Pair
+              handleBreakpoint={() => handleBreakpointClick(i)}
               isActive={ activeId === i + 1}
               key={workflow.length - i}
               index={workflow.length - i}

@@ -7,10 +7,9 @@ import { Socket } from "socket.io";
 
 import logger from '../../logger';
 import { RemoteBrowserOptions } from "../../interfaces/Input";
-import { WorkflowGenerator } from "../../workflow-management/generator";
-import Interpreter, { WorkflowFile } from "@wbr-project/wbr-interpret";
+import { WorkflowGenerator } from "../../workflow-management/classes/Generator";
 import { saveFile } from "../../workflow-management/storage";
-import fs from "fs";
+import { WorkflowInterpreter } from "../../workflow-management/classes/Interpreter";
 
 export class RemoteBrowser {
 
@@ -26,7 +25,7 @@ export class RemoteBrowser {
 
     public generator: WorkflowGenerator | null = null;
 
-    public interpreter: Interpreter | null = null;
+    public interpreter: WorkflowInterpreter;
 
     private interpretationIsPaused: boolean = false;
 
@@ -34,6 +33,7 @@ export class RemoteBrowser {
 
     public constructor(socket: Socket){
         this.socket = socket;
+        this.interpreter = new WorkflowInterpreter();
     }
 
     /**
@@ -52,7 +52,7 @@ export class RemoteBrowser {
         this.client = await this.currentPage.context().newCDPSession(this.currentPage);
         this.generator = new WorkflowGenerator(this.currentPage, this.socket);
         this.socket.on('pause', () => {
-            this.interpretationIsPaused = true;
+            this.pauseInterpretation();
         });
         this.socket.on('resume', () => {
             this.interpretationIsPaused = false;
@@ -69,6 +69,7 @@ export class RemoteBrowser {
                 logger.log('debug', "Step called but no resume function is set");
             }
         });
+        this.socket.on('breakpoints', (data: boolean[]) => this.interpreter.breakpoints = data);
     };
 
     /**
@@ -165,6 +166,21 @@ export class RemoteBrowser {
         await this.subscribeToScreencast();
     };
 
+    private pauseInterpretation = () : void => {
+        this.interpretationIsPaused = true;
+    };
+
+    private handlePause = (page: Page, resume: () => void) => {
+        if (this.interpretationIsPaused) {
+            this.interpretationResume = resume;
+            logger.log('debug',`Paused inside of flag: ${page.url()}`);
+            this.currentPage = page;
+            this.generator!.page= page;
+        } else {
+            resume();
+        }
+    };
+
     public interpretCurrentRecording = async () : Promise<void> => {
         if (this.generator) {
             const workflow = await this.generator.getWorkflowFile();
@@ -172,43 +188,8 @@ export class RemoteBrowser {
             await saveFile( '../workflow.json', JSON.stringify(workflow, null, 2));
             await this.initializeNewPage();
             if (this.currentPage) {
-                const options = {
-                    maxConcurrency: 1,
-                    maxRepeats: 5,
-                    debugChannel: {
-                        activeId: (id: any) => this.socket.emit('activePairId', id),
-                        debugMessage: (msg: any) => this.socket.emit('debugMessage', msg),
-                    },
-                    serializableCallback: console.log,
-                    binaryCallback: (data: string, mimetype: string) => fs.writeFileSync("output", data)
-                }
-
-                const interpreter = new Interpreter(workflow, options);
-                this.interpreter = interpreter;
-
-                  interpreter.on('flag', async (page, resume) => {
-                    if (this.interpretationIsPaused) {
-                        this.interpretationResume = resume;
-                        logger.log('debug',`Paused inside of flag: ${page.url()}`);
-                        console.log(`Is paused`);
-                        this.currentPage = page;
-                        this.generator!.page= page;
-                    } else {
-                        resume();
-                    }
-                  })
-
-                if (this.currentPage) {
-                   const result =  await interpreter.run(
-                      this.currentPage
-                    );
-                    logger.log('debug',`Interpretation finished`);
-                    if (this.interpretationIsPaused) {
-                        this.interpretationIsPaused = false;
-                        this.socket.emit('finished');
-                    }
-                }
-                this.interpreter = null;
+                await this.interpreter.interpretRecording(this.socket, workflow, this.currentPage, this.handlePause, this.pauseInterpretation);
+                this.interpretationIsPaused = false;
                 this.interpretationResume = null;
             } else {
                 logger.log('error', 'Could not get a new page, returned undefined');
@@ -219,14 +200,7 @@ export class RemoteBrowser {
     };
 
     public stopCurrentInterpretation = async () : Promise<void> => {
-        if (this.interpreter) {
-            logger.log('info', 'Stopping the interpretation.');
-            await this.interpreter.stop();
-            this.interpreter = null;
-            this.currentPage = null;
-        } else {
-            logger.log('error', 'Cannot stop: No active interpretation.');
-        }
+        await this.interpreter.stopInterpretation();
+        this.currentPage = null;
     };
-
-};
+}
