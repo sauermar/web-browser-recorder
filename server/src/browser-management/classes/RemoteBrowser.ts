@@ -201,6 +201,6 @@ export class RemoteBrowser {
 
     public stopCurrentInterpretation = async () : Promise<void> => {
         await this.interpreter.stopInterpretation();
-        this.currentPage = null;
+        await this.initializeNewPage();
     };
 }
