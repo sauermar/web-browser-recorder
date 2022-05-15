@@ -7,8 +7,11 @@ const generateScroll = async (settings: ScrollSettings) => {
   logger.log('debug', 'Generating scroll action emitted from client');
   const id = browserPool.getActiveBrowserId();
   const activeBrowser = browserPool.getRemoteBrowser(id);
-  if (activeBrowser && activeBrowser.generator) {
-    await activeBrowser.generator.scroll(settings);
+  if (activeBrowser) {
+    const currentPage = activeBrowser.getCurrentPage();
+    if (currentPage) {
+      await activeBrowser.generator.scroll(settings, currentPage);
+    }
   } else {
     logger.log('warn', `Did not generate scroll, because there is no active browser`);
   }
@@ -18,8 +21,11 @@ const generateScreenshot = async (settings: ScreenshotSettings) => {
   logger.log('debug', 'Generating screenshot action emitted from client');
   const id = browserPool.getActiveBrowserId();
   const activeBrowser = browserPool.getRemoteBrowser(id);
-  if (activeBrowser && activeBrowser.generator) {
-    await activeBrowser.generator.screenshot(settings);
+  if (activeBrowser) {
+    const currentPage = activeBrowser.getCurrentPage();
+    if (currentPage) {
+      await activeBrowser.generator.screenshot(settings, currentPage);
+    }
   } else {
     logger.log('warn', `Did not generate screenshot, because there is no active browser`);
   }

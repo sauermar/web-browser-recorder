@@ -12,10 +12,7 @@ export class WorkflowGenerator {
 
   private socket : Socket;
 
-  public page: Page;
-
-  public constructor(page: Page, socket: Socket) {
-    this.page = page;
+  public constructor(socket: Socket) {
     this.socket = socket;
   }
 
@@ -49,9 +46,9 @@ export class WorkflowGenerator {
 
   };
 
-  public onClick = async (coordinates: Coordinates) => {
-    let where: WhereWhatPair["where"] = { url: this.page.url() };
-    const selector = await getFullPath(this.page, coordinates);
+  public onClick = async (coordinates: Coordinates, page: Page) => {
+    let where: WhereWhatPair["where"] = { url: page.url() };
+    const selector = await getFullPath(page, coordinates);
     logger.log('debug', `Element's selector: ${selector}`);
     if (selector) {
       where.selectors = [selector];
@@ -66,9 +63,9 @@ export class WorkflowGenerator {
     this.addPairToWorkflowAndNotifyClient(pair);
   };
 
-  public onChangeUrl = (newUrl: string) => {
+  public onChangeUrl = (newUrl: string, page: Page) => {
     const pair: WhereWhatPair = {
-      where: { url: this.page.url() },
+      where: { url: page.url() },
       what: [
         {
         action: 'goto',
@@ -79,9 +76,9 @@ export class WorkflowGenerator {
     this.addPairToWorkflowAndNotifyClient(pair);
   };
 
-  public onKeyboardInput = async (key: string, coordinates: Coordinates) => {
-    let where: WhereWhatPair["where"] = { url: this.page.url() };
-    const selector = await getFullPath(this.page, coordinates);
+  public onKeyboardInput = async (key: string, coordinates: Coordinates, page: Page) => {
+    let where: WhereWhatPair["where"] = { url: page.url() };
+    const selector = await getFullPath(page, coordinates);
     if (selector) {
       where.selectors = [selector];
     }
@@ -95,9 +92,9 @@ export class WorkflowGenerator {
     this.addPairToWorkflowAndNotifyClient(pair);
   };
 
-  public scroll = ({ scrollPages }: ScrollSettings) => {
+  public scroll = ({ scrollPages }: ScrollSettings, page: Page) => {
     const pair: WhereWhatPair = {
-      where: { url: this.page.url() },
+      where: { url: page.url() },
       what: [{
         action: 'scroll',
         args: [scrollPages],
@@ -106,9 +103,9 @@ export class WorkflowGenerator {
     this.addPairToWorkflowAndNotifyClient(pair);
   };
 
-  public screenshot = (settings: ScreenshotSettings) => {
+  public screenshot = (settings: ScreenshotSettings, page: Page) => {
     const pair: WhereWhatPair = {
-      where: { url: this.page.url() },
+      where: { url: page.url() },
       what: [{
         action: 'screenshot',
         args: [settings],
