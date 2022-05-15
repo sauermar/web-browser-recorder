@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Grid } from '@mui/material';
-import { NavBar } from "../components/molecules/NavBar";
 import { BrowserContent } from "../components/organisms/BrowserContent";
 import { startRecording, stopRecording, getActiveBrowserId } from "../api/recording";
 import { LeftSidePanel } from "../components/organisms/LeftSidePanel";
@@ -66,22 +65,19 @@ export const RecordingPage = () => {
   }, [setId]);
 
   return (
-    <div>
-      <NavBar/>
-      <Grid container direction="row" spacing={0}>
-        <Grid item xs={ 2 } ref={workflowListRef} style={{ display: "flex", flexDirection: "row" }}>
-            <LeftSidePanel
-              sidePanelRef={workflowListRef.current}
-              alreadyHasScrollbar={hasScrollbar}
-            />
-        </Grid>
-        <Grid id="browser-content" ref={browserContentRef} item xs>
-          { isLoaded ? <BrowserContent/> : <Loader/> }
-        </Grid>
-        <Grid item xs={ 2 }>
-            <RightSidePanel/>
-        </Grid>
+    <Grid container direction="row" spacing={0}>
+      <Grid item xs={ 2 } ref={workflowListRef} style={{ display: "flex", flexDirection: "row" }}>
+          <LeftSidePanel
+            sidePanelRef={workflowListRef.current}
+            alreadyHasScrollbar={hasScrollbar}
+          />
       </Grid>
-    </div>
+      <Grid id="browser-content" ref={browserContentRef} item xs>
+        { isLoaded ? <BrowserContent/> : <Loader/> }
+      </Grid>
+      <Grid item xs={ 2 }>
+          <RightSidePanel/>
+      </Grid>
+    </Grid>
   );
 };

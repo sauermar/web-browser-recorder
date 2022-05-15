@@ -8,6 +8,7 @@ interface AddButtonProps {
   title?: string;
   disabled?: boolean;
   hoverEffect?: boolean;
+  style?: React.CSSProperties;
 }
 
 export const AddButton: FC<AddButtonProps> = (
@@ -16,6 +17,7 @@ export const AddButton: FC<AddButtonProps> = (
     title,
     disabled = false,
     hoverEffect= true,
+    style
   }) => {
   return (
     <IconButton
@@ -23,7 +25,10 @@ export const AddButton: FC<AddButtonProps> = (
       size={size || "small"}
       onClick={handleClick}
       disabled={disabled}
-      sx={hoverEffect ? {} : {'&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}
+      sx={ hoverEffect
+        ? {...style, '&:hover': { background: '#1976d2' }}
+        : {...style, '&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}
+    }
     >
       <Add/>  {title}
     </IconButton>
