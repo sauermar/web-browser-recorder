@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSocketStore } from '../../context/socket';
 import Canvas from "../atoms/canvas";
-import {BROWSER_H, BROWSER_W} from "../../constants/const";
+import { useBrowserDimensionsStore } from "../../context/browserDimensions";
 
 export const BrowserWindow = () => {
 
@@ -9,6 +9,7 @@ export const BrowserWindow = () => {
     const [screenShot, setScreenShot] = useState<string>("");
 
     const { socket } = useSocketStore();
+    const { width, height } = useBrowserDimensionsStore();
 
     useEffect(() =>  {
         console.log('Effect from BrWindow');
@@ -30,8 +31,8 @@ export const BrowserWindow = () => {
     return (
         <Canvas
             onCreateRef={setCanvasReference}
-            width={BROWSER_W}
-            height={BROWSER_H}
+            width={width}
+            height={height}
         />
     );
 };

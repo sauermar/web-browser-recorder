@@ -1,6 +1,4 @@
 import {
-  ONE_PERCENT_OF_BROWSER_H,
-  ONE_PERCENT_OF_BROWSER_W,
   ONE_PERCENT_OF_VIEWPORT_H,
   ONE_PERCENT_OF_VIEWPORT_W
 } from "../constants/const";
@@ -19,16 +17,21 @@ export const throttle = (callback: any, limit: number) => {
   }
 }
 
-export const getMappedCoordinates = (event: MouseEvent, canvas: HTMLCanvasElement | null): Coordinates => {
+export const getMappedCoordinates = (
+  event: MouseEvent,
+  canvas: HTMLCanvasElement | null,
+  browserWidth: number,
+  browserHeight: number,
+): Coordinates => {
   const clientCoordinates = getCoordinates(event, canvas);
   console.log(clientCoordinates);
   const mappedX = mapPixelFromSmallerToLarger(
-    ONE_PERCENT_OF_BROWSER_W,
+    browserWidth / 100,
     ONE_PERCENT_OF_VIEWPORT_W,
     clientCoordinates.x,
   );
   const mappedY = mapPixelFromSmallerToLarger(
-    ONE_PERCENT_OF_BROWSER_H,
+    browserHeight / 100,
     ONE_PERCENT_OF_VIEWPORT_H,
     clientCoordinates.y,
   );

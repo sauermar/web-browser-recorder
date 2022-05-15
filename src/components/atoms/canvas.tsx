@@ -40,12 +40,12 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
             switch (event.type) {
                 case 'mousedown':
                     console.log('click registered and emitted');
-                    const clickCoordinates = getMappedCoordinates(event, canvasRef.current);
+                    const clickCoordinates = getMappedCoordinates(event, canvasRef.current, width, height);
                     console.log(clickCoordinates);
                     socket.emit('input:mousedown', clickCoordinates);
                     break;
                 case 'mousemove':
-                    const coordinates = getMappedCoordinates(event, canvasRef.current);
+                    const coordinates = getMappedCoordinates(event, canvasRef.current, width, height);
                     if (lastMousePosition.current.x !== coordinates.x ||
                       lastMousePosition.current.y !== coordinates.y) {
                         log.debug('mousemove event registered');
