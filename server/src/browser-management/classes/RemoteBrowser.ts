@@ -47,6 +47,7 @@ export class RemoteBrowser {
         this.pages = this.pages.concat([this.currentPage]);
         //initialize CDP session
         this.client = await this.currentPage.context().newCDPSession(this.currentPage);
+        this.socket.on('rerender', async() => await this.makeAndEmitScreenshot());
     };
 
     /**

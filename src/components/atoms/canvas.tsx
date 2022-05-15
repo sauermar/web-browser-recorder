@@ -39,28 +39,28 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
         if (socket) {
             switch (event.type) {
                 case 'mousedown':
-                    console.log('click registered and emitted');
+                    //console.log('click registered and emitted');
                     const clickCoordinates = getMappedCoordinates(event, canvasRef.current, width, height);
-                    console.log(clickCoordinates);
+                    //console.log(clickCoordinates);
                     socket.emit('input:mousedown', clickCoordinates);
                     break;
                 case 'mousemove':
                     const coordinates = getMappedCoordinates(event, canvasRef.current, width, height);
                     if (lastMousePosition.current.x !== coordinates.x ||
                       lastMousePosition.current.y !== coordinates.y) {
-                        log.debug('mousemove event registered');
+                        //log.debug('mousemove event registered');
                         lastMousePosition.current = coordinates;
                         socket.emit('input:mousemove', coordinates);
                     }
                     break;
                 case 'wheel':
-                    console.log('wheel canvas event registered');
+                    //console.log('wheel canvas event registered');
                     const wheelEvent = event as WheelEvent;
                     const deltas = {
                         deltaX: Math.round(wheelEvent.deltaX),
                         deltaY: Math.round(wheelEvent.deltaY),
                     };
-                    console.log(deltas);
+                    //console.log(deltas);
                     socket.emit('input:wheel', deltas);
                     break;
                 default:

@@ -24,7 +24,6 @@ export const getMappedCoordinates = (
   browserHeight: number,
 ): Coordinates => {
   const clientCoordinates = getCoordinates(event, canvas);
-  console.log(clientCoordinates);
   const mappedX = mapPixelFromSmallerToLarger(
     browserWidth / 100,
     ONE_PERCENT_OF_VIEWPORT_W,

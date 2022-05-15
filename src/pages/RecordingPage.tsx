@@ -13,11 +13,13 @@ export const RecordingPage = () => {
 
   const [browserId, setBrowserId] = React.useState('');
   const [isLoaded, setIsLoaded] = React.useState(false);
+  const [hasScrollbar, setHasScrollbar] = React.useState(false);
 
   const browserContentRef = React.useRef<HTMLDivElement>(null);
+  const workflowListRef = React.useRef<HTMLDivElement>(null);
 
   const { setId } = useSocketStore();
-  const  { setWidth, width } = useBrowserDimensionsStore();
+  const  { setWidth } = useBrowserDimensionsStore();
 
 
   useEffect(() => {
@@ -40,8 +42,10 @@ export const RecordingPage = () => {
 
     if (browserContentRef.current) {
       const currentWidth = Math.floor(browserContentRef.current.getBoundingClientRect().width);
-      if (window.innerHeight <= (currentWidth / 1.6)) {
+      const innerHeightWithoutNavBar = window.innerHeight - 54.5;
+      if ( innerHeightWithoutNavBar <= (currentWidth / 1.6)) {
        setWidth(currentWidth - 10);
+       setHasScrollbar(true);
       } else {
         setWidth(currentWidth);
         console.log(currentWidth, 'browser width set');
@@ -65,8 +69,11 @@ export const RecordingPage = () => {
     <div>
       <NavBar/>
       <Grid container direction="row" spacing={0}>
-        <Grid item xs={ 2 } style={{ display: "flex", flexDirection: "row" }}>
-            <LeftSidePanel/>
+        <Grid item xs={ 2 } ref={workflowListRef} style={{ display: "flex", flexDirection: "row" }}>
+            <LeftSidePanel
+              sidePanelRef={workflowListRef.current}
+              alreadyHasScrollbar={hasScrollbar}
+            />
         </Grid>
         <Grid id="browser-content" ref={browserContentRef} item xs>
           { isLoaded ? <BrowserContent/> : <Loader/> }

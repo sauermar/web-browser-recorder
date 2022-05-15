@@ -6,6 +6,7 @@ import { WorkflowFile } from "@wbr-project/wbr-interpret";
 import { SidePanelHeader } from "../molecules/SidePanelHeader";
 import { emptyWorkflow } from "../../shared/constants";
 import { LeftSidePanelContent } from "../molecules/LeftSidePanelContent";
+import { useBrowserDimensionsStore } from "../../context/browserDimensions";
 
 const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) => {
   getActiveWorkflow(id).then(
@@ -19,10 +20,18 @@ const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) =
   ).catch((error) => {console.log(error.message)})
 };
 
-export const LeftSidePanel = () => {
+interface LeftSidePanelProps {
+  sidePanelRef: HTMLDivElement | null;
+  alreadyHasScrollbar: boolean;
+}
+
+export const LeftSidePanel = ({ sidePanelRef, alreadyHasScrollbar }: LeftSidePanelProps) => {
   const { id, socket } = useSocketStore();
 
   const [workflow, setWorkflow] = useState<WorkflowFile>(emptyWorkflow);
+  const [hasScrollbar, setHasScrollbar] = useState<boolean>(alreadyHasScrollbar);
+
+  const { setWidth, width } = useBrowserDimensionsStore();
 
   useEffect(() => {
     // fetch the workflow every time the id changes
@@ -44,6 +53,22 @@ export const LeftSidePanel = () => {
       socket.on("workflow", data => {
         setWorkflow(data);
       });
+    }
+
+    if (sidePanelRef) {
+      const workflowListHeight = sidePanelRef.clientHeight;
+      const innerHeightWithoutNavbar = window.innerHeight - 70;
+      if (innerHeightWithoutNavbar <= workflowListHeight) {
+        if (!hasScrollbar) {
+          setWidth(width - 10);
+          setHasScrollbar(true);
+        }
+      } else {
+        if (hasScrollbar && !alreadyHasScrollbar) {
+          setWidth(width + 10);
+          setHasScrollbar(false);
+        }
+      }
     }
   }, [workflow, socket]);
 
