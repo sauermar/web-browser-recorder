@@ -6,10 +6,12 @@ import { useSocketStore } from "../context/socket";
 import { startRecording, stopRecording, getActiveBrowserId } from "../api/recording";
 import { LeftSidePanel } from "../components/organisms/LeftSidePanel";
 import { RightSidePanel } from "../components/organisms/RightSidePanel";
+import { Loader } from "../components/atoms/Loader";
 
 export const RecordingPage = () => {
 
   const [browserId, setBrowserId] = React.useState('');
+  const [isLoaded, setIsLoaded] = React.useState(false);
 
   const { setId } = useSocketStore();
 
@@ -32,6 +34,7 @@ export const RecordingPage = () => {
     };
 
     handleRecording();
+    setIsLoaded(true);
 
     return () => {
       isCancelled = true;
@@ -50,7 +53,7 @@ export const RecordingPage = () => {
             <LeftSidePanel/>
         </Grid>
         <Grid item xs>
-            <BrowserContent/>
+          { isLoaded ? <BrowserContent/> : <Loader/> }
         </Grid>
         <Grid item xs={ 2 }>
             <RightSidePanel/>
