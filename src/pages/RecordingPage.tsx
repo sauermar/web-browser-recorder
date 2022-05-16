@@ -7,10 +7,10 @@ import { RightSidePanel } from "../components/organisms/RightSidePanel";
 import { Loader } from "../components/atoms/Loader";
 import { useSocketStore } from "../context/socket";
 import { useBrowserDimensionsStore } from "../context/browserDimensions";
+import { useGlobalInfoStore } from "../context/globalInfo";
 
 export const RecordingPage = () => {
 
-  const [browserId, setBrowserId] = React.useState('');
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [hasScrollbar, setHasScrollbar] = React.useState(false);
 
@@ -19,6 +19,7 @@ export const RecordingPage = () => {
 
   const { setId } = useSocketStore();
   const  { setWidth } = useBrowserDimensionsStore();
+  const { browserId, setBrowserId } = useGlobalInfoStore();
 
 
   useEffect(() => {
@@ -58,7 +59,7 @@ export const RecordingPage = () => {
     return () => {
       isCancelled = true;
       console.log('RecordingPage unmounting');
-      if (browserId) {
+      if (browserId && browserId !== 'new-recording') {
         stopRecording(browserId);
       }
     }
