@@ -147,8 +147,6 @@ export class RemoteBrowser {
     public interpretCurrentRecording = async () : Promise<void> => {
         if (this.generator) {
             const workflow = await this.generator.getWorkflowFile();
-            // save current interpreted workflow for debugging
-            await saveFile( '../workflow.json', JSON.stringify(workflow, null, 2));
             await this.initializeNewPage();
             if (this.currentPage) {
                 await this.interpreter.interpretRecording(

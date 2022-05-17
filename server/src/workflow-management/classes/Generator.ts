@@ -7,6 +7,8 @@ import { Page } from "playwright";
 import { getFullPath, selectorAlreadyInWorkflow } from "../selector";
 import { ScreenshotSettings, ScrollSettings } from "../../../../src/shared/types";
 import { workflow } from "../../routes";
+import { saveFile } from "../storage";
+import fs from "fs";
 
 export class WorkflowGenerator {
 
@@ -14,6 +16,7 @@ export class WorkflowGenerator {
 
   public constructor(socket: Socket) {
     this.socket = socket;
+    socket.on('save', (fileName: string) => this.saveWorkflow(fileName));
   }
 
   private workflowRecord: WorkflowFile = {
@@ -35,7 +38,7 @@ export class WorkflowGenerator {
       // adding flag as a top action to every pair for pausing/resuming
       pair.what.unshift({
         action: 'flag',
-        args: [],
+        args: ['generated'],
       })
       // we want to have the most specific selectors at the beginning of the workflow
       this.workflowRecord.workflow.unshift(pair);
@@ -150,4 +153,29 @@ export class WorkflowGenerator {
   public updateSocket = (socket: Socket) : void => {
     this.socket = socket;
   };
+
+  private removeAllGeneratedFlags = (workflow: WorkflowFile): WorkflowFile => {
+      for (let i = 0; i < workflow.workflow.length; i++) {
+        if (workflow.workflow[i].what[0].action === 'flag' &&
+          workflow.workflow[i].what[0].args?.includes('generated')) {
+          workflow.workflow[i].what.splice(0, 1);
+        }
+      }
+      return workflow;
+  };
+
+  public saveWorkflow = async (fileName: string) => {
+    try {
+      const recording = this.removeAllGeneratedFlags(this.workflowRecord);
+      fs.mkdirSync('../recordings', { recursive: true })
+      await saveFile(
+        `../recordings/${fileName}.waw.json`,
+        JSON.stringify(recording, null, 2)
+      );
+    } catch (e) {
+      const { message } = e as Error;
+        logger.log('warn', `Cannot save the file to the local file system`)
+        console.log(message);
+    }
+  }
 }

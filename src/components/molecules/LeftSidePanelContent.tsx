@@ -7,8 +7,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Pair } from "./Pair";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
 import { useSocketStore } from "../../context/socket";
-import { useGlobalInfoStore } from "../../context/globalInfo";
-import { stopRecording } from "../../api/recording";
+import { SaveRecording } from "./SaveRecording";
 
 interface LeftSidePanelContentProps {
   workflow: WorkflowFile;
@@ -21,7 +20,6 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow}: LeftSidePanelC
   const [breakpoints, setBreakpoints] = React.useState<boolean[]>([]);
 
   const { socket } = useSocketStore();
-  const { browserId, setBrowserId } =  useGlobalInfoStore();
 
   useEffect(() => {
     if (socket) {
@@ -54,28 +52,13 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow}: LeftSidePanelC
     });
   };
 
-  const handleSaveRecording = () => {
-    socket?.emit('save');
-    if (browserId) {
-      stopRecording(browserId);
-    }
-    setBrowserId(null);
-  };
-
   return (
     <Box sx={{ flexGrow: 1, maxWidth: 150 }}>
       <Box sx={{ mb: 1, display: 'flex', width: '240px' }} >
         <Button onClick={handleExpandClick}>
           {expanded.length === 0 ? 'Expand all' : 'Collapse all'}
         </Button>
-        <Button sx={{
-          background: workflow.workflow.length === 0 ? 'rgba(25, 118, 210, 0.1)' : 'rgba(25, 118, 210, 0.8)',
-          color: '#fff',
-          borderRadius: '0%',
-          '&:hover': {background: '#1976d2'}
-        }} onClick={handleSaveRecording} disabled={workflow.workflow.length === 0}>
-         Save Recording
-        </Button>
+        <SaveRecording workflowLength={workflow.workflow.length}/>
       </Box>
       <TreeView
         aria-label="controlled"

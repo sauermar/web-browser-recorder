@@ -6,13 +6,14 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children?: JSX.Element;
+  modalStyle?: React.CSSProperties;
 }
 
-export const GenericModal: FC<ModalProps> = ({ isOpen, onClose, children }) => {
+export const GenericModal: FC<ModalProps> = ({ isOpen, onClose, children, modalStyle }) => {
 
   return (
         <Modal open={isOpen} onClose={onClose} >
-          <Box sx={modalStyle}>
+          <Box sx={{...modalStyle,   boxShadow: 24, position: 'absolute',} || defaultModalStyle}>
           <IconButton onClick={onClose} sx={{float: "right"}}>
             <Clear sx={{ fontSize: 20 }}/>
           </IconButton>
@@ -22,7 +23,7 @@ export const GenericModal: FC<ModalProps> = ({ isOpen, onClose, children }) => {
     );
 };
 
-const modalStyle = {
+const defaultModalStyle = {
   position: 'absolute',
   top: '50%',
   left: '50%',
