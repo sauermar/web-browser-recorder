@@ -17,6 +17,9 @@ export class WorkflowGenerator {
   public constructor(socket: Socket) {
     this.socket = socket;
     socket.on('save', (fileName: string) => this.saveNewWorkflow(fileName));
+    socket.on('new-recording', () => this.workflowRecord = {
+      workflow: [],
+    } );
   }
 
   private workflowRecord: WorkflowFile = {
@@ -164,12 +167,23 @@ export class WorkflowGenerator {
       return workflow;
   };
 
+  private AddGeneratedFlags = (workflow: WorkflowFile): WorkflowFile => {
+    for (let i = 0; i < workflow.workflow.length; i++) {
+      workflow.workflow[i].what.unshift({
+        action: 'flag',
+        args: ['generated'],
+      });
+    }
+    return workflow;
+  };
+
   public saveWorkflow = async (fileName: string) => {
 
   }
 
   public updateWorkflowFile = (workflowFile: WorkflowFile) => {
-    this.workflowRecord = workflowFile;
+    const stoppableWorkflow = this.AddGeneratedFlags(workflowFile);
+    this.workflowRecord = stoppableWorkflow;
   }
 
   public saveNewWorkflow = async (fileName: string) => {

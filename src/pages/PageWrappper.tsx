@@ -16,11 +16,12 @@ export const PageWrapper = () => {
 
   const handleNewRecording = () => {
     setBrowserId('new-recording');
+    setRecordingName('');
   }
 
   const handleEditRecording = (fileName: string) => {
     setRecordingName(fileName);
-    handleNewRecording();
+    setBrowserId('new-recording');
   }
 
   useEffect(() => {
