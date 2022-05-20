@@ -10,14 +10,14 @@ import { FastForward } from "@mui/icons-material";
 import { useSocketStore } from "../../context/socket";
 
 interface SidePanelHeaderProps {
-    numberOfPairs: number;
-    updateWorkflow: (workflow: WorkflowFile) => void;
+  numberOfPairs: number;
+  updateWorkflow: (workflow: WorkflowFile) => void;
 }
 
 export const SidePanelHeader: FC<SidePanelHeaderProps> = (
   {
-   numberOfPairs,
-   updateWorkflow,
+    numberOfPairs,
+    updateWorkflow,
   }
 ) => {
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavBar } from "../components/molecules/NavBar";
 import { SocketProvider } from "../context/socket";
 import { BrowserDimensionsProvider } from "../context/browserDimensions";
@@ -10,10 +10,17 @@ import { getActiveBrowserId } from "../api/recording";
 
 export const PageWrapper = () => {
 
+  const [recordingName, setRecordingName] = useState('');
+
   const { browserId, setBrowserId } =  useGlobalInfoStore();
 
   const handleNewRecording = () => {
     setBrowserId('new-recording');
+  }
+
+  const handleEditRecording = (fileName: string) => {
+    setRecordingName(fileName);
+    handleNewRecording();
   }
 
   useEffect(() => {
@@ -34,12 +41,13 @@ export const PageWrapper = () => {
           ? (
             <SocketProvider>
               <BrowserDimensionsProvider>
-                <RecordingPage/>
+                <RecordingPage recordingName={recordingName}/>
               </BrowserDimensionsProvider>
             </SocketProvider>
           )
           : <MainPage
             newRecording={handleNewRecording}
+            handleEditRecording={handleEditRecording}
           />
         }
     </div>

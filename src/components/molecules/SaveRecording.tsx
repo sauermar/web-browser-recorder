@@ -8,12 +8,13 @@ import { TextField } from "@mui/material";
 
 interface SaveRecordingProps {
   workflowLength: number;
+  fileName: string;
 }
 
-export const SaveRecording = ({workflowLength}: SaveRecordingProps) => {
+export const SaveRecording = ({workflowLength, fileName}: SaveRecordingProps) => {
 
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [recordingName, setRecordingName] = useState<string>('');
+  const [recordingName, setRecordingName] = useState<string>(fileName);
 
   const { browserId, setBrowserId } =  useGlobalInfoStore();
   const { socket } = useSocketStore();
@@ -51,6 +52,7 @@ export const SaveRecording = ({workflowLength}: SaveRecordingProps) => {
             id="title"
             label="Recording title"
             variant="outlined"
+            defaultValue={recordingName ? recordingName : null}
           />
           <Button type="submit">Save</Button>
         </form>

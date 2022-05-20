@@ -12,9 +12,10 @@ import { SaveRecording } from "./SaveRecording";
 interface LeftSidePanelContentProps {
   workflow: WorkflowFile;
   updateWorkflow: (workflow: WorkflowFile) => void;
+  recordingName: string;
 }
 
-export const LeftSidePanelContent = ({ workflow, updateWorkflow}: LeftSidePanelContentProps) => {
+export const LeftSidePanelContent = ({ workflow, updateWorkflow, recordingName}: LeftSidePanelContentProps) => {
   const [expanded, setExpanded] = React.useState<string[]>([]);
   const [activeId, setActiveId] = React.useState<number>(0);
   const [breakpoints, setBreakpoints] = React.useState<boolean[]>([]);
@@ -58,7 +59,7 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow}: LeftSidePanelC
         <Button onClick={handleExpandClick}>
           {expanded.length === 0 ? 'Expand all' : 'Collapse all'}
         </Button>
-        <SaveRecording workflowLength={workflow.workflow.length}/>
+        <SaveRecording workflowLength={workflow.workflow.length} fileName={recordingName}/>
       </Box>
       <TreeView
         aria-label="controlled"

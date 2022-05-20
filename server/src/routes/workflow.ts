@@ -5,6 +5,7 @@
 import { Router } from 'express';
 import logger from "../logger";
 import { browserPool } from "../server";
+import { readFile } from "../workflow-management/storage";
 
 export const router = Router();
 
@@ -68,4 +69,26 @@ router.put('/pair/:index', (req, res) => {
     }
   }
   return res.send(null);
+});
+
+router.put('/:browserId/:fileName', async (req, res) => {
+  try {
+    const browser = browserPool.getRemoteBrowser(req.params.browserId);
+    logger.log('debug', `Updating workflow file`);
+    if (browser && browser.generator) {
+      const recording = await readFile(`./../recordings/${req.params.fileName}.waw.json`)
+      const parsedRecording = JSON.parse(recording);
+      if (parsedRecording.recording) {
+        browser.generator?.updateWorkflowFile(parsedRecording.recording);
+        const workflowFile = browser.generator?.getWorkflowFile();
+        return res.send(workflowFile);
+      }
+    }
+    return res.send(null);
+  } catch (e) {
+    const {message} = e as Error;
+    console.log(message)
+    logger.log('info', `Error while reading a recording with name: ${req.params.fileName}.waw.json`);
+    return res.send(null);
+  }
 });

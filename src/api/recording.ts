@@ -1,4 +1,5 @@
 import { AxiosResponse } from "axios";
+import { WorkflowFile } from "@wbr-project/wbr-interpret";
 
 const axios = require('axios').default;
 
@@ -69,5 +70,49 @@ export const stopCurrentInterpretation = async(): Promise<void> => {
     }
   } catch(error: any) {
     console.log(error);
+  }
+};
+
+export const getStoredRecordings = async (): Promise<string[] | null> => {
+  try {
+    const response = await axios.get('http://localhost:8080/recordings');
+    console.log(response);
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error('Couldn\'t retrieve stored recordings');
+    }
+  } catch(error: any) {
+    console.log(error);
+    return null;
+  }
+};
+
+export const deleteRecordingFromStorage = async (fileName: string): Promise<boolean> => {
+  try {
+    const response = await axios.delete(`http://localhost:8080/recordings/${fileName}`);
+    console.log(response);
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error(`Couldn\'t delete stored recording ${fileName}`);
+    }
+  } catch(error: any) {
+    console.log(error);
+    return false;
+  }
+};
+
+export const editRecordingFromStorage = async (browserId: string, fileName: string): Promise<WorkflowFile | null> => {
+  try {
+    const response = await axios.put(`http://localhost:8080/workflow/${browserId}/${fileName}`);
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error(`Couldn\'t edit stored recording ${fileName}`);
+    }
+  } catch(error: any) {
+    console.log(error);
+    return null;
   }
 };

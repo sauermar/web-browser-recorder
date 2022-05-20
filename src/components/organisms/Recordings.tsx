@@ -6,9 +6,10 @@ import styled from "styled-components";
 
 interface RecordingsProps {
   handleNewRecording: () => void;
+  handleEditRecording: (fileName: string) => void;
 }
 
-export const Recordings = ({ handleNewRecording }: RecordingsProps) => {
+export const Recordings = ({ handleNewRecording, handleEditRecording }: RecordingsProps) => {
   return (
     <Grid container direction="column" sx={{ padding: '30px'}}>
       <Grid item xs={ 3 }>
@@ -24,9 +25,10 @@ export const Recordings = ({ handleNewRecording }: RecordingsProps) => {
             }}
           />
         </RecordingsHeader>
+        <hr/>
       </Grid>
       <Grid item xs>
-        <RecordingsTable/>
+        <RecordingsTable handleEditRecording={handleEditRecording}/>
       </Grid>
     </Grid>
   );

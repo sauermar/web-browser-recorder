@@ -5,16 +5,17 @@ import { Recordings } from "../components/organisms/Recordings";
 
 interface MainPageProps {
   newRecording: () => void;
+  handleEditRecording: (fileName: string) => void;
 }
 
-export const MainPage = ({ newRecording }: MainPageProps) => {
+export const MainPage = ({ newRecording, handleEditRecording }: MainPageProps) => {
 
   const [content, setContent] = React.useState('recordings');
 
   const DisplayContent = () => {
     switch (content) {
       case 'recordings':
-        return <Recordings handleNewRecording={newRecording}/>;
+        return <Recordings handleNewRecording={newRecording} handleEditRecording={handleEditRecording}/>;
       case 'tasks':
         return <h1>Tasks</h1>;
       case 'runs':

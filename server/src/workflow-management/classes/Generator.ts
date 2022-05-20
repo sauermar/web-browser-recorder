@@ -16,7 +16,7 @@ export class WorkflowGenerator {
 
   public constructor(socket: Socket) {
     this.socket = socket;
-    socket.on('save', (fileName: string) => this.saveWorkflow(fileName));
+    socket.on('save', (fileName: string) => this.saveNewWorkflow(fileName));
   }
 
   private workflowRecord: WorkflowFile = {
@@ -165,12 +165,26 @@ export class WorkflowGenerator {
   };
 
   public saveWorkflow = async (fileName: string) => {
+
+  }
+
+  public updateWorkflowFile = (workflowFile: WorkflowFile) => {
+    this.workflowRecord = workflowFile;
+  }
+
+  public saveNewWorkflow = async (fileName: string) => {
     try {
       const recording = this.removeAllGeneratedFlags(this.workflowRecord);
+      const recording_meta = {
+        name: fileName,
+        create_date: new Date().toLocaleString(),
+        pairs: recording.workflow.length,
+        update_date: new Date().toLocaleString(),
+      };
       fs.mkdirSync('../recordings', { recursive: true })
       await saveFile(
         `../recordings/${fileName}.waw.json`,
-        JSON.stringify(recording, null, 2)
+        JSON.stringify({ recording_meta, recording } , null, 2)
       );
     } catch (e) {
       const { message } = e as Error;

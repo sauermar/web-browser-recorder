@@ -8,7 +8,6 @@ import { Socket } from "socket.io";
 import logger from '../../logger';
 import { RemoteBrowserOptions } from "../../interfaces/Input";
 import { WorkflowGenerator } from "../../workflow-management/classes/Generator";
-import { saveFile } from "../../workflow-management/storage";
 import { WorkflowInterpreter } from "../../workflow-management/classes/Interpreter";
 
 export class RemoteBrowser {
@@ -60,6 +59,7 @@ export class RemoteBrowser {
         }
         await this.client.send('Page.startScreencast', { format: 'jpeg', quality: 75 });
         logger.log('info',`Browser started with screencasting.`);
+        this.socket.emit('loaded');
     };
 
     /**

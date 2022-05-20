@@ -23,9 +23,10 @@ const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) =
 interface LeftSidePanelProps {
   sidePanelRef: HTMLDivElement | null;
   alreadyHasScrollbar: boolean;
+  recordingName: string;
 }
 
-export const LeftSidePanel = ({ sidePanelRef, alreadyHasScrollbar }: LeftSidePanelProps) => {
+export const LeftSidePanel = ({ sidePanelRef, alreadyHasScrollbar, recordingName }: LeftSidePanelProps) => {
   const { id, socket } = useSocketStore();
 
   const [workflow, setWorkflow] = useState<WorkflowFile>(emptyWorkflow);
@@ -88,6 +89,7 @@ export const LeftSidePanel = ({ sidePanelRef, alreadyHasScrollbar }: LeftSidePan
       <LeftSidePanelContent
         workflow={workflow}
         updateWorkflow={setWorkflow}
+        recordingName={recordingName}
       />
     </Paper>
   );

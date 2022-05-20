@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Grid } from '@mui/material';
 import { BrowserContent } from "../components/organisms/BrowserContent";
-import { startRecording, stopRecording, getActiveBrowserId } from "../api/recording";
+import { startRecording, stopRecording, getActiveBrowserId, editRecordingFromStorage } from "../api/recording";
 import { LeftSidePanel } from "../components/organisms/LeftSidePanel";
 import { RightSidePanel } from "../components/organisms/RightSidePanel";
 import { Loader } from "../components/atoms/Loader";
@@ -9,7 +9,11 @@ import { useSocketStore } from "../context/socket";
 import { useBrowserDimensionsStore } from "../context/browserDimensions";
 import { useGlobalInfoStore } from "../context/globalInfo";
 
-export const RecordingPage = () => {
+interface RecordingPageProps {
+  recordingName?: string;
+}
+
+export const RecordingPage = ({recordingName}: RecordingPageProps) => {
 
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [hasScrollbar, setHasScrollbar] = React.useState(false);
@@ -17,7 +21,7 @@ export const RecordingPage = () => {
   const browserContentRef = React.useRef<HTMLDivElement>(null);
   const workflowListRef = React.useRef<HTMLDivElement>(null);
 
-  const { setId } = useSocketStore();
+  const { setId, socket } = useSocketStore();
   const  { setWidth } = useBrowserDimensionsStore();
   const { browserId, setBrowserId } = useGlobalInfoStore();
 
@@ -52,9 +56,7 @@ export const RecordingPage = () => {
       }
     }
 
-    handleRecording().then(() => {
-      setIsLoaded(true);
-    });
+    handleRecording();
 
     return () => {
       isCancelled = true;
@@ -65,20 +67,37 @@ export const RecordingPage = () => {
     }
   }, [setId]);
 
+  useEffect( () => {
+    socket?.on('loaded', () => {
+      console.log(recordingName);
+      console.log(browserId);
+      if (recordingName && browserId) {
+        editRecordingFromStorage(browserId, recordingName).then(() => setIsLoaded(true));
+      } else {
+        setIsLoaded(true)
+      }
+    });
+  }, [socket, browserId, recordingName]);
+
   return (
-    <Grid container direction="row" spacing={0}>
-      <Grid item xs={ 2 } ref={workflowListRef} style={{ display: "flex", flexDirection: "row" }}>
+    <div>
+      { isLoaded ?
+          <Grid container direction="row" spacing={0}>
+        <Grid item xs={ 2 } ref={workflowListRef} style={{ display: "flex", flexDirection: "row" }}>
           <LeftSidePanel
             sidePanelRef={workflowListRef.current}
             alreadyHasScrollbar={hasScrollbar}
+            recordingName={recordingName ? recordingName : ''}
           />
       </Grid>
       <Grid id="browser-content" ref={browserContentRef} item xs>
-        { isLoaded ? <BrowserContent/> : <Loader/> }
+        <BrowserContent/>
       </Grid>
       <Grid item xs={ 2 }>
           <RightSidePanel/>
       </Grid>
-    </Grid>
+          </Grid>
+        : <Loader/> }
+    </div>
   );
 };
