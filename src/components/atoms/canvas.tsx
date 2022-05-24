@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useRef} from 'react';
 import { useSocketStore } from '../../context/socket';
 import log from '../../api/logger';
 import { getMappedCoordinates } from "../../functions/inputHelpers";
+import { useGlobalInfoStore } from "../../context/globalInfo";
 
 interface CreateRefCallback {
 
@@ -31,6 +32,13 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const { socket } = useSocketStore();
+    const { setLastAction, lastAction } = useGlobalInfoStore();
+
+    const notifyLastAction = (action: string) => {
+        if (lastAction !== action) {
+            setLastAction(action);
+        }
+    };
 
     const lastMousePosition = useRef<Coordinates>({ x: 0, y: 0 });
      //const lastWheelPosition = useRef<ScrollDeltas>({ deltaX: 0, deltaY: 0 });
@@ -43,6 +51,7 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
                     const clickCoordinates = getMappedCoordinates(event, canvasRef.current, width, height);
                     //console.log(clickCoordinates);
                     socket.emit('input:mousedown', clickCoordinates);
+                    notifyLastAction('click');
                     break;
                 case 'mousemove':
                     const coordinates = getMappedCoordinates(event, canvasRef.current, width, height);
@@ -51,6 +60,7 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
                         //log.debug('mousemove event registered');
                         lastMousePosition.current = coordinates;
                         socket.emit('input:mousemove', coordinates);
+                        notifyLastAction('move');
                     }
                     break;
                 case 'wheel':
@@ -62,6 +72,7 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
                     };
                     //console.log(deltas);
                     socket.emit('input:wheel', deltas);
+                    notifyLastAction('scroll');
                     break;
                 default:
                     console.log('Default mouseEvent registered');
@@ -76,6 +87,7 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
                 case 'keydown':
                     console.log('Keydown event was triggered on canvas');
                     socket.emit('input:keydown', { key: event.key, coordinates: lastMousePosition.current });
+                    notifyLastAction(`${event.key} pressed`);
                     break;
                 case 'keyup':
                     console.log('Keyup event was triggered on canvas');

@@ -4,11 +4,16 @@ import { Dropdown as  MuiDropdown } from '../atoms/DropdownMui';
 import styled from "styled-components";
 import { ActionSettings } from "../molecules/ActionSettings";
 import { SelectChangeEvent } from "@mui/material/Select/Select";
+import { SimpleBox } from "../atoms/Box";
+import Typography from "@mui/material/Typography";
+import { useGlobalInfoStore } from "../../context/globalInfo";
 
 export const RightSidePanel = () => {
 
   const [action, setAction] = React.useState<string>('');
   const [isSettingsDisplayed, setIsSettingsDisplayed] = React.useState<boolean>(false);
+
+  const { lastAction } = useGlobalInfoStore();
 
   const handleActionSelect = (event: SelectChangeEvent) => {
     const { value } = event.target;
@@ -25,6 +30,12 @@ export const RightSidePanel = () => {
         backgroundColor: 'white',
         alignItems: "center",
       }}>
+      <SimpleBox height={60} width='100%' background='lightGray' radius='0%'>
+        <Typography sx={{padding: '10px'}}>
+          Last action:
+          {` ${lastAction}`}
+        </Typography>
+      </SimpleBox>
 
       <Stack spacing={2} direction="row" sx={{
         marginTop: "25px",
