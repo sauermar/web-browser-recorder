@@ -43,6 +43,11 @@ export class WorkflowGenerator {
         action: 'flag',
         args: ['generated'],
       })
+      //adding waitForLoadState with networkidle, for better success rate of automatically recorded workflows
+      pair.what.push({
+        action: 'waitForLoadState',
+        args: ['networkidle'],
+      })
       // we want to have the most specific selectors at the beginning of the workflow
       this.workflowRecord.workflow.unshift(pair);
     }
