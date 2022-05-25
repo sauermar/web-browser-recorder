@@ -9,6 +9,7 @@ interface GlobalInfo {
   setLastAction: (action: string ) => void;
   notification: AlertSnackbarProps;
   notify: (severity: 'error' | 'warning' | 'info' | 'success', message: string) => void;
+  closeNotify: () => void;
 };
 
 class GlobalInfoStore implements Partial<GlobalInfo>{
@@ -35,6 +36,10 @@ export const GlobalInfoProvider = ({ children }: { children: JSX.Element }) => {
     setNotification({severity, message, isOpen: true});
   }
 
+  const closeNotify = () => {
+    setNotification( globalInfoStore.notification);
+  }
+
   return (
     <globalInfoContext.Provider
       value={{
@@ -43,7 +48,8 @@ export const GlobalInfoProvider = ({ children }: { children: JSX.Element }) => {
         lastAction,
         setLastAction,
         notification,
-        notify
+        notify,
+        closeNotify,
       }}
     >
       {children}

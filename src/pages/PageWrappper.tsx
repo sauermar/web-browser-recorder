@@ -12,6 +12,7 @@ import { AlertSnackbar } from "../components/atoms/AlertSnackbar";
 export const PageWrapper = () => {
 
   const [recordingName, setRecordingName] = useState('');
+  const [open, setOpen] = useState(false);
 
   const { browserId, setBrowserId, notification } =  useGlobalInfoStore();
 
@@ -23,6 +24,13 @@ export const PageWrapper = () => {
   const handleEditRecording = (fileName: string) => {
     setRecordingName(fileName);
     setBrowserId('new-recording');
+  }
+
+  const isNotification = (): boolean=> {
+    if (notification.isOpen && !open){
+      setOpen(true);
+    }
+    return notification.isOpen;
   }
 
   useEffect(() => {
@@ -51,9 +59,12 @@ export const PageWrapper = () => {
             handleEditRecording={handleEditRecording}
           />
         }
+      { isNotification() ?
         <AlertSnackbar severity={notification.severity}
-                        message={notification.message}
-                        isOpen={notification.isOpen}/>
+                       message={notification.message}
+                       isOpen={notification.isOpen}/>
+        : null
+      }
     </div>
   );
 }

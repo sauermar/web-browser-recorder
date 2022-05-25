@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import { useGlobalInfoStore } from "../../context/globalInfo";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
@@ -18,11 +19,14 @@ export interface AlertSnackbarProps {
 export const AlertSnackbar = ({ severity, message, isOpen }: AlertSnackbarProps) => {
   const [open, setOpen] = React.useState(isOpen);
 
+  const { closeNotify } = useGlobalInfoStore();
+
   const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
 
+    closeNotify();
     setOpen(false);
   };
 
