@@ -5,7 +5,6 @@
 import { Router } from 'express';
 import logger from "../logger";
 import { deleteFile, readFile, readFiles } from "../workflow-management/storage";
-import { browserPool } from "../server";
 
 export const router = Router();
 

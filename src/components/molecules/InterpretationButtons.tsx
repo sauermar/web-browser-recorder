@@ -37,6 +37,7 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
     } else {
       console.log("handling play");
       const finished = await interpretCurrentRecording();
+      console.log(finished);
       if (finished) {
         notify('info', 'Interpretation finished');
       } else {

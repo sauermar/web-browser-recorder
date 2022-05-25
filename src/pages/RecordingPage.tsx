@@ -74,8 +74,10 @@ export const RecordingPage = ({recordingName}: RecordingPageProps) => {
       if (recordingName && browserId) {
         editRecordingFromStorage(browserId, recordingName).then(() => setIsLoaded(true));
       } else {
-        socket?.emit('new-recording');
-        setIsLoaded(true)
+        if (browserId === 'new-recording') {
+          socket?.emit('new-recording');
+        }
+        setIsLoaded(true);
       }
     });
   }, [socket, browserId, recordingName]);

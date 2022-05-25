@@ -63,8 +63,12 @@ router.get('/active', (req, res) => {
 });
 
 router.get('/interpret', async (req, res) => {
-    await interpretWholeWorkflow();
-    return res.send('interpretation done');
+    try {
+        await interpretWholeWorkflow();
+        return res.send('interpretation done');
+    } catch (e) {
+        return res.status(400);
+    }
 });
 
 router.get('/interpret/stop', async (req, res) => {

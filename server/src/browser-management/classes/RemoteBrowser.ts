@@ -128,9 +128,14 @@ export class RemoteBrowser {
     };
 
     public makeAndEmitScreenshot = async() : Promise<void> => {
-        const screenshot = await this.currentPage?.screenshot();
-        if (screenshot) {
-            this.emitScreenshot(screenshot.toString('base64'));
+        try {
+            const screenshot = await this.currentPage?.screenshot();
+            if (screenshot) {
+                this.emitScreenshot(screenshot.toString('base64'));
+            }
+        } catch (e) {
+            const { message } = e as Error;
+            logger.log('error', message);
         }
     };
 
@@ -146,7 +151,7 @@ export class RemoteBrowser {
 
     public interpretCurrentRecording = async () : Promise<void> => {
         if (this.generator) {
-            const workflow = await this.generator.getWorkflowFile();
+            const workflow = this.generator.getWorkflowFile();
             await this.initializeNewPage();
             if (this.currentPage) {
                 await this.interpreter.interpretRecording(

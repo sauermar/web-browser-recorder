@@ -61,6 +61,7 @@ export const interpretWholeWorkflow = async() => {
         await browser.interpretCurrentRecording();
     } else {
         logger.log('error', 'Cannot interpret the workflow: No active browser.');
+        throw new Error('No active browser');
     }
 
 };
