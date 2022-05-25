@@ -12,6 +12,7 @@ import { deleteRecordingFromStorage, editRecordingFromStorage, getStoredRecordin
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
 import { IconButton } from "@mui/material";
 import { Assignment, DeleteForever, Edit, PlayCircle } from "@mui/icons-material";
+import { useGlobalInfoStore } from "../../context/globalInfo";
 
 interface Column {
   id: 'interpret' | 'name' | 'create_date' | 'edit' | 'task' | 'pairs' | 'update_date'| 'delete';
@@ -76,6 +77,8 @@ export const RecordingsTable = ({ handleEditRecording }: RecordingsTableProps) =
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [rows, setRows] = React.useState<Data[]>([]);
 
+  const { notify } = useGlobalInfoStore();
+
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -138,7 +141,7 @@ export const RecordingsTable = ({ handleEditRecording }: RecordingsTableProps) =
                     {columns.map((column) => {
                       // @ts-ignore
                       const value : any = row[column.id];
-                      if (value) {
+                      if (value !== undefined) {
                         return (
                           <TableCell key={column.id} align={column.align}>
                             {value}
@@ -175,6 +178,7 @@ export const RecordingsTable = ({ handleEditRecording }: RecordingsTableProps) =
                                   deleteRecordingFromStorage(row.name).then((result: boolean) => {
                                     if (result) {
                                       setRows([]);
+                                      notify('success', 'Recording deleted successfully');
                                       fetchRecordings();
                                     }
                                   })
