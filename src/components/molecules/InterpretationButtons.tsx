@@ -3,6 +3,7 @@ import { PauseCircle, PlayCircle, StopCircle } from "@mui/icons-material";
 import React, { useEffect } from "react";
 import { interpretCurrentRecording, stopCurrentInterpretation } from "../../api/recording";
 import { useSocketStore } from "../../context/socket";
+import { useGlobalInfoStore } from "../../context/globalInfo";
 
 interface InterpretationButtonsProps {
   enableStepping: (isPaused: boolean) => void,
@@ -12,6 +13,7 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
   const [isPaused, setIsPaused] = React.useState(false);
 
   const { socket } = useSocketStore();
+  const { notify } = useGlobalInfoStore();
 
   useEffect(() => {
     if (socket) {
@@ -21,6 +23,7 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
       });
       socket.on('breakpointHit', () => {
         setIsPaused(true);
+        notify('warning', 'Please restart the interpretation, after updating the recording');
         enableStepping(true);
       });
     }
@@ -33,7 +36,12 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
       enableStepping(false);
     } else {
       console.log("handling play");
-      await interpretCurrentRecording();
+      const finished = await interpretCurrentRecording();
+      if (finished) {
+        notify('info', 'Interpretation finished');
+      } else {
+        notify('error', 'Interpretation failed to start');
+      }
     }
   };
 
@@ -47,6 +55,7 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
     if (!isPaused) {
       socket?.emit("pause");
       setIsPaused(true);
+      notify('warning', 'Please restart the interpretation, after updating the recording');
       enableStepping(true);
     }
   };

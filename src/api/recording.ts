@@ -45,17 +45,18 @@ export const getActiveBrowserId = async(): Promise<string> => {
     }
 };
 
-export const interpretCurrentRecording = async(): Promise<void> => {
+export const interpretCurrentRecording = async(): Promise<boolean> => {
     try {
         const response = await axios.get('http://localhost:8080/record/interpret');
         console.log(response);
         if (response.status === 200) {
-            return;
+            return true;
         } else {
             throw new Error('Couldn\'t interpret current recording');
         }
     } catch(error: any) {
         console.log(error);
+        return false;
     }
 };
 
