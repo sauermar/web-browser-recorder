@@ -6,13 +6,14 @@ import { RecordingPage } from "./RecordingPage";
 import { MainPage } from "./MainPage";
 import { useGlobalInfoStore } from "../context/globalInfo";
 import { getActiveBrowserId } from "../api/recording";
+import { AlertSnackbar } from "../components/atoms/AlertSnackbar";
 
 
 export const PageWrapper = () => {
 
   const [recordingName, setRecordingName] = useState('');
 
-  const { browserId, setBrowserId } =  useGlobalInfoStore();
+  const { browserId, setBrowserId, notification } =  useGlobalInfoStore();
 
   const handleNewRecording = () => {
     setBrowserId('new-recording');
@@ -31,7 +32,6 @@ export const PageWrapper = () => {
         setBrowserId(id);
       }
     }
-
     isRecordingInProgress();
   }, []);
 
@@ -51,6 +51,9 @@ export const PageWrapper = () => {
             handleEditRecording={handleEditRecording}
           />
         }
+        <AlertSnackbar severity={notification.severity}
+                        message={notification.message}
+                        isOpen={notification.isOpen}/>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { AddPair } from "../../api/workflow";
 import { Button, Stack } from "@mui/material";
 import { FastForward } from "@mui/icons-material";
 import { useSocketStore } from "../../context/socket";
+import { useGlobalInfoStore } from "../../context/globalInfo";
 
 interface SidePanelHeaderProps {
   numberOfPairs: number;

@@ -16,7 +16,7 @@ export const SaveRecording = ({workflowLength, fileName}: SaveRecordingProps) =>
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [recordingName, setRecordingName] = useState<string>(fileName);
 
-  const { browserId, setBrowserId } =  useGlobalInfoStore();
+  const { browserId, setBrowserId, notify } =  useGlobalInfoStore();
   const { socket } = useSocketStore();
 
   const handleChangeOfTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,7 +24,9 @@ export const SaveRecording = ({workflowLength, fileName}: SaveRecordingProps) =>
     setRecordingName(value);
   }
 
-  const handleSaveRecording = () => {
+  const handleSaveRecording = (event: React.SyntheticEvent) => {
+    event.preventDefault();
+    notify('success', 'Recording saved successfully');
     socket?.emit('save', recordingName)
     if (browserId) {
       stopRecording(browserId);
