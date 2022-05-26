@@ -10,6 +10,8 @@ interface GlobalInfo {
   notification: AlertSnackbarProps;
   notify: (severity: 'error' | 'warning' | 'info' | 'success', message: string) => void;
   closeNotify: () => void;
+  recordings: string[];
+  setRecordings: (recordings: string[]) => void;
 };
 
 class GlobalInfoStore implements Partial<GlobalInfo>{
@@ -20,6 +22,7 @@ class GlobalInfoStore implements Partial<GlobalInfo>{
     message: '',
     isOpen: false,
   };
+  recordings: string[] = [];
 };
 
 const globalInfoStore = new GlobalInfoStore();
@@ -31,6 +34,7 @@ export const GlobalInfoProvider = ({ children }: { children: JSX.Element }) => {
   const [browserId, setBrowserId] = useState<string | null>(globalInfoStore.browserId);
   const [lastAction, setLastAction] = useState<string>(globalInfoStore.lastAction);
   const [notification, setNotification] = useState<AlertSnackbarProps>(globalInfoStore.notification);
+  const [recordings, setRecordings] = useState<string[]>(globalInfoStore.recordings);
 
   const notify = (severity: 'error' | 'warning' | 'info' | 'success', message: string) => {
     setNotification({severity, message, isOpen: true});
@@ -50,6 +54,8 @@ export const GlobalInfoProvider = ({ children }: { children: JSX.Element }) => {
         notification,
         notify,
         closeNotify,
+        recordings,
+        setRecordings,
       }}
     >
       {children}

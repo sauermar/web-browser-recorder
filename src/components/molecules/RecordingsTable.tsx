@@ -8,7 +8,7 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { useEffect } from "react";
-import { deleteRecordingFromStorage, editRecordingFromStorage, getStoredRecordings } from "../../api/recording";
+import { deleteRecordingFromStorage, getStoredRecordings } from "../../api/recording";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
 import { IconButton } from "@mui/material";
 import { Assignment, DeleteForever, Edit, PlayCircle } from "@mui/icons-material";
@@ -77,7 +77,7 @@ export const RecordingsTable = ({ handleEditRecording }: RecordingsTableProps) =
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [rows, setRows] = React.useState<Data[]>([]);
 
-  const { notify } = useGlobalInfoStore();
+  const { notify, setRecordings } = useGlobalInfoStore();
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -102,6 +102,7 @@ export const RecordingsTable = ({ handleEditRecording }: RecordingsTableProps) =
           });
         }
       });
+      setRecordings(parsedRows.map((recording) => recording.name));
       setRows(parsedRows);
     } else {
       console.log('No recordings found.');

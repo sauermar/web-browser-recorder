@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Button from "@mui/material/Button";
 import { GenericModal } from "../atoms/GenericModal";
 import { stopRecording } from "../../api/recording";
@@ -13,10 +13,12 @@ interface SaveRecordingProps {
 
 export const SaveRecording = ({workflowLength, fileName}: SaveRecordingProps) => {
 
+
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [needConfirm, setNeedConfirm] = useState<boolean>(false);
   const [recordingName, setRecordingName] = useState<string>(fileName);
 
-  const { browserId, setBrowserId, notify } =  useGlobalInfoStore();
+  const { browserId, setBrowserId, notify, recordings } =  useGlobalInfoStore();
   const { socket } = useSocketStore();
 
   const handleChangeOfTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,13 +28,25 @@ export const SaveRecording = ({workflowLength, fileName}: SaveRecordingProps) =>
 
   const handleSaveRecording = (event: React.SyntheticEvent) => {
     event.preventDefault();
-    notify('success', 'Recording saved successfully');
+    if (recordings.includes(recordingName)) {
+      notify('warning', 'Recording already exists, please confirm the overwrite');
+      if (needConfirm) { return; }
+      setNeedConfirm(true);
+    } else {
+      saveRecording();
+    }
+  };
+
+  // notifies backed to save the recording in progress,
+  // releases resources and changes the view for main page by clearing the global browserId
+  const saveRecording = () => {
     socket?.emit('save', recordingName)
+    notify('success', 'Recording saved successfully');
     if (browserId) {
       stopRecording(browserId);
     }
     setBrowserId(null);
-  };
+  }
 
   return (
     <div>
@@ -46,7 +60,7 @@ export const SaveRecording = ({workflowLength, fileName}: SaveRecordingProps) =>
         </Button>
 
       <GenericModal isOpen={openModal} onClose={() => setOpenModal(false)} modalStyle={modalStyle}>
-        <form onSubmit={handleSaveRecording} style={{paddingTop:'50px'}}>
+        <form onSubmit={handleSaveRecording} style={{paddingTop:'50px', display: 'inline-block'}} >
           <TextField
             required
             sx={{width: '250px', paddingBottom: '10px'}}
@@ -56,7 +70,8 @@ export const SaveRecording = ({workflowLength, fileName}: SaveRecordingProps) =>
             variant="outlined"
             defaultValue={recordingName ? recordingName : null}
           />
-          <Button type="submit">Save</Button>
+            <Button type="submit">Save</Button>
+            { needConfirm ? <Button color="error" onClick={saveRecording}>Confirm</Button> : null }
         </form>
       </GenericModal>
     </div>
@@ -70,7 +85,7 @@ const modalStyle = {
   width: '20%',
   backgroundColor: 'background.paper',
   p: 4,
-  height:'20%',
+  height:'30%',
   display:'block',
   padding: '5px 25px 10px 25px',
 };
