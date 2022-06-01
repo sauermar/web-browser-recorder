@@ -2,14 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { useSocketStore } from '../../context/socket';
 import Canvas from "../atoms/canvas";
 import { useBrowserDimensionsStore } from "../../context/browserDimensions";
+import { Highlighter } from "../atoms/Highlighter";
 
 export const BrowserWindow = () => {
 
     const [canvasRef, setCanvasReference] = useState<React.RefObject<HTMLCanvasElement> | undefined>(undefined);
     const [screenShot, setScreenShot] = useState<string>("");
+    const [highlighterData, setHighlighterData] = useState<{rect: DOMRect, selector: string} | null>(null);
 
     const { socket } = useSocketStore();
     const { width, height } = useBrowserDimensionsStore();
+
+   // const rect = hoveredElement?.getBoundingClientRect();
 
     useEffect(() =>  {
         console.log('Effect from BrWindow');
@@ -28,12 +32,33 @@ export const BrowserWindow = () => {
 
     }, [screenShot, canvasRef, socket]);
 
+
+    useEffect(() =>  {
+        console.log('Effect from BrWindow');
+        if (socket) {
+            socket.on("highlighter", data => {
+                setHighlighterData(data);
+            });
+        }
+    }, [socket]);
+
     return (
+      <>
+          {(highlighterData?.rect != null && highlighterData?.rect.top != null) ?
+            <Highlighter
+              unmodifiedRect={highlighterData?.rect}
+              displayedSelector={highlighterData?.selector}
+              width={width}
+              height={height}
+              canvas={canvasRef?.current || null}
+            />
+            : null }
         <Canvas
             onCreateRef={setCanvasReference}
             width={width}
             height={height}
         />
+      </>
     );
 };
 

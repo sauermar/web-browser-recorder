@@ -54,6 +54,7 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
                     notifyLastAction('click');
                     break;
                 case 'mousemove':
+                    //TODO this should be throttled to avoid flooding the server
                     const coordinates = getMappedCoordinates(event, canvasRef.current, width, height);
                     if (lastMousePosition.current.x !== coordinates.x ||
                       lastMousePosition.current.y !== coordinates.y) {

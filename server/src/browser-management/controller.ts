@@ -7,7 +7,7 @@ import { uuid } from 'uuidv4';
 import { createSocketConnection } from "../socket-connection/connection";
 import { io, browserPool } from "../server";
 import { RemoteBrowser } from "./classes/RemoteBrowser";
-import { RemoteBrowserOptions } from "../interfaces/Input";
+import { RemoteBrowserOptions } from "../types";
 import logger from "../logger";
 
 /**

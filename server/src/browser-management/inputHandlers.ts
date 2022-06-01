@@ -4,10 +4,11 @@
 import { Socket } from 'socket.io';
 
 import logger from "../logger";
-import { Coordinates, ScrollDeltas, KeyboardInput } from '../interfaces/Input';
+import { Coordinates, ScrollDeltas, KeyboardInput } from '../types';
 import { browserPool } from "../server";
 import { WorkflowGenerator } from "../workflow-management/classes/Generator";
 import { Page } from "playwright";
+import { throttle } from "../../../src/functions/inputHelpers";
 
 const handleWrapper = async (
   handleCallback: (
@@ -67,6 +68,9 @@ const onMousemove = async (coordinates: Coordinates) => {
 
 const handleMousemove = async (generator: WorkflowGenerator, page: Page, { x, y }: Coordinates) => {
     await page.mouse.move(x, y);
+    throttle(async () => {
+        await generator.generateDataForHighlighter(page, { x, y });
+    }, 100)();
     logger.log('debug', `Moved over position x:${x}, y:${y}`);
 }
 

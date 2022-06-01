@@ -1,10 +1,10 @@
-import { Coordinates } from "../../interfaces/Input";
+import { Coordinates } from "../../types";
 import { WorkflowFile } from '@wbr-project/wbr-interpret';
 import { WhereWhatPair } from "@wbr-project/wbr-interpret";
 import logger from "../../logger";
 import { Socket } from "socket.io";
 import { Page } from "playwright";
-import { getFullPath, selectorAlreadyInWorkflow } from "../selector";
+import { getFullPath, getRect, getSelectorForDisplay, selectorAlreadyInWorkflow } from "../selector";
 import { ScreenshotSettings, ScrollSettings } from "../../../../src/shared/types";
 import { workflow } from "../../routes";
 import { saveFile } from "../storage";
@@ -61,6 +61,8 @@ export class WorkflowGenerator {
     let where: WhereWhatPair["where"] = { url: page.url() };
     const selector = await getFullPath(page, coordinates);
     logger.log('debug', `Element's selector: ${selector}`);
+    //const element = await getElementMouseIsOver(page, coordinates);
+    //logger.log('debug', `Element: ${JSON.stringify(element, null, 2)}`);
     if (selector) {
       where.selectors = [selector];
     }
@@ -182,10 +184,6 @@ export class WorkflowGenerator {
     return workflow;
   };
 
-  public saveWorkflow = async (fileName: string) => {
-
-  }
-
   public updateWorkflowFile = (workflowFile: WorkflowFile) => {
     const stoppableWorkflow = this.AddGeneratedFlags(workflowFile);
     this.workflowRecord = stoppableWorkflow;
@@ -209,6 +207,14 @@ export class WorkflowGenerator {
       const { message } = e as Error;
         logger.log('warn', `Cannot save the file to the local file system`)
         console.log(message);
+    }
+  }
+
+  public generateDataForHighlighter = async (page: Page, coordinates: Coordinates) => {
+    const rect = await getRect(page, coordinates);
+    const displaySelector = await getSelectorForDisplay(page, coordinates);
+    if (rect) {
+      this.socket.emit('highlighter', { rect, selector: displaySelector });
     }
   }
 }

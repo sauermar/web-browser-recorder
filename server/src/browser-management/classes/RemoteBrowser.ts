@@ -6,7 +6,7 @@ import {
 import { Socket } from "socket.io";
 
 import logger from '../../logger';
-import { RemoteBrowserOptions } from "../../interfaces/Input";
+import { RemoteBrowserOptions } from "../../types";
 import { WorkflowGenerator } from "../../workflow-management/classes/Generator";
 import { WorkflowInterpreter } from "../../workflow-management/classes/Interpreter";
 
@@ -43,6 +43,8 @@ export class RemoteBrowser {
         //initialize page context
         const context = await this.browser.newContext();
         this.currentPage = await context.newPage();
+        const log = (msg: string) => console.log(msg);
+        await this.currentPage.exposeFunction("log", log);
         this.pages = this.pages.concat([this.currentPage]);
         //initialize CDP session
         this.client = await this.currentPage.context().newCDPSession(this.currentPage);
