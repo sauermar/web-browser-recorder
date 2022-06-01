@@ -1,14 +1,14 @@
-import { Coordinates } from "../../types";
-import { WorkflowFile } from '@wbr-project/wbr-interpret';
-import { WhereWhatPair } from "@wbr-project/wbr-interpret";
+import { Action, ActionType, Coordinates, TagName } from "../../types";
+import { WhereWhatPair, WorkflowFile } from '@wbr-project/wbr-interpret';
 import logger from "../../logger";
 import { Socket } from "socket.io";
 import { Page } from "playwright";
-import { getFullPath, getRect, getSelectorForDisplay, selectorAlreadyInWorkflow } from "../selector";
+import { getElementInformation, getFullPath, getRect, getSelectors, selectorAlreadyInWorkflow } from "../selector";
 import { ScreenshotSettings, ScrollSettings } from "../../../../src/shared/types";
 import { workflow } from "../../routes";
 import { saveFile } from "../storage";
 import fs from "fs";
+import { getBestSelectorForAction } from "../utils";
 
 export class WorkflowGenerator {
 
@@ -26,9 +26,12 @@ export class WorkflowGenerator {
     workflow: [],
   };
 
+  private lastUsedSelector: string = '';
+
   private addPairToWorkflowAndNotifyClient = (pair: WhereWhatPair) => {
     let matched = false;
     if (pair.what[0].args && pair.what[0].args.length > 0) {
+      this.lastUsedSelector = pair.what[0].args[0];
       const match = selectorAlreadyInWorkflow(pair.what[0].args[0], this.workflowRecord.workflow);
       if (match) {
         const index = this.workflowRecord.workflow.indexOf(match);
@@ -59,7 +62,7 @@ export class WorkflowGenerator {
 
   public onClick = async (coordinates: Coordinates, page: Page) => {
     let where: WhereWhatPair["where"] = { url: page.url() };
-    const selector = await getFullPath(page, coordinates);
+    const selector = await this.generateSelector(page, coordinates, ActionType.Click);
     logger.log('debug', `Element's selector: ${selector}`);
     //const element = await getElementMouseIsOver(page, coordinates);
     //logger.log('debug', `Element: ${JSON.stringify(element, null, 2)}`);
@@ -77,6 +80,7 @@ export class WorkflowGenerator {
   };
 
   public onChangeUrl = (newUrl: string, page: Page) => {
+    this.lastUsedSelector = '';
     const pair: WhereWhatPair = {
       where: { url: page.url() },
       what: [
@@ -91,7 +95,7 @@ export class WorkflowGenerator {
 
   public onKeyboardInput = async (key: string, coordinates: Coordinates, page: Page) => {
     let where: WhereWhatPair["where"] = { url: page.url() };
-    const selector = await getFullPath(page, coordinates);
+    const selector = await this.generateSelector(page, coordinates, ActionType.Keydown);
     if (selector) {
       where.selectors = [selector];
     }
@@ -107,11 +111,15 @@ export class WorkflowGenerator {
 
   public scroll = ({ scrollPages }: ScrollSettings, page: Page) => {
     const pair: WhereWhatPair = {
-      where: { url: page.url() },
+      where: { url: page.url()},
       what: [{
         action: 'scroll',
         args: [scrollPages],
       }],
+    }
+    // For scroll get the previous selector used to define a better where clause
+    if (this.lastUsedSelector) {
+      pair.where.selectors = [this.lastUsedSelector];
     }
     this.addPairToWorkflowAndNotifyClient(pair);
   };
@@ -123,6 +131,10 @@ export class WorkflowGenerator {
         action: 'screenshot',
         args: [settings],
       }],
+    }
+    // For screenshot get the previous selector used to define a better where clause
+    if (this.lastUsedSelector) {
+      pair.where.selectors = [this.lastUsedSelector];
     }
     this.addPairToWorkflowAndNotifyClient(pair);
   };
@@ -201,18 +213,35 @@ export class WorkflowGenerator {
       fs.mkdirSync('../recordings', { recursive: true })
       await saveFile(
         `../recordings/${fileName}.waw.json`,
-        JSON.stringify({ recording_meta, recording } , null, 2)
+        JSON.stringify({ recording_meta, recording }, null, 2)
       );
     } catch (e) {
       const { message } = e as Error;
-        logger.log('warn', `Cannot save the file to the local file system`)
-        console.log(message);
+      logger.log('warn', `Cannot save the file to the local file system`)
+      console.log(message);
     }
+  }
+
+  private generateSelector = async (page:Page, coordinates:Coordinates, action: ActionType) => {
+    const elementInfo = await getElementInformation(page, coordinates);
+    const bestSelector = getBestSelectorForAction(
+      {
+        type: action,
+        tagName: elementInfo?.tagName as TagName || '',
+        inputType: undefined,
+        value: undefined,
+        selectors: await getSelectors(page, coordinates) || {},
+        timestamp: 0,
+        isPassword: false,
+        hasOnlyText: elementInfo?.hasOnlyText || false,
+      } as Action,
+    );
+    return bestSelector;
   }
 
   public generateDataForHighlighter = async (page: Page, coordinates: Coordinates) => {
     const rect = await getRect(page, coordinates);
-    const displaySelector = await getSelectorForDisplay(page, coordinates);
+    const displaySelector = await this.generateSelector(page, coordinates, ActionType.Click);
     if (rect) {
       this.socket.emit('highlighter', { rect, selector: displaySelector });
     }

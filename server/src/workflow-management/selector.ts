@@ -40,35 +40,28 @@ export const getRect = async (page: Page, coordinates: Coordinates) => {
   }
 }
 
-export const getSelectorForDisplay = async (page: Page, coordinates: Coordinates) => {
+export const getElementInformation = async (
+  page: Page,
+  coordinates: Coordinates
+) => {
   try {
     const elementInfo = await page.evaluate(
       async ({ x, y }) => {
         const el = document.elementFromPoint(x, y) as HTMLElement;
-        const { parentElement } = el;
-        // Match the logic in recorder.ts for link clicks
-        const element = parentElement?.tagName === 'A' ? parentElement : el;
-        return {
-          tagName: element?.tagName ?? '',
-          hasOnlyText:  element?.children?.length === 0 &&
-                        element?.innerText?.length > 0,
+        if ( el ) {
+          const { parentElement } = el;
+          // Match the logic in recorder.ts for link clicks
+          const element = parentElement?.tagName === 'A' ? parentElement : el;
+          return {
+            tagName: element?.tagName ?? '',
+            hasOnlyText: element?.children?.length === 0 &&
+              element?.innerText?.length > 0,
+          }
         }
       },
       { x: coordinates.x, y: coordinates.y },
     );
-    const bestSelector = getBestSelectorForAction(
-      {
-        type: ActionType.Click,
-        tagName: elementInfo.tagName as TagName,
-        inputType: undefined,
-        value: undefined,
-        selectors: await getSelectors(page, coordinates) || {},
-        timestamp: 0,
-        isPassword: false,
-        hasOnlyText: elementInfo.hasOnlyText,
-      } as Action,
-    );
-    return bestSelector;
+    return elementInfo;
   } catch (error) {
     const { message, stack } = error as Error;
     logger.log('error', `Error while retrieving selector: ${message}`);
@@ -120,7 +113,7 @@ export const getSelectors = async (page: Page, coordinates: Coordinates) => {
   try {
      const selectors : any = await page.evaluate(async ({ x, y }) => {
        // version @medv/finder
-// https://github.com/antonmedv/finder/blob/master/finder.ts
+        // https://github.com/antonmedv/finder/blob/master/finder.ts
 
        type Node = {
          name: string;
