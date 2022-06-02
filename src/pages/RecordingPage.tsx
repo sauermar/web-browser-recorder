@@ -36,6 +36,7 @@ export const RecordingPage = ({recordingName}: RecordingPageProps) => {
           console.log('Recording in progress', id);
           setId(id);
           setBrowserId(id);
+          setIsLoaded(true);
         } else {
           const newId = await startRecording()
           setId(newId);
@@ -61,9 +62,6 @@ export const RecordingPage = ({recordingName}: RecordingPageProps) => {
     return () => {
       isCancelled = true;
       console.log('RecordingPage unmounting');
-      if (browserId && browserId !== 'new-recording') {
-        stopRecording(browserId);
-      }
     }
   }, [setId]);
 
