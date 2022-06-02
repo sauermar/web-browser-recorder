@@ -48,7 +48,38 @@ export class RemoteBrowser {
         this.pages = this.pages.concat([this.currentPage]);
         //initialize CDP session
         this.client = await this.currentPage.context().newCDPSession(this.currentPage);
+        //command handlers
         this.socket.on('rerender', async() => await this.makeAndEmitScreenshot());
+        this.socket.on('back', async() => {
+            if (this.currentPage) {
+                await this.currentPage.evaluate(() => {
+                    window.history.back();
+                })
+                try {
+                    await this.currentPage.waitForNavigation({ waitUntil: 'commit' });
+                } catch (e) {
+                    // ignore possible timeouts
+                }
+                this.socket?.emit('currentUrl', this.currentPage.url());
+            } else {
+                logger.log('debug', 'Cannot go back because page is not initialized')
+            }
+        });
+        this.socket.on('forward', async() => {
+            if (this.currentPage) {
+                await this.currentPage.evaluate(() => {
+                    window.history.forward();
+                })
+                try {
+                    await this.currentPage.waitForNavigation({ waitUntil: 'commit' });
+                } catch (e) {
+                    // ignore possible timeouts
+                }
+                this.socket?.emit('currentUrl', this.currentPage.url());
+            } else {
+                logger.log('debug', 'Cannot go back because page is not initialized')
+            }
+        });
     };
 
     /**

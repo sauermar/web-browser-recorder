@@ -13,8 +13,6 @@ export const BrowserWindow = () => {
     const { socket } = useSocketStore();
     const { width, height } = useBrowserDimensionsStore();
 
-   // const rect = hoveredElement?.getBoundingClientRect();
-
     useEffect(() =>  {
         console.log('Effect from BrWindow');
 

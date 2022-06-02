@@ -54,6 +54,10 @@ export const getActiveBrowserId = () => {
     return browserPool.getActiveBrowserId();
 };
 
+export const getActiveBrowserCurrentUrl = (id: string) => {
+    return browserPool.getRemoteBrowser(id)?.getCurrentPage()?.url();
+};
+
 export const interpretWholeWorkflow = async() => {
     const id = getActiveBrowserId();
     const browser = browserPool.getRemoteBrowser(id);

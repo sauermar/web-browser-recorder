@@ -47,7 +47,15 @@ const onMousedown = async (coordinates: Coordinates) => {
 
 const handleMousedown = async (generator: WorkflowGenerator, page: Page, { x, y }: Coordinates) => {
     await generator.onClick({ x, y }, page);
+    const previousUrl = page.url();
     await page.mouse.click(x, y);
+    try {
+        await page.waitForNavigation({ waitUntil: 'commit' });
+        const currentUrl = page.url();
+        if (currentUrl !== previousUrl) {
+            generator.notifyUrlChange(currentUrl);
+        }
+    } catch (e) { }// ignore possible timeouts
     logger.log('debug', `Clicked on position x:${x}, y:${y}`);
 };
 

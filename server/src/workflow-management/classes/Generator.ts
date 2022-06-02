@@ -246,4 +246,10 @@ export class WorkflowGenerator {
       this.socket.emit('highlighter', { rect, selector: displaySelector });
     }
   }
+
+  public notifyUrlChange = (url:string) => {
+    if (this.socket) {
+      this.socket.emit('urlAfterClick', url);
+    }
+  }
 }

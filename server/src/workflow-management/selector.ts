@@ -12,6 +12,7 @@ export const getRect = async (page: Page, coordinates: Coordinates) => {
     const rect = await page.evaluate(
       async ({ x, y }) => {
         const el = document.elementFromPoint(x, y) as HTMLElement;
+        if (el) {
         const { parentElement } = el;
         // Match the logic in recorder.ts for link clicks
         const element = parentElement?.tagName === 'A' ? parentElement : el;
@@ -29,7 +30,7 @@ export const getRect = async (page: Page, coordinates: Coordinates) => {
             left: rectangle.left,
           };
         }
-      },
+      }},
       { x: coordinates.x, y: coordinates.y },
     );
     return rect;

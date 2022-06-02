@@ -7,7 +7,9 @@ import {
     createRemoteBrowser,
     destroyRemoteBrowser,
     getActiveBrowserId,
-    interpretWholeWorkflow, stopRunningInterpretation
+    interpretWholeWorkflow,
+    stopRunningInterpretation,
+    getActiveBrowserCurrentUrl,
 } from '../browser-management/controller'
 import { chromium } from "playwright";
 import logger from "../logger";
@@ -60,6 +62,12 @@ router.get('/stop/:browserId', async (req, res) => {
 router.get('/active', (req, res) => {
     const id = getActiveBrowserId();
     return res.send(id);
+});
+
+router.get('/active/url', (req, res) => {
+    const id = getActiveBrowserId();
+    const url = getActiveBrowserCurrentUrl(id);
+    return res.send(url);
 });
 
 router.get('/interpret', async (req, res) => {

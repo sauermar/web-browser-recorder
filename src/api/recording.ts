@@ -117,3 +117,18 @@ export const editRecordingFromStorage = async (browserId: string, fileName: stri
     return null;
   }
 };
+
+export const getCurrentUrl = async (): Promise<string | null> => {
+  try {
+    const response = await axios.get('http://localhost:8080/record/active/url');
+    console.log(response);
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error('Couldn\'t retrieve stored recordings');
+    }
+  } catch(error: any) {
+    console.log(error);
+    return null;
+  }
+};

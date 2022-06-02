@@ -13,10 +13,6 @@ interface HighlighterProps {
 
 export const Highlighter = ({ unmodifiedRect, displayedSelector = '', width, height, canvas}: HighlighterProps) => {
   const rect = mapRect(unmodifiedRect, width, height, canvas);
-
-  console.log('unmodified', unmodifiedRect);
-  console.log('modified', rect);
-  console.log('browserWindow', { width, height});
   return (
     <div>
       <HighlighterOutline

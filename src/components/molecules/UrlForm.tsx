@@ -14,11 +14,11 @@ type Props = {
     setCurrentAddress: (address: string) => void;
 };
 
-export const UrlForm: FC<Props> = ({
+export const UrlForm = ({
     currentAddress,
     handleRefresh,
     setCurrentAddress,
-}) => {
+}: Props) => {
     // states:
     const [address, setAddress] = useState<string>(currentAddress);
     // context:
@@ -32,6 +32,13 @@ export const UrlForm: FC<Props> = ({
 
     const onSubmit = (event: SyntheticEvent): void => {
         event.preventDefault();
+        let url = address;
+
+        // add protocol if missing
+        if (!/^(?:f|ht)tps?\:\/\//.test(address)) {
+            url = "https://" + address;
+            setAddress(url);
+        }
 
         if (areSameAddresses) {
             if (socket) {
@@ -40,10 +47,10 @@ export const UrlForm: FC<Props> = ({
         } else {
             try {
                 // try the validity of url
-                new URL(address);
-                setCurrentAddress(address);
+                new URL(url);
+                setCurrentAddress(url);
             } catch (e) {
-                alert('ERROR: not a valid url!');
+                alert(`ERROR: ${url} is not a valid url!`);
             }
         }
     };

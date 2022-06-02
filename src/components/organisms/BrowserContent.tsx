@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import BrowserNavBar from "../molecules/BrowserNavBar";
 import { BrowserWindow } from "./BrowserWindow";
@@ -9,7 +9,7 @@ export const BrowserContent = () => {
 
   return (
     <BrowserContentWrapper>
-      <BrowserNavBar initialAddress={'https://'} browserWidth={width - 10}/>
+      <BrowserNavBar browserWidth={width - 10}/>
       <BrowserWindow/>
     </BrowserContentWrapper>
   );

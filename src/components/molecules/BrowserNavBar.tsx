@@ -10,8 +10,9 @@ import { definition as faRedo } from '@fortawesome/free-solid-svg-icons/faRedo';
 import { NavBarButton } from '../atoms/buttons';
 import { UrlForm }  from './UrlForm';
 import {Socket} from "socket.io-client";
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {useSocketStore} from "../../context/socket";
+import { getCurrentUrl } from "../../api/recording";
 
 const StyledNavBar = styled.div<{ browserWidth: number }>`
     display: flex;
@@ -21,7 +22,6 @@ const StyledNavBar = styled.div<{ browserWidth: number }>`
 `;
 
 interface NavBarProps {
-    initialAddress: string;
     browserWidth: number;
 };
 
@@ -34,38 +34,66 @@ const handleGoTo = (socket : Socket, address: string) : void => {
 };
 
 const BrowserNavBar: FC<NavBarProps> = ({
-   initialAddress,
   browserWidth,
 }) => {
-    // context:
-    const { socket } = useSocketStore();
-    //state:
-    const [history, setHistory] = useState<string[]>([initialAddress]);
-    const [historyIndex, setHistoryIndex] = useState<number>(0);
 
-    const currentAddress = history[historyIndex];
+  // context:
+  const { socket } = useSocketStore();
+
+  const [currentUrl, setCurrentUrl] = useState<string>('https://');
+  const [history, setHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState<number>(0);
+
+
+  useEffect(() => {
+    getCurrentUrl().then((response) => {
+      console.log("Fetching current url successful");
+      if (response) {
+        setCurrentUrl(response);
+        // add the first url to the history array
+        setHistory([...history, response]);
+      }
+    }).catch((error) => {
+      console.log("Fetching current url failed");
+    })
+  }, []);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('currentUrl', (url) => {
+        setCurrentUrl(url);
+        console.log("Current url: " + url);
+      });
+      socket.on('urlAfterClick', (url) => {
+        setHistory([...history, url]);
+        const newIndex = historyIndex + 1;
+        setHistoryIndex(newIndex);
+        setCurrentUrl(url);
+        console.log("Current url: " + url);
+      });
+    }
+  }, [socket]);
 
     const addAddress = (address: string) => {
+      // continue adding new addresses to the history array
         setHistory([...history, address]);
         const newIndex = historyIndex + 1;
         setHistoryIndex(newIndex);
-    };
-
-    useEffect(() => {
-        if (currentAddress !== initialAddress && socket) {
-            handleGoTo(socket, currentAddress);
+        if (socket) {
+          handleGoTo(socket, address);
         }
-    }, [historyIndex, currentAddress, initialAddress, socket]);
+    };
 
     return (
         <StyledNavBar browserWidth={browserWidth}>
             <NavBarButton
                 type="button"
                 onClick={() => {
+                    socket?.emit('back');
                     const newIndex = historyIndex - 1;
                     setHistoryIndex(newIndex);
                 }}
-                disabled={historyIndex === 1 || history.length === 1}
+                disabled={historyIndex === 0 || history.length === 1}
             >
                 <FontAwesomeIcon
                     icon={faArrowLeft}
@@ -75,10 +103,11 @@ const BrowserNavBar: FC<NavBarProps> = ({
             <NavBarButton
                 type="button"
                 onClick={()=>{
+                  socket?.emit('forward');
                     const newIndex = historyIndex + 1;
                     setHistoryIndex(newIndex);
                 }}
-                disabled={historyIndex === (history.length - 1)}
+                disabled={false}/*{historyIndex === (history.length - 1)}*/
             >
                 <FontAwesomeIcon
                     icon={faArrowRight}
@@ -92,7 +121,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
                     handleRefresh(socket)
                   }
                 }}
-                disabled={ history.length === 1 }
+                disabled={false}/*{ history.length === 1 }*/
             >
                 <FontAwesomeIcon
                     icon={faRedo}
@@ -100,7 +129,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
             </NavBarButton>
 
             <UrlForm
-                currentAddress={currentAddress}
+                currentAddress={currentUrl}
                 handleRefresh={handleRefresh}
                 setCurrentAddress={addAddress}
             />
