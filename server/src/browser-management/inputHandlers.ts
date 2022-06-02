@@ -110,7 +110,7 @@ const onChangeUrl = async (url: string) => {
 
 const handleChangeUrl = async (generator: WorkflowGenerator, page: Page, url: string) => {
     if (url) {
-        generator.onChangeUrl(url, page.url());
+        await generator.onChangeUrl(url, page);
         try {
             await page.goto(url);
             logger.log('debug', `Went to ${url}`);

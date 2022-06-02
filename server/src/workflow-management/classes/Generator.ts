@@ -9,6 +9,7 @@ import { workflow } from "../../routes";
 import { saveFile } from "../storage";
 import fs from "fs";
 import { getBestSelectorForAction } from "../utils";
+import { SelectorArray } from "@wbr-project/wbr-interpret/build/types/workflow";
 
 interface PersistedGeneratedData {
   lastUsedSelector: string;
@@ -35,7 +36,7 @@ export class WorkflowGenerator {
     lastUsedSelector: '',
   }
 
-  private addPairToWorkflowAndNotifyClient = (pair: WhereWhatPair) => {
+  private addPairToWorkflowAndNotifyClient = async(pair: WhereWhatPair, page: Page) => {
     let matched = false;
     if (pair.what[0].args && pair.what[0].args.length > 0) {
       this.generatedData.lastUsedSelector = pair.what[0].args[0];
@@ -52,20 +53,25 @@ export class WorkflowGenerator {
       }
     }
     if (!matched) {
-      // adding flag as a top action to every pair for pausing/resuming
-      pair.what.unshift({
-        action: 'flag',
-        args: ['generated'],
-      })
-      //adding waitForLoadState with networkidle, for better success rate of automatically recorded workflows
-      pair.what.push({
-        action: 'waitForLoadState',
-        args: ['networkidle'],
-      })
-      // we want to have the most specific selectors at the beginning of the workflow
-      this.workflowRecord.workflow.unshift(pair);
+      const handled = await this.handleOverShadowing(pair, page);
+      if (!handled) {
+        // adding flag as a top action to every pair for pausing/resuming
+        pair.what.unshift({
+          action: 'flag',
+          args: ['generated'],
+        })
+        //adding waitForLoadState with networkidle, for better success rate of automatically recorded workflows
+        pair.what.push({
+          action: 'waitForLoadState',
+          args: ['networkidle'],
+        })
+        // we want to have the most specific selectors at the beginning of the workflow
+        this.workflowRecord.workflow.unshift(pair);
+        logger.log('info', `${JSON.stringify(pair)}: Added to workflow file.`);
+      } else {
+        logger.log('info', ` ${JSON.stringify(this.workflowRecord.workflow[0])} added action to workflow pair`);
+      }
     }
-    logger.log('info', `${JSON.stringify(pair)}: Added to workflow file.`);
     this.socket.emit('workflow', this.workflowRecord);
     logger.log('info',`Workflow emitted`);
 
@@ -87,13 +93,13 @@ export class WorkflowGenerator {
         args: [selector],
       }],
     }
-    this.addPairToWorkflowAndNotifyClient(pair);
+    await this.addPairToWorkflowAndNotifyClient(pair, page);
   };
 
-  public onChangeUrl = (newUrl: string, currentUrl: string) => {
+  public onChangeUrl = async(newUrl: string, page: Page) => {
     this.generatedData.lastUsedSelector = '';
     const pair: WhereWhatPair = {
-      where: { url: currentUrl },
+      where: { url: page.url() },
       what: [
         {
         action: 'goto',
@@ -101,7 +107,7 @@ export class WorkflowGenerator {
         }
       ],
     }
-    this.addPairToWorkflowAndNotifyClient(pair);
+    await this.addPairToWorkflowAndNotifyClient(pair, page);
   };
 
   public onKeyboardInput = async (key: string, coordinates: Coordinates, page: Page) => {
@@ -117,10 +123,10 @@ export class WorkflowGenerator {
         args: [selector, key],
       }],
     }
-    this.addPairToWorkflowAndNotifyClient(pair);
+    await this.addPairToWorkflowAndNotifyClient(pair, page);
   };
 
-  public scroll = ({ scrollPages }: ScrollSettings, page: Page) => {
+  public scroll = async ({ scrollPages }: ScrollSettings, page: Page) => {
     const pair: WhereWhatPair = {
       where: { url: page.url()},
       what: [{
@@ -132,10 +138,10 @@ export class WorkflowGenerator {
     if (this.generatedData.lastUsedSelector) {
       pair.where.selectors = [this.generatedData.lastUsedSelector];
     }
-    this.addPairToWorkflowAndNotifyClient(pair);
+    await this.addPairToWorkflowAndNotifyClient(pair, page);
   };
 
-  public screenshot = (settings: ScreenshotSettings, page: Page) => {
+  public screenshot = async (settings: ScreenshotSettings, page: Page) => {
     const pair: WhereWhatPair = {
       where: { url: page.url() },
       what: [{
@@ -147,7 +153,7 @@ export class WorkflowGenerator {
     if (this.generatedData.lastUsedSelector) {
       pair.where.selectors = [this.generatedData.lastUsedSelector];
     }
-    this.addPairToWorkflowAndNotifyClient(pair);
+    await this.addPairToWorkflowAndNotifyClient(pair, page);
   };
 
   public getWorkflowFile = () => {
@@ -286,5 +292,77 @@ export class WorkflowGenerator {
     });
     this.notifyUrlChange(newUrl, true);
     this.socket.emit('workflow', this.workflowRecord);
+  }
+
+  private IsOverShadowingAction = async (pair: WhereWhatPair, page: Page) => {
+    type possibleOverShadow = {
+      index: number;
+      isOverShadowing: boolean;
+    }
+
+    const possibleOverShadow: possibleOverShadow[] = [];
+    const haveSameUrl = this.workflowRecord.workflow
+      .filter((p, index) => {
+        if (p.where.url === pair.where.url) {
+          possibleOverShadow.push({index: index, isOverShadowing: false});
+          return true;
+        } else {
+          return false;
+        }
+      });
+
+    if (haveSameUrl.length !== 0) {
+      for (let i = 0; i < haveSameUrl.length; i++) {
+        //@ts-ignore
+        if (haveSameUrl[i].where.selectors && haveSameUrl[i].where.selectors.length > 0) {
+          //@ts-ignore
+          const isOverShadowing = await page.evaluate((selectors: SelectorArray) => {
+
+            const isVisible = ( elem: HTMLElement ) => {
+              return !!( elem.offsetWidth
+                || elem.offsetHeight
+                || elem.getClientRects().length
+                && window.getComputedStyle(elem).visibility !== "hidden");
+            };
+
+            for (const selector of selectors) {
+              const element = document.querySelector(selector) as HTMLElement;
+              if (!element) {
+                return false;
+              }
+              if (!isVisible(element)){
+                return false;
+              }
+            }
+            return true;
+          }, haveSameUrl[i].where.selectors);
+          if (isOverShadowing) {
+            possibleOverShadow[i].isOverShadowing = true;
+          }
+        }
+      }
+    }
+
+    return possibleOverShadow;
+  }
+
+
+  private handleOverShadowing = async (pair: WhereWhatPair, page: Page): Promise<boolean> => {
+    const overShadowing = (await this.IsOverShadowingAction(pair, page))
+      .filter((p) => p.isOverShadowing);
+    if (overShadowing.length !== 0) {
+      for (const overShadowedAction of overShadowing) {
+        if (overShadowedAction.index === 0) {
+          // push the action automatically to the first rule which would be overShadowed
+          this.workflowRecord.workflow[0].what =
+            this.workflowRecord.workflow[0].what.concat(pair.what);
+          return true;
+        } else {
+          // notify client about possible over shadowing
+          return false;
+        }
+      }
+    }
+    return false;
   }
 }
