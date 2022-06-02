@@ -10,6 +10,11 @@ import { saveFile } from "../storage";
 import fs from "fs";
 import { getBestSelectorForAction } from "../utils";
 
+interface PersistedGeneratedData {
+  lastUsedSelector: string;
+  lastActiveUrl: string;
+}
+
 export class WorkflowGenerator {
 
   private socket : Socket;
@@ -26,12 +31,17 @@ export class WorkflowGenerator {
     workflow: [],
   };
 
-  private lastUsedSelector: string = '';
+  // we need to persist some data between actions for correct generating of the workflow
+  private generatedData: PersistedGeneratedData = {
+    lastUsedSelector: '',
+    // the first url is the default one
+    lastActiveUrl: 'about:blank',
+  }
 
   private addPairToWorkflowAndNotifyClient = (pair: WhereWhatPair) => {
     let matched = false;
     if (pair.what[0].args && pair.what[0].args.length > 0) {
-      this.lastUsedSelector = pair.what[0].args[0];
+      this.generatedData.lastUsedSelector = pair.what[0].args[0];
       const match = selectorAlreadyInWorkflow(pair.what[0].args[0], this.workflowRecord.workflow);
       if (match) {
         const index = this.workflowRecord.workflow.indexOf(match);
@@ -80,9 +90,9 @@ export class WorkflowGenerator {
   };
 
   public onChangeUrl = (newUrl: string, page: Page) => {
-    this.lastUsedSelector = '';
+    this.generatedData.lastUsedSelector = '';
     const pair: WhereWhatPair = {
-      where: { url: page.url() },
+      where: { url: this.generatedData.lastActiveUrl },
       what: [
         {
         action: 'goto',
@@ -90,6 +100,7 @@ export class WorkflowGenerator {
         }
       ],
     }
+    this.generatedData.lastActiveUrl = newUrl;
     this.addPairToWorkflowAndNotifyClient(pair);
   };
 
@@ -118,8 +129,8 @@ export class WorkflowGenerator {
       }],
     }
     // For scroll get the previous selector used to define a better where clause
-    if (this.lastUsedSelector) {
-      pair.where.selectors = [this.lastUsedSelector];
+    if (this.generatedData.lastUsedSelector) {
+      pair.where.selectors = [this.generatedData.lastUsedSelector];
     }
     this.addPairToWorkflowAndNotifyClient(pair);
   };
@@ -133,8 +144,8 @@ export class WorkflowGenerator {
       }],
     }
     // For screenshot get the previous selector used to define a better where clause
-    if (this.lastUsedSelector) {
-      pair.where.selectors = [this.lastUsedSelector];
+    if (this.generatedData.lastUsedSelector) {
+      pair.where.selectors = [this.generatedData.lastUsedSelector];
     }
     this.addPairToWorkflowAndNotifyClient(pair);
   };
@@ -247,9 +258,14 @@ export class WorkflowGenerator {
     }
   }
 
-  public notifyUrlChange = (url:string) => {
+  public notifyUrlChange = (url:string, fromNavBar:boolean) => {
     if (this.socket) {
-      this.socket.emit('urlAfterClick', url);
+      if (fromNavBar) {
+        this.socket.emit('currentUrl', url);
+      } else {
+        this.socket.emit('urlAfterClick', url);
+        this.generatedData.lastActiveUrl = url;
+      }
     }
   }
 }

@@ -53,7 +53,7 @@ const handleMousedown = async (generator: WorkflowGenerator, page: Page, { x, y 
         await page.waitForNavigation({ waitUntil: 'commit' });
         const currentUrl = page.url();
         if (currentUrl !== previousUrl) {
-            generator.notifyUrlChange(currentUrl);
+            generator.notifyUrlChange(currentUrl, false);
         }
     } catch (e) { }// ignore possible timeouts
     logger.log('debug', `Clicked on position x:${x}, y:${y}`);
@@ -133,6 +133,46 @@ const handleRefresh = async (generator: WorkflowGenerator, page: Page) => {
     logger.log('debug', `Page refreshed.`);
 };
 
+const onGoBack = async () => {
+    logger.log('debug', 'Handling refresh event emitted from client');
+    await handleWrapper(handleGoBack);
+}
+
+const handleGoBack = async (generator: WorkflowGenerator, page: Page) => {
+    await page.evaluate(() => {
+        window.history.back();
+    })
+    try {
+        await page.waitForNavigation({ waitUntil: 'commit' });
+    } catch (e) {
+        // ignore possible timeouts
+    }
+    const currentUrl = page.url();
+    generator.notifyUrlChange(currentUrl, true);
+    logger.log('debug', 'Page went back')
+    await onChangeUrl(currentUrl);
+};
+
+const onGoForward = async () => {
+    logger.log('debug', 'Handling refresh event emitted from client');
+    await handleWrapper(handleGoForward);
+}
+
+const handleGoForward = async (generator: WorkflowGenerator, page: Page) => {
+    await page.evaluate(() => {
+        window.history.forward();
+    })
+    try {
+        await page.waitForNavigation({ waitUntil: 'commit' });
+    } catch (e) {
+        // ignore possible timeouts
+    }
+    const currentUrl = page.url();
+    generator.notifyUrlChange(currentUrl, true);
+    logger.log('debug', 'Page went forward')
+    await onChangeUrl(currentUrl);
+};
+
 /**
  * Helper function for registering the handlers onto established websocket connection.
  * @param socket websocket with established connection
@@ -145,6 +185,8 @@ const registerInputHandlers = (socket: Socket) => {
     socket.on("input:keyup", onKeyup);
     socket.on("input:url", onChangeUrl);
     socket.on("input:refresh", onRefresh);
+    socket.on("input:back", onGoBack);
+    socket.on("input:forward", onGoForward);
 };
 
 export default registerInputHandlers;

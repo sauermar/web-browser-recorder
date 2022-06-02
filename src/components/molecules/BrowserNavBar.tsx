@@ -89,7 +89,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
             <NavBarButton
                 type="button"
                 onClick={() => {
-                    socket?.emit('back');
+                    socket?.emit('input:back');
                     const newIndex = historyIndex - 1;
                     setHistoryIndex(newIndex);
                 }}
@@ -103,7 +103,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
             <NavBarButton
                 type="button"
                 onClick={()=>{
-                  socket?.emit('forward');
+                  socket?.emit('input:forward');
                     const newIndex = historyIndex + 1;
                     setHistoryIndex(newIndex);
                 }}
