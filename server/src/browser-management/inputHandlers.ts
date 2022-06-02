@@ -110,7 +110,7 @@ const onChangeUrl = async (url: string) => {
 
 const handleChangeUrl = async (generator: WorkflowGenerator, page: Page, url: string) => {
     if (url) {
-        generator.onChangeUrl(url, page);
+        generator.onChangeUrl(url, page.url());
         try {
             await page.goto(url);
             logger.log('debug', `Went to ${url}`);
@@ -139,18 +139,9 @@ const onGoBack = async () => {
 }
 
 const handleGoBack = async (generator: WorkflowGenerator, page: Page) => {
-    await page.evaluate(() => {
-        window.history.back();
-    })
-    try {
-        await page.waitForNavigation({ waitUntil: 'commit' });
-    } catch (e) {
-        // ignore possible timeouts
-    }
-    const currentUrl = page.url();
-    generator.notifyUrlChange(currentUrl, true);
+    await page.goBack({waitUntil: 'commit'});
+    generator.onGoBack(page.url());
     logger.log('debug', 'Page went back')
-    await onChangeUrl(currentUrl);
 };
 
 const onGoForward = async () => {
@@ -159,18 +150,9 @@ const onGoForward = async () => {
 }
 
 const handleGoForward = async (generator: WorkflowGenerator, page: Page) => {
-    await page.evaluate(() => {
-        window.history.forward();
-    })
-    try {
-        await page.waitForNavigation({ waitUntil: 'commit' });
-    } catch (e) {
-        // ignore possible timeouts
-    }
-    const currentUrl = page.url();
-    generator.notifyUrlChange(currentUrl, true);
-    logger.log('debug', 'Page went forward')
-    await onChangeUrl(currentUrl);
+    await page.goForward({waitUntil: 'commit'});
+    generator.onGoForward(page.url());
+    logger.log('debug', 'Page went forward');
 };
 
 /**

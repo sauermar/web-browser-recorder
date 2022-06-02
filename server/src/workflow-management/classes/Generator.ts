@@ -3,7 +3,7 @@ import { WhereWhatPair, WorkflowFile } from '@wbr-project/wbr-interpret';
 import logger from "../../logger";
 import { Socket } from "socket.io";
 import { Page } from "playwright";
-import { getElementInformation, getFullPath, getRect, getSelectors, selectorAlreadyInWorkflow } from "../selector";
+import { getElementInformation, getRect, getSelectors, selectorAlreadyInWorkflow } from "../selector";
 import { ScreenshotSettings, ScrollSettings } from "../../../../src/shared/types";
 import { workflow } from "../../routes";
 import { saveFile } from "../storage";
@@ -12,7 +12,6 @@ import { getBestSelectorForAction } from "../utils";
 
 interface PersistedGeneratedData {
   lastUsedSelector: string;
-  lastActiveUrl: string;
 }
 
 export class WorkflowGenerator {
@@ -34,8 +33,6 @@ export class WorkflowGenerator {
   // we need to persist some data between actions for correct generating of the workflow
   private generatedData: PersistedGeneratedData = {
     lastUsedSelector: '',
-    // the first url is the default one
-    lastActiveUrl: 'about:blank',
   }
 
   private addPairToWorkflowAndNotifyClient = (pair: WhereWhatPair) => {
@@ -45,6 +42,10 @@ export class WorkflowGenerator {
       const match = selectorAlreadyInWorkflow(pair.what[0].args[0], this.workflowRecord.workflow);
       if (match) {
         const index = this.workflowRecord.workflow.indexOf(match);
+        pair.what.push({
+          action: 'waitForLoadState',
+          args: ['networkidle'],
+        })
         this.workflowRecord.workflow[index].what = this.workflowRecord.workflow[index].what.concat(pair.what);
         logger.log('info', `Pushed ${JSON.stringify(this.workflowRecord.workflow[index])} to workflow pair`);
         matched = true;
@@ -89,10 +90,10 @@ export class WorkflowGenerator {
     this.addPairToWorkflowAndNotifyClient(pair);
   };
 
-  public onChangeUrl = (newUrl: string, page: Page) => {
+  public onChangeUrl = (newUrl: string, currentUrl: string) => {
     this.generatedData.lastUsedSelector = '';
     const pair: WhereWhatPair = {
-      where: { url: this.generatedData.lastActiveUrl },
+      where: { url: currentUrl },
       what: [
         {
         action: 'goto',
@@ -100,7 +101,6 @@ export class WorkflowGenerator {
         }
       ],
     }
-    this.generatedData.lastActiveUrl = newUrl;
     this.addPairToWorkflowAndNotifyClient(pair);
   };
 
@@ -264,8 +264,27 @@ export class WorkflowGenerator {
         this.socket.emit('currentUrl', url);
       } else {
         this.socket.emit('urlAfterClick', url);
-        this.generatedData.lastActiveUrl = url;
       }
     }
+  }
+
+  public onGoBack = (newUrl: string) => {
+    //it's safe to always add a go back action to the first rule in the workflow
+    this.workflowRecord.workflow[0].what.push({
+      action: 'goBack',
+      args: [{waitUntil: 'commit'}],
+    });
+    this.notifyUrlChange(newUrl, true);
+    this.socket.emit('workflow', this.workflowRecord);
+  }
+
+  public onGoForward = (newUrl: string) => {
+    //it's safe to always add a go forward action to the first rule in the workflow
+    this.workflowRecord.workflow[0].what.push({
+      action: 'goForward',
+      args: [{waitUntil: 'commit'}],
+    });
+    this.notifyUrlChange(newUrl, true);
+    this.socket.emit('workflow', this.workflowRecord);
   }
 }
