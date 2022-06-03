@@ -1,4 +1,4 @@
-import React from 'react';
+import React  from 'react';
 
 import styled from "styled-components";
 import { mapRect } from "../../functions/inputHelpers";
@@ -8,29 +8,48 @@ interface HighlighterProps {
   displayedSelector: string;
   width: number;
   height: number;
-  canvas: HTMLCanvasElement | null;
+  canvasRect: DOMRect;
 };
 
-export const Highlighter = ({ unmodifiedRect, displayedSelector = '', width, height, canvas}: HighlighterProps) => {
-  const rect = mapRect(unmodifiedRect, width, height, canvas);
-  return (
-    <div>
-      <HighlighterOutline
-        id="Highlighter-outline"
+export const Highlighter = ({ unmodifiedRect, displayedSelector = '', width, height, canvasRect}: HighlighterProps) => {
+  if (!unmodifiedRect) {
+    return null;
+  } else {
+    const unshiftedRect = mapRect(unmodifiedRect, width, height);
+    const rect = {
+      bottom: unshiftedRect.bottom + canvasRect.top,
+      top: unshiftedRect.top + canvasRect.top,
+      left: unshiftedRect.left + canvasRect.left,
+      right: unshiftedRect.right + canvasRect.left,
+      x: unshiftedRect.x + canvasRect.left,
+      y: unshiftedRect.y + canvasRect.top,
+      width: unshiftedRect.width,
+      height: unshiftedRect.height,
+    }
+
+    if (unshiftedRect.bottom > height) {
+      rect.height = height - unshiftedRect.top;
+    }
+
+    return (
+      <div>
+        <HighlighterOutline
+          id="Highlighter-outline"
           top={rect.top}
           left={rect.left}
           width={rect.width}
           height={rect.height}
-      />
-      <HighlighterLabel
-        id="Highlighter-label"
-        top={rect.top + rect.height + 8}
-        left={rect.left}
-      >
-        {displayedSelector}
-      </HighlighterLabel>
-    </div>
-  );
+        />
+        <HighlighterLabel
+          id="Highlighter-label"
+          top={rect.top + rect.height + 8}
+          left={rect.left}
+        >
+          {displayedSelector}
+        </HighlighterLabel>
+      </div>
+    );
+  }
 }
 
 const HighlighterOutline = styled.div<HighlighterOutlineProps>`

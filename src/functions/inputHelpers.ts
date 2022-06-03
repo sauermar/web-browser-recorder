@@ -57,9 +57,7 @@ export const mapRect = (
   rect: DOMRect,
   browserWidth: number,
   browserHeight: number,
-  canvas: HTMLCanvasElement | null,
 ) => {
-  const canvasRect = canvas?.getBoundingClientRect() || {top: 0, left: 0};
   const mappedX = mapPixelFromLargerToSmaller(
     browserWidth / 100,
     ONE_PERCENT_OF_VIEWPORT_W,
@@ -69,7 +67,7 @@ export const mapRect = (
     browserWidth / 100,
     ONE_PERCENT_OF_VIEWPORT_W,
     rect.left,
-  ) + canvasRect.left;
+  );
   const mappedRight = mapPixelFromLargerToSmaller(
     browserWidth / 100,
     ONE_PERCENT_OF_VIEWPORT_W,
@@ -89,7 +87,7 @@ export const mapRect = (
     browserHeight / 100,
     ONE_PERCENT_OF_VIEWPORT_H,
     rect.top,
-  ) + canvasRect.top;
+  );
   const mappedBottom = mapPixelFromLargerToSmaller(
     browserHeight / 100,
     ONE_PERCENT_OF_VIEWPORT_H,

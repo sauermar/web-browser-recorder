@@ -42,13 +42,13 @@ export const BrowserWindow = () => {
 
     return (
       <>
-          {(highlighterData?.rect != null && highlighterData?.rect.top != null) ?
+          {(highlighterData?.rect != null && highlighterData?.rect.top != null) && canvasRef?.current ?
             <Highlighter
               unmodifiedRect={highlighterData?.rect}
               displayedSelector={highlighterData?.selector}
               width={width}
               height={height}
-              canvas={canvasRef?.current || null}
+              canvasRect={canvasRef.current.getBoundingClientRect()}
             />
             : null }
         <Canvas
