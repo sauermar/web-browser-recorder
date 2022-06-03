@@ -78,7 +78,7 @@ export class WorkflowGenerator {
   };
 
   public onClick = async (coordinates: Coordinates, page: Page) => {
-    let where: WhereWhatPair["where"] = { url: page.url() };
+    let where: WhereWhatPair["where"] = { url: this.getBestUrl(page.url()) };
     const selector = await this.generateSelector(page, coordinates, ActionType.Click);
     logger.log('debug', `Element's selector: ${selector}`);
     //const element = await getElementMouseIsOver(page, coordinates);
@@ -99,7 +99,7 @@ export class WorkflowGenerator {
   public onChangeUrl = async(newUrl: string, page: Page) => {
     this.generatedData.lastUsedSelector = '';
     const pair: WhereWhatPair = {
-      where: { url: page.url() },
+      where: { url: this.getBestUrl(page.url()) },
       what: [
         {
         action: 'goto',
@@ -111,7 +111,7 @@ export class WorkflowGenerator {
   };
 
   public onKeyboardInput = async (key: string, coordinates: Coordinates, page: Page) => {
-    let where: WhereWhatPair["where"] = { url: page.url() };
+    let where: WhereWhatPair["where"] = { url: this.getBestUrl(page.url()) };
     const selector = await this.generateSelector(page, coordinates, ActionType.Keydown);
     if (selector) {
       where.selectors = [selector];
@@ -128,7 +128,7 @@ export class WorkflowGenerator {
 
   public scroll = async ({ scrollPages }: ScrollSettings, page: Page) => {
     const pair: WhereWhatPair = {
-      where: { url: page.url()},
+      where: { url: this.getBestUrl(page.url())},
       what: [{
         action: 'scroll',
         args: [scrollPages],
@@ -143,7 +143,7 @@ export class WorkflowGenerator {
 
   public screenshot = async (settings: ScreenshotSettings, page: Page) => {
     const pair: WhereWhatPair = {
-      where: { url: page.url() },
+      where: { url: this.getBestUrl(page.url()) },
       what: [{
         action: 'screenshot',
         args: [settings],
@@ -364,5 +364,16 @@ export class WorkflowGenerator {
       }
     }
     return false;
+  }
+
+  private getBestUrl = (url: string) => {
+    const parsedUrl = new URL(url);
+    const protocol = parsedUrl.protocol === 'https:' || parsedUrl.protocol === 'http:' ? `${parsedUrl.protocol}//`: parsedUrl.protocol;
+    const pathname = parsedUrl.pathname.length === 0 ? '/' : parsedUrl.pathname;
+    const regex = new RegExp(/(?=.*[A-Z])/g)
+    // remove all params with uppercase letters, they are most likely dynamically generated
+    const search = parsedUrl.search.split('&').filter((param) => !regex.test(param)).join('&');
+    const bestUrl = `${protocol}${parsedUrl.host}${pathname}${search}${parsedUrl.hash}`;
+    return bestUrl;
   }
 }
