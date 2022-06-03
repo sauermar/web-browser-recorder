@@ -45,7 +45,7 @@ export const PageWrapper = () => {
 
   return (
     <div>
-      <NavBar/>
+      <NavBar newRecording={handleNewRecording}/>
         {browserId
           ? (
             <SocketProvider>
@@ -55,7 +55,6 @@ export const PageWrapper = () => {
             </SocketProvider>
           )
           : <MainPage
-            newRecording={handleNewRecording}
             handleEditRecording={handleEditRecording}
           />
         }

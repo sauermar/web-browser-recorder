@@ -4,9 +4,13 @@ import { stopRecording } from "../../api/recording";
 import { useGlobalInfoStore } from "../../context/globalInfo";
 import { Button } from "@mui/material";
 import { RecordingIcon } from "../atoms/RecorderIcon";
+import { AddButton } from "../atoms/AddButton";
 
+interface NavBarProps {
+  newRecording: () => void;
+}
 
-export const NavBar = () => {
+export const NavBar = ({newRecording}:NavBarProps) => {
 
   const { notify, browserId, setBrowserId } = useGlobalInfoStore();
 
@@ -15,10 +19,19 @@ export const NavBar = () => {
   const goToMainMenu = () => {
     if (browserId) {
       stopRecording(browserId);
-      notify('warning', 'Recording was terminated');
+      notify('warning', 'Current Recording was terminated');
       setBrowserId(null);
     }
   };
+
+  const handleNewRecording = () => {
+    if (browserId) {
+      stopRecording(browserId);
+      setBrowserId(null);
+    }
+    newRecording();
+    notify('info', 'New Recording started');
+  }
 
   return (
     <NavBarWrapper>
@@ -33,6 +46,17 @@ export const NavBar = () => {
         display: 'flex',
         justifyContent: 'flex-end',
       }}>
+        <AddButton
+          handleClick={handleNewRecording}
+          title="New Recording"
+          style={{
+            borderRadius: '5px',
+            padding: '9px',
+            background: 'rgba(25, 118, 210, 0.8)',
+            color: '#fff',
+            marginRight: '10px',
+          }}
+        />
         <Button sx={{
           background: '#fff',
           padding: '9px',
