@@ -26,7 +26,7 @@ export class RemoteBrowser {
 
     public interpreter: WorkflowInterpreter;
 
-    public constructor(socket: Socket){
+    public constructor(socket: Socket) {
         this.socket = socket;
         this.interpreter = new WorkflowInterpreter(socket);
         this.generator = new WorkflowGenerator(socket);
@@ -43,13 +43,13 @@ export class RemoteBrowser {
         //initialize page context
         const context = await this.browser.newContext();
         this.currentPage = await context.newPage();
-        const log = (msg: string) => console.log(msg);
-        await this.currentPage.exposeFunction("log", log);
         this.pages = this.pages.concat([this.currentPage]);
         //initialize CDP session
         this.client = await this.currentPage.context().newCDPSession(this.currentPage);
-        //command handlers
-        this.socket.on('rerender', async() => await this.makeAndEmitScreenshot());
+
+        // TODO: remove next two lines are just for debugging
+        const log = (msg: string) => console.log(msg);
+        await this.currentPage.exposeFunction("log", log);
     };
 
     /**
@@ -62,6 +62,7 @@ export class RemoteBrowser {
         }
         await this.client.send('Page.startScreencast', { format: 'jpeg', quality: 75 });
         logger.log('info',`Browser started with screencasting.`);
+        this.socket.on('rerender', async() => await this.makeAndEmitScreenshot());
         this.socket.emit('loaded');
     };
 
@@ -128,6 +129,7 @@ export class RemoteBrowser {
     public updateSocket = (socket: Socket) : void => {
         this.socket = socket;
         this.generator?.updateSocket(socket);
+        this.interpreter?.updateSocket(socket);
     };
 
     public makeAndEmitScreenshot = async() : Promise<void> => {
@@ -157,8 +159,7 @@ export class RemoteBrowser {
             const workflow = this.generator.getWorkflowFile();
             await this.initializeNewPage();
             if (this.currentPage) {
-                await this.interpreter.interpretRecording(
-                  this.socket,
+                await this.interpreter.interpretRecordingInEditor(
                   workflow, this.currentPage,
                   (newPage: Page) => this.currentPage = newPage,
                 );

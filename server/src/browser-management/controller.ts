@@ -4,7 +4,7 @@
 import { Socket } from "socket.io";
 import { uuid } from 'uuidv4';
 
-import { createSocketConnection } from "../socket-connection/connection";
+import { createSocketConnection, createSocketConnectionForRun } from "../socket-connection/connection";
 import { io, browserPool } from "../server";
 import { RemoteBrowser } from "./classes/RemoteBrowser";
 import { RemoteBrowserOptions } from "../types";
@@ -27,11 +27,26 @@ export const createRemoteBrowser = (options: RemoteBrowserOptions): string => {
                 await remoteBrowser?.makeAndEmitScreenshot();
             } else {
                 const browserSession = new RemoteBrowser(socket);
+                browserSession.interpreter.subscribeToPausing();
                 await browserSession.initialize(options);
                 await browserSession.subscribeToScreencast();
                 browserPool.addRemoteBrowser(id, browserSession);
             }
         });
+    return id;
+};
+
+
+export const createRemoteBrowserForRun = async(options: RemoteBrowserOptions): Promise<string> => {
+    const id = uuid();
+    createSocketConnectionForRun(
+      io.of(id),
+    async (socket: Socket) => {
+          const browserSession = new RemoteBrowser(socket);
+          await browserSession.initialize(options);
+          browserPool.addRemoteBrowser(id, browserSession);
+          socket.emit('ready-for-run');
+      });
     return id;
 };
 

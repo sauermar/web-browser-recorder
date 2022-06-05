@@ -3,9 +3,12 @@ import fs from "fs";
 import logger from "../../logger";
 import { Socket } from "socket.io";
 import { Page } from "playwright";
+import { saveFile } from "../storage";
 
 
 export class WorkflowInterpreter {
+
+  private socket : Socket;
 
   public interpretationIsPaused: boolean = false;
 
@@ -20,10 +23,14 @@ export class WorkflowInterpreter {
   private interpretationResume: (() => void) | null = null;
 
   constructor (socket: Socket) {
-    socket.on('pause', () => {
+    this.socket = socket;
+  }
+
+  public subscribeToPausing = () => {
+    this.socket.on('pause', () => {
       this.interpretationIsPaused = true;
     });
-    socket.on('resume', () => {
+    this.socket.on('resume', () => {
       this.interpretationIsPaused = false;
       if (this.interpretationResume) {
         this.interpretationResume();
@@ -31,18 +38,17 @@ export class WorkflowInterpreter {
         logger.log('debug',"Resume called but no resume function is set");
       }
     });
-    socket.on('step', () => {
+    this.socket.on('step', () => {
       if (this.interpretationResume) {
         this.interpretationResume();
       } else {
         logger.log('debug', "Step called but no resume function is set");
       }
     });
-    socket.on('breakpoints', (data: boolean[]) => this.breakpoints = data);
+    this.socket.on('breakpoints', (data: boolean[]) => this.breakpoints = data);
   }
 
-  public interpretRecording = async (
-    socket: Socket,
+  public interpretRecordingInEditor = async (
     workflow: WorkflowFile,
     page: Page,
     updatePageOnPause: (page: Page) => void,
@@ -53,16 +59,22 @@ export class WorkflowInterpreter {
       debugChannel: {
         activeId: (id: any) => {
           this.activeId = id;
-          socket.emit('activePairId', id);
+          this.socket.emit('activePairId', id);
         },
         // the receiver is not yet implemented
         debugMessage: (msg: any) => {
           this.debugMessages.push(msg);
-          socket.emit('debugMessage', msg)
+          this.socket.emit('debugMessage', msg)
         },
       },
-      serializableCallback: console.log,
-      binaryCallback: (data: string, mimetype: string) => fs.writeFileSync("output", data)
+      serializableCallback: (data: any) => {
+        console.log(data);
+        this.socket.emit('serializableCallback', data);
+      },
+      binaryCallback: (data: string, mimetype: string) => {
+        console.log(data);
+        this.socket.emit('binaryCallback', {data, mimetype});
+      }
     }
 
     const interpreter = new Interpreter(workflow, options);
@@ -71,7 +83,7 @@ export class WorkflowInterpreter {
     interpreter.on('flag', async (page, resume) => {
       if (this.activeId && this.breakpoints[this.activeId]) {
         logger.log('debug',`breakpoint hit id: ${this.activeId}`);
-        socket.emit('breakpointHit');
+        this.socket.emit('breakpointHit');
         this.interpretationIsPaused = true;
       }
 
@@ -90,7 +102,7 @@ export class WorkflowInterpreter {
     this.interpreter = null;
     this.interpretationIsPaused = false;
     this.interpretationResume = null;
-    socket.emit('finished');
+    this.socket.emit('finished');
   };
 
   public stopInterpretation = async () => {
@@ -103,7 +115,37 @@ export class WorkflowInterpreter {
     }
   };
 
+  public InterpretRecording = async (workflow: WorkflowFile, page: Page) => {
+    let log = '';
+    const options = {
+      maxConcurrency: 1,
+      maxRepeats: 5,
+      serializableCallback: (data: any) => {
+        log += `${log}${data}\n`;
+        this.socket.emit('serializableCallback', data);
+      },
+      binaryCallback: (data: string, mimetype: string) => {
+        console.log(data);
+        this.socket.emit('binaryCallback', {data, mimetype});
+      }
+    }
+
+    const interpreter = new Interpreter(workflow, options);
+    this.interpreter = interpreter;
+
+    await interpreter.run(page);
+    console.log(log);
+
+    logger.log('debug',`Interpretation finished`);
+    this.interpreter = null;
+    return log;
+  }
+
   public interpretationInProgress = () => {
     return this.interpreter !== null;
+  };
+
+  public updateSocket = (socket: Socket) : void => {
+    this.socket = socket;
   };
 }

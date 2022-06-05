@@ -6,14 +6,13 @@ import { Paper } from "@mui/material";
 import styled from "styled-components";
 
 interface MainMenuProps {
-  handleChangeContent: (newContent: string) => void;
+  value: string;
+  handleChangeContent: (newValue: string) => void;
 }
 
-export const MainMenu = ({ handleChangeContent }: MainMenuProps) => {
-  const [value, setValue] = React.useState('recordings');
+export const MainMenu = ({ value = 'recordings', handleChangeContent }: MainMenuProps) => {
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-    setValue(newValue);
     handleChangeContent(newValue);
   };
 

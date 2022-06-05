@@ -227,9 +227,9 @@ export class WorkflowGenerator {
         pairs: recording.workflow.length,
         update_date: new Date().toLocaleString(),
       };
-      fs.mkdirSync('../recordings', { recursive: true })
+      fs.mkdirSync('../storage/recordings', { recursive: true })
       await saveFile(
-        `../recordings/${fileName}.waw.json`,
+        `../storage/recordings/${fileName}.waw.json`,
         JSON.stringify({ recording_meta, recording }, null, 2)
       );
     } catch (e) {

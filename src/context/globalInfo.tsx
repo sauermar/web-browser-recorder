@@ -12,6 +12,8 @@ interface GlobalInfo {
   closeNotify: () => void;
   recordings: string[];
   setRecordings: (recordings: string[]) => void;
+  rerenderRuns: boolean;
+  setRerenderRuns: (rerenderRuns: boolean) => void;
 };
 
 class GlobalInfoStore implements Partial<GlobalInfo>{
@@ -23,6 +25,7 @@ class GlobalInfoStore implements Partial<GlobalInfo>{
     isOpen: false,
   };
   recordings: string[] = [];
+  rerenderRuns = false;
 };
 
 const globalInfoStore = new GlobalInfoStore();
@@ -35,6 +38,7 @@ export const GlobalInfoProvider = ({ children }: { children: JSX.Element }) => {
   const [lastAction, setLastAction] = useState<string>(globalInfoStore.lastAction);
   const [notification, setNotification] = useState<AlertSnackbarProps>(globalInfoStore.notification);
   const [recordings, setRecordings] = useState<string[]>(globalInfoStore.recordings);
+  const [rerenderRuns, setRerenderRuns] = useState<boolean>(globalInfoStore.rerenderRuns);
 
   const notify = (severity: 'error' | 'warning' | 'info' | 'success', message: string) => {
     setNotification({severity, message, isOpen: true});
@@ -56,6 +60,8 @@ export const GlobalInfoProvider = ({ children }: { children: JSX.Element }) => {
         closeNotify,
         recordings,
         setRecordings,
+        rerenderRuns,
+        setRerenderRuns,
       }}
     >
       {children}

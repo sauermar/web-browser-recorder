@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react';
 import { Grid } from '@mui/material';
 import { BrowserContent } from "../components/organisms/BrowserContent";
-import { startRecording, stopRecording, getActiveBrowserId, editRecordingFromStorage } from "../api/recording";
+import { startRecording, getActiveBrowserId } from "../api/recording";
 import { LeftSidePanel } from "../components/organisms/LeftSidePanel";
 import { RightSidePanel } from "../components/organisms/RightSidePanel";
 import { Loader } from "../components/atoms/Loader";
 import { useSocketStore } from "../context/socket";
 import { useBrowserDimensionsStore } from "../context/browserDimensions";
 import { useGlobalInfoStore } from "../context/globalInfo";
+import { editRecordingFromStorage } from "../api/storage";
 
 interface RecordingPageProps {
   recordingName?: string;

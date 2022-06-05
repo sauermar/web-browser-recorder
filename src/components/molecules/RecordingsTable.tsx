@@ -8,11 +8,11 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { useEffect } from "react";
-import { deleteRecordingFromStorage, getStoredRecordings } from "../../api/recording";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
 import { IconButton } from "@mui/material";
 import { Assignment, DeleteForever, Edit, PlayCircle } from "@mui/icons-material";
 import { useGlobalInfoStore } from "../../context/globalInfo";
+import { deleteRecordingFromStorage, getStoredRecordings } from "../../api/storage";
 
 interface Column {
   id: 'interpret' | 'name' | 'create_date' | 'edit' | 'task' | 'pairs' | 'update_date'| 'delete';
@@ -70,9 +70,10 @@ interface Data {
 
 interface RecordingsTableProps {
   handleEditRecording: (fileName:string) => void;
+  handleRunRecording: (fileName:string) => void;
 }
 
-export const RecordingsTable = ({ handleEditRecording }: RecordingsTableProps) => {
+export const RecordingsTable = ({ handleEditRecording, handleRunRecording }: RecordingsTableProps) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [rows, setRows] = React.useState<Data[]>([]);
@@ -153,7 +154,7 @@ export const RecordingsTable = ({ handleEditRecording }: RecordingsTableProps) =
                           case 'interpret':
                             return (
                               <TableCell key={column.id} align={column.align}>
-                                <InterpretButton/>
+                                <InterpretButton handleInterpret={() => handleRunRecording(row.name)}/>
                               </TableCell>
                             );
                           case 'edit':
@@ -213,9 +214,15 @@ export const RecordingsTable = ({ handleEditRecording }: RecordingsTableProps) =
   );
 }
 
-const InterpretButton = () => {
+interface InterpretButtonProps {
+  handleInterpret: () => void;
+}
+
+const InterpretButton = ( {handleInterpret}:InterpretButtonProps) => {
   return (
-    <IconButton aria-label="add" size= "small" onClick={() => console.log('button clicked')}
+    <IconButton aria-label="add" size= "small" onClick={() => {
+      handleInterpret();
+    }}
                 sx={{'&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}>
       <PlayCircle/>
     </IconButton>
