@@ -3,7 +3,13 @@ import { WhereWhatPair, WorkflowFile } from '@wbr-project/wbr-interpret';
 import logger from "../../logger";
 import { Socket } from "socket.io";
 import { Page } from "playwright";
-import { getElementInformation, getRect, getSelectors, selectorAlreadyInWorkflow } from "../selector";
+import {
+  getElementInformation,
+  getRect,
+  getSelectors,
+  isRuleOvershadowing,
+  selectorAlreadyInWorkflow
+} from "../selector";
 import { ScreenshotSettings, ScrollSettings } from "../../../../src/shared/types";
 import { workflow } from "../../routes";
 import { saveFile } from "../storage";
@@ -316,33 +322,13 @@ export class WorkflowGenerator {
         //@ts-ignore
         if (haveSameUrl[i].where.selectors && haveSameUrl[i].where.selectors.length > 0) {
           //@ts-ignore
-          const isOverShadowing = await page.evaluate((selectors: SelectorArray) => {
-
-            const isVisible = ( elem: HTMLElement ) => {
-              return !!( elem.offsetWidth
-                || elem.offsetHeight
-                || elem.getClientRects().length
-                && window.getComputedStyle(elem).visibility !== "hidden");
-            };
-
-            for (const selector of selectors) {
-              const element = document.querySelector(selector) as HTMLElement;
-              if (!element) {
-                return false;
-              }
-              if (!isVisible(element)){
-                return false;
-              }
-            }
-            return true;
-          }, haveSameUrl[i].where.selectors);
+          const isOverShadowing = await isRuleOvershadowing(haveSameUrl[i].where.selectors, page);
           if (isOverShadowing) {
             possibleOverShadow[i].isOverShadowing = true;
           }
         }
       }
     }
-
     return possibleOverShadow;
   }
 
