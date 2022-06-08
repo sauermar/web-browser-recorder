@@ -8,8 +8,8 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { useEffect } from "react";
-import { IconButton } from "@mui/material";
-import {  DeleteForever } from "@mui/icons-material";
+import { Box, Collapse, IconButton, Typography } from "@mui/material";
+import {  DeleteForever, KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import { useGlobalInfoStore } from "../../context/globalInfo";
 import { deleteRunFromStorage, getStoredRuns } from "../../api/storage";
 
@@ -82,12 +82,19 @@ export const RunsTable = () => {
 
   }, [rerenderRuns]);
 
+  const handleDelete = () => {
+    setRows([]);
+    notify('success', 'Run deleted successfully');
+    fetchRuns();
+  }
+
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <TableContainer sx={{ maxHeight: 440 }}>
+    <>
+      <TableContainer component={Paper} sx={{ maxHeight: 440, width: '100%', overflow: 'hidden' }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
+              <TableCell />
               {columns.map((column) => (
                 <TableCell
                   key={column.id}
@@ -102,68 +109,9 @@ export const RunsTable = () => {
           <TableBody>
             {rows.length !== 0 ? rows
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => {
-                  return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      {columns.map((column) => {
-                        // @ts-ignore
-                        const value : any = row[column.id];
-                        if (value !== undefined) {
-                          if(column.id === 'status') {
-                            return (
-                              <TableCell key={column.id} align={column.align}>
-                                <button onClick={() => {
-                                  const r = rows;
-                                  r.splice(row.id + 1, 0, {
-                                    id: -1,
-                                    status: 'TEST',
-                                    name: 'test',
-                                    startedAt: '',
-                                    finishedAt: '',
-                                    duration: '',
-                                    task: '',
-                                  });
-                                  console.log(r)
-                                  setRows(r);
-                                }}>
-                                  {value}
-                                </button>
-                              </TableCell>
-                            );
-                          }
-                          else {
-                            return (
-                              <TableCell key={column.id} align={column.align}>
-                                {value}
-                              </TableCell>
-                            );
-                          }
-                        } else {
-                          switch (column.id) {
-                            case 'delete':
-                              return (
-                                <TableCell key={column.id} align={column.align}>
-                                  <IconButton aria-label="add" size= "small" onClick={() => {
-                                    deleteRunFromStorage(row.name).then((result: boolean) => {
-                                      if (result) {
-                                        setRows([]);
-                                        notify('success', 'Run deleted successfully');
-                                        fetchRuns();
-                                      }
-                                    })
-                                  }} sx={{'&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}>
-                                    <DeleteForever/>
-                                  </IconButton>
-                                </TableCell>
-                              );
-                            default:
-                              return null;
-                          }
-                        }
-                      })}
-                    </TableRow>
-                  );
-                })
+                .map((row) =>
+                  <CollapsibleRow row={row} handleDelete={handleDelete}/>
+                )
               : null }
           </TableBody>
         </Table>
@@ -177,6 +125,71 @@ export const RunsTable = () => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-    </Paper>
+  </>
+  );
+}
+
+interface CollapsibleRowProps {
+  row: Data;
+  handleDelete: () => void;
+}
+const CollapsibleRow = ({ row, handleDelete }: CollapsibleRowProps) => {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <React.Fragment>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} hover role="checkbox" tabIndex={-1} key={row.id}>
+        <TableCell>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+          </IconButton>
+        </TableCell>
+        {columns.map((column) => {
+          // @ts-ignore
+          const value : any = row[column.id];
+          if (value !== undefined) {
+            return (
+              <TableCell key={column.id} align={column.align}>
+                {value}
+              </TableCell>
+            );
+          } else {
+            switch (column.id) {
+              case 'delete':
+                return (
+                  <TableCell key={column.id} align={column.align}>
+                    <IconButton aria-label="add" size= "small" onClick={() => {
+                      deleteRunFromStorage(row.name).then((result: boolean) => {
+                        if (result) {
+                          handleDelete();
+                        }
+                      })
+                    }} sx={{'&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}>
+                      <DeleteForever/>
+                    </IconButton>
+                  </TableCell>
+                );
+              default:
+                return null;
+            }
+          }
+        })}
+      </TableRow>
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" gutterBottom component="div">
+                There's gonna be some log
+              </Typography>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </React.Fragment>
   );
 }
