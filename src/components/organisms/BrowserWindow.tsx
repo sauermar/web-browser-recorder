@@ -15,7 +15,7 @@ export const BrowserWindow = () => {
     const { width, height } = useBrowserDimensionsStore();
 
     const onMouseMove = (e: MouseEvent) =>{
-        if (canvasRef && canvasRef.current) {
+        if (canvasRef && canvasRef.current && highlighterData) {
             const canvasRect = canvasRef.current.getBoundingClientRect();
             // mousemove outside the browser window
             if (
