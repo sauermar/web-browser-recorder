@@ -6,11 +6,21 @@ import { useSocketStore } from "../../context/socket";
 import { useGlobalInfoStore } from "../../context/globalInfo";
 
 interface InterpretationButtonsProps {
-  enableStepping: (isPaused: boolean) => void,
+  enableStepping: (isPaused: boolean) => void;
+}
+
+interface InterpretationInfo {
+  running: boolean;
+  isPaused: boolean;
+}
+
+const interpretationInfo: InterpretationInfo = {
+  running: false,
+  isPaused: false,
 }
 
 export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsProps) => {
-  const [isPaused, setIsPaused] = React.useState(false);
+  const [info, setInfo] = React.useState<InterpretationInfo>(interpretationInfo);
 
   const { socket } = useSocketStore();
   const { notify } = useGlobalInfoStore();
@@ -18,26 +28,27 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
   useEffect(() => {
     if (socket) {
       socket.on('finished', () => {
-        setIsPaused(false);
+        setInfo({...info, isPaused: false});
         enableStepping(false);
       });
       socket.on('breakpointHit', () => {
-        setIsPaused(true);
+        setInfo({running: false, isPaused: true});
         notify('warning', 'Please restart the interpretation, after updating the recording');
         enableStepping(true);
       });
     }
-  }, [socket, setIsPaused, enableStepping]);
+  }, [socket, setInfo, enableStepping]);
 
   const handlePlay = async () => {
-    if (isPaused) {
+    if (info.isPaused) {
       socket?.emit("resume");
-      setIsPaused(false);
+      setInfo({running: true, isPaused: false});
       enableStepping(false);
     } else {
       console.log("handling play");
+      setInfo({...info, running: true});
       const finished = await interpretCurrentRecording();
-      console.log(finished);
+      setInfo({...info, running: false});
       if (finished) {
         notify('info', 'Interpretation finished');
       } else {
@@ -48,14 +59,16 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
 
   const handleStop = async () => {
     console.log("handling stop");
+    setInfo({ running: false, isPaused: false });
+    enableStepping(false);
     await stopCurrentInterpretation();
   };
 
   const handlePause = async () => {
     console.log("handling pause");
-    if (!isPaused) {
+    if (info.running) {
       socket?.emit("pause");
-      setIsPaused(true);
+      setInfo({ running: false, isPaused: true });
       notify('warning', 'Please restart the interpretation, after updating the recording');
       enableStepping(true);
     }
@@ -64,17 +77,17 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
   return (
     <Stack direction="row" spacing={3}
     sx={{ marginTop: '10px', marginBottom: '5px'}} >
-      <IconButton disabled={isPaused} sx={{display:'grid', '&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}
+      <IconButton disabled={!info.running} sx={{display:'grid', '&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}
                   aria-label="pause" size="small" title="Pause" onClick={handlePause}>
         <PauseCircle sx={{ fontSize: 30, justifySelf:'center' }}/>
         Pause
       </IconButton>
-      <IconButton sx={{display:'grid', '&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}
+      <IconButton disabled={info.running} sx={{display:'grid', '&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}
                   aria-label="play" size="small" title="Play" onClick={handlePlay}>
         <PlayCircle sx={{ fontSize: 30, justifySelf:'center' }}/>
-        {isPaused ? 'Resume' : 'Start'}
+        {info.isPaused ? 'Resume' : 'Start'}
       </IconButton>
-      <IconButton sx={{display:'grid', '&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}
+      <IconButton disabled={!info.running && !info.isPaused} sx={{display:'grid', '&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}
         aria-label="stop" size="small" title="Stop" onClick={handleStop}>
         <StopCircle sx={{ fontSize: 30, justifySelf:'center' }}/>
         Stop
