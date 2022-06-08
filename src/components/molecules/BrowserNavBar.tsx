@@ -93,7 +93,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
                     const newIndex = historyIndex - 1;
                     setHistoryIndex(newIndex);
                 }}
-                disabled={historyIndex === 0 || history.length === 1}
+                disabled={false}
             >
                 <FontAwesomeIcon
                     icon={faArrowLeft}
@@ -107,7 +107,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
                     const newIndex = historyIndex + 1;
                     setHistoryIndex(newIndex);
                 }}
-                disabled={false}/*{historyIndex === (history.length - 1)}*/
+                disabled={false}
             >
                 <FontAwesomeIcon
                     icon={faArrowRight}
@@ -121,7 +121,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
                     handleRefresh(socket)
                   }
                 }}
-                disabled={false}/*{ history.length === 1 }*/
+                disabled={false}
             >
                 <FontAwesomeIcon
                     icon={faRedo}
