@@ -3,6 +3,7 @@ import { useSocketStore } from '../../context/socket';
 import Canvas from "../atoms/canvas";
 import { useBrowserDimensionsStore } from "../../context/browserDimensions";
 import { Highlighter } from "../atoms/Highlighter";
+import canvas from "../atoms/canvas";
 
 export const BrowserWindow = () => {
 
@@ -13,15 +14,27 @@ export const BrowserWindow = () => {
     const { socket } = useSocketStore();
     const { width, height } = useBrowserDimensionsStore();
 
-    useEffect(() =>  {
-        console.log('Effect from BrWindow');
+    const onMouseMove = (e: MouseEvent) =>{
+        if (canvasRef && canvasRef.current) {
+            const canvasRect = canvasRef.current.getBoundingClientRect();
+            // mousemove outside the browser window
+            if (
+              e.pageX < canvasRect.left
+              || e.pageX > canvasRect.right
+              || e.pageY < canvasRect.top
+              || e.pageY > canvasRect.bottom
+            ){
+                setHighlighterData(null);
+            }
+        }
+    };
 
+    useEffect(() =>  {
         if (socket) {
             socket.on("screencast", data => {
                 setScreenShot(data);
             });
         }
-
         if (canvasRef?.current) {
             drawImage(screenShot, canvasRef.current);
         } else {
@@ -32,13 +45,17 @@ export const BrowserWindow = () => {
 
 
     useEffect(() =>  {
-        console.log('Effect from BrWindow');
+        document.addEventListener('mousemove', onMouseMove, false);
         if (socket) {
             socket.on("highlighter", data => {
                 setHighlighterData(data);
             });
         }
-    }, [socket]);
+        //cleaning function
+        return () => {
+            document.removeEventListener('mousemove', onMouseMove);
+        };
+    }, [socket, onMouseMove]);
 
     return (
       <>

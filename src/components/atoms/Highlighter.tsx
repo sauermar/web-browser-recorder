@@ -28,8 +28,6 @@ export const Highlighter = ({ unmodifiedRect, displayedSelector = '', width, hei
       height: unshiftedRect.height,
     }
 
-    console.log(rect, 'modifRect')
-
     // make the highlighting rectangle stay in browser window boundaries
     if (rect.bottom > canvasRect.bottom) {
       rect.height = height - unshiftedRect.top;

@@ -103,8 +103,6 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
 
 
     useEffect(() => {
-
-        log.info('Effect from canvas');
         if (canvasRef.current) {
             onCreateRef(canvasRef);
             canvasRef.current.addEventListener('mousedown', onMouseEvent);
@@ -116,10 +114,10 @@ const Canvas = ({ width, height, onCreateRef }: CanvasProps) => {
             return () => {
                 if (canvasRef.current) {
                     canvasRef.current.removeEventListener('mousedown', onMouseEvent);
-                    canvasRef.current.addEventListener('mousemove', onMouseEvent);
+                    canvasRef.current.removeEventListener('mousemove', onMouseEvent);
                     canvasRef.current.removeEventListener('wheel', onMouseEvent);
-                    canvasRef.current.addEventListener('keydown', onKeyboardEvent);
-                    canvasRef.current.addEventListener('keyup', onKeyboardEvent);
+                    canvasRef.current.removeEventListener('keydown', onKeyboardEvent);
+                    canvasRef.current.removeEventListener('keyup', onKeyboardEvent);
                 }
 
             };
