@@ -76,7 +76,7 @@ router.put('/:browserId/:fileName', async (req, res) => {
     const browser = browserPool.getRemoteBrowser(req.params.browserId);
     logger.log('debug', `Updating workflow file`);
     if (browser && browser.generator) {
-      const recording = await readFile(`./../recordings/${req.params.fileName}.waw.json`)
+      const recording = await readFile(`./../storage/recordings/${req.params.fileName}.waw.json`)
       const parsedRecording = JSON.parse(recording);
       if (parsedRecording.recording) {
         browser.generator?.updateWorkflowFile(parsedRecording.recording);

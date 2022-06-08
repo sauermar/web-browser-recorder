@@ -114,9 +114,9 @@ export const RunsTable = () => {
                               <TableCell key={column.id} align={column.align}>
                                 <button onClick={() => {
                                   const r = rows;
-                                  r.splice(row.id, 0, {
-                                    id: row.id + 1,
-                                    status: '',
+                                  r.splice(row.id + 1, 0, {
+                                    id: -1,
+                                    status: 'TEST',
                                     name: 'test',
                                     startedAt: '',
                                     finishedAt: '',

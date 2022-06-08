@@ -1,9 +1,7 @@
 import Interpreter, { WorkflowFile } from "@wbr-project/wbr-interpret";
-import fs from "fs";
 import logger from "../../logger";
 import { Socket } from "socket.io";
 import { Page } from "playwright";
-import { saveFile } from "../storage";
 
 
 export class WorkflowInterpreter {
@@ -61,7 +59,6 @@ export class WorkflowInterpreter {
           this.activeId = id;
           this.socket.emit('activePairId', id);
         },
-        // the receiver is not yet implemented
         debugMessage: (msg: any) => {
           this.debugMessages.push(msg);
           this.socket.emit('debugMessage', msg)
@@ -116,12 +113,20 @@ export class WorkflowInterpreter {
   };
 
   public InterpretRecording = async (workflow: WorkflowFile, page: Page) => {
-    let log = '';
     const options = {
       maxConcurrency: 1,
       maxRepeats: 5,
+      debugChannel: {
+        activeId: (id: any) => {
+          this.activeId = id;
+          this.socket.emit('activePairId', id);
+        },
+        debugMessage: (msg: any) => {
+          this.debugMessages.push(msg);
+          this.socket.emit('debugMessage', msg)
+        },
+      },
       serializableCallback: (data: any) => {
-        log += `${log}${data}\n`;
         this.socket.emit('serializableCallback', data);
       },
       binaryCallback: (data: string, mimetype: string) => {
@@ -134,11 +139,11 @@ export class WorkflowInterpreter {
     this.interpreter = interpreter;
 
     await interpreter.run(page);
-    console.log(log);
 
+    console.log(this.debugMessages.join('\n'));
     logger.log('debug',`Interpretation finished`);
     this.interpreter = null;
-    return log;
+    return this.debugMessages.join('\n');
   }
 
   public interpretationInProgress = () => {

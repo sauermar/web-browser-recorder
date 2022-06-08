@@ -40,6 +40,9 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
           setRerenderRuns(true);
         })
       })
+      socket.on('debugMessage', (data: any) => {
+          console.log(data);
+      });
       socket.on("connect_error", (err) => console.log(`connect_error due to ${err.message}`));
       setContent('runs');
       if (id) {
