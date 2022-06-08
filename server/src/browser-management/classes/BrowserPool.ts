@@ -7,9 +7,15 @@ interface PoolDictionary {
 
 export class BrowserPool {
 
+    // holds all the running remote browser recording sessions
     private pool : PoolDictionary = {};
 
-    public addRemoteBrowser = (id: string, browser: RemoteBrowser) => {
+    /**
+     * Adds a remote browser session to the pool.
+     * @param id remote browser session's id
+     * @param browser remote browser instance
+     */
+    public addRemoteBrowser = (id: string, browser: RemoteBrowser): void => {
         this.pool = {
             ...this.pool,
             [id]: browser,
@@ -17,15 +23,24 @@ export class BrowserPool {
         logger.log('debug', `Remote browser with id: ${id} added to the pool`);
     };
 
-    public deleteRemoteBrowser = (id: string) => {
+    /**
+     * Removes the remote browser session from the pool.
+     * @param id remote browser session's id
+     */
+    public deleteRemoteBrowser = (id: string) : boolean => {
         if (!this.pool[id]) {
             logger.log('warn', `Remote browser with id: ${id} does not exist in the pool`);
-            return;
+            return false;
         }
         delete(this.pool[id]);
         logger.log('debug', `Remote browser with id: ${id} deleted from the pool`);
+        return true;
     };
 
+    /**
+     * Returns remote browser instance from the pool.
+     * @param id remote browser session's id
+     */
     public getRemoteBrowser = (id: string) : RemoteBrowser | undefined => {
         logger.log('debug', `Remote browser with id: ${id} retrieved from the pool`);
         return this.pool[id];
