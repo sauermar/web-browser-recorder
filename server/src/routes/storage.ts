@@ -108,6 +108,16 @@ router.get('/runs/run/:fileName', async (req, res) => {
     const currentPage = browser?.getCurrentPage();
     if (browser && currentPage) {
       const log = await browser.interpreter.InterpretRecording(parsedRecording.recording, currentPage);
+      const duration = Math.round((new Date().getTime() - new Date(parsedRun.startedAt).getTime()) / 1000);
+      const durString = (() => {
+        if (duration < 60) {
+          return `${duration} s`;
+        }
+        else {
+          const minAndS = (duration / 60).toString().split('.');
+          return `${minAndS[0]} m ${minAndS[1]} s`;
+        }
+      })();
       const success = await destroyRemoteBrowser(parsedRun.browserId);
       if (success) {
         const run_meta = {
@@ -115,7 +125,7 @@ router.get('/runs/run/:fileName', async (req, res) => {
           name: parsedRun.name,
           startedAt: parsedRun.startedAt,
           finishedAt: new Date().toLocaleString(),
-          duration: new Date().getTime() - new Date(parsedRun.startedAt).getTime(),
+          duration: durString,
           task: parsedRun.task,
           browserId: null,
         };
