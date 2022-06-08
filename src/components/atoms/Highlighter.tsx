@@ -2,6 +2,7 @@ import React  from 'react';
 
 import styled from "styled-components";
 import { mapRect } from "../../functions/inputHelpers";
+import canvas from "./canvas";
 
 interface HighlighterProps {
   unmodifiedRect: DOMRect;
@@ -27,9 +28,27 @@ export const Highlighter = ({ unmodifiedRect, displayedSelector = '', width, hei
       height: unshiftedRect.height,
     }
 
-    if (unshiftedRect.bottom > height) {
+    console.log(rect, 'modifRect')
+
+    // make the highlighting rectangle stay in browser window boundaries
+    if (rect.bottom > canvasRect.bottom) {
       rect.height = height - unshiftedRect.top;
     }
+
+    if (rect.top < canvasRect.top) {
+      rect.height = rect.height - (canvasRect.top - rect.top);
+      rect.top = canvasRect.top;
+    }
+
+    if (rect.right > canvasRect.right) {
+      rect.width = width - unshiftedRect.left;
+    }
+
+    if (rect.left < canvasRect.left) {
+      rect.width = rect.width - (canvasRect.left - rect.left);
+      rect.left = canvasRect.left;
+    }
+
 
     return (
       <div>
