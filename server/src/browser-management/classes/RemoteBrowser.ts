@@ -14,8 +14,6 @@ export class RemoteBrowser {
 
     private browser: Browser | null = null;
 
-    private pages : Page[] = [];
-
     private client : CDPSession | null | undefined = null;
 
     private socket : Socket;
@@ -43,7 +41,6 @@ export class RemoteBrowser {
         //initialize page context
         const context = await this.browser.newContext();
         this.currentPage = await context.newPage();
-        this.pages = this.pages.concat([this.currentPage]);
         //initialize CDP session
         this.client = await this.currentPage.context().newCDPSession(this.currentPage);
 
@@ -63,6 +60,17 @@ export class RemoteBrowser {
         await this.client.send('Page.startScreencast', { format: 'jpeg', quality: 75 });
         logger.log('info',`Browser started with screencasting.`);
         this.socket.on('rerender', async() => await this.makeAndEmitScreenshot());
+        this.socket.on('changeTab', async (tabIndex) => {
+            const page = this.currentPage?.context().pages()[tabIndex];
+            if (page) {
+                this.currentPage = page;
+                await this.currentPage.setViewportSize({height: 720, width: 1280})
+                this.client = await this.currentPage.context().newCDPSession(this.currentPage);
+                await this.makeAndEmitScreenshot();
+            } else {
+                logger.log('error', `${tabIndex} index out of range of pages`)
+            }
+        });
         this.socket.emit('loaded');
     };
 

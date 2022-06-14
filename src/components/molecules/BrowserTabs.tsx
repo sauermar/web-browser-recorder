@@ -2,10 +2,11 @@ import * as React from 'react';
 import { Box, Tab, Tabs } from "@mui/material";
 
 interface BrowserTabsProp {
-  tabs: string[]
+  tabs: string[],
+  handleTabChange: (index: number) => void,
 }
 
-export const BrowserTabs = ({ tabs }: BrowserTabsProp) => {
+export const BrowserTabs = ({ tabs, handleTabChange }: BrowserTabsProp) => {
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -25,7 +26,7 @@ export const BrowserTabs = ({ tabs }: BrowserTabsProp) => {
             return (
               <Tab
                 id={`tab-${index}`}
-                onClick={()=> console.log(index)}
+                onClick={() => handleTabChange(index)}
                 label={tab}
               />
             );

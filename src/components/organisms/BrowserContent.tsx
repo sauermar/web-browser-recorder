@@ -17,6 +17,10 @@ export const BrowserContent = () => {
    console.log(`updated tabs ${tab}`)
  }, []);
 
+  const handleTabChange = useCallback((tabIndex: number) => {
+    socket?.emit('changeTab', tabIndex);
+  }, []);
+
  useEffect(() => {
    if (socket) {
      socket.on('newTab', handleNewTab);
@@ -30,7 +34,7 @@ export const BrowserContent = () => {
 
   return (
     <BrowserContentWrapper>
-      <BrowserTabs tabs={tabs}/>
+      <BrowserTabs tabs={tabs} handleTabChange={handleTabChange}/>
       <BrowserNavBar browserWidth={width - 10}/>
       <BrowserWindow/>
     </BrowserContentWrapper>
