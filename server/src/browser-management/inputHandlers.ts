@@ -48,14 +48,37 @@ const onMousedown = async (coordinates: Coordinates) => {
 const handleMousedown = async (generator: WorkflowGenerator, page: Page, { x, y }: Coordinates) => {
     await generator.onClick({ x, y }, page);
     const previousUrl = page.url();
+    const tabsBeforeClick = page.context().pages().length;
     await page.mouse.click(x, y);
+    // try if the click caused a navigation to a new url
     try {
-        await page.waitForNavigation({ waitUntil: 'commit' });
+        await page.waitForNavigation({ timeout: 2000 });
         const currentUrl = page.url();
+        console.log(`current: ${currentUrl}, previous: ${previousUrl}`)
         if (currentUrl !== previousUrl) {
             generator.notifyUrlChange(currentUrl, false);
         }
-    } catch (e) { }// ignore possible timeouts
+    } catch (e) {
+        const {message} = e as Error;
+        console.log(message)
+        console.log('url did not change')
+    } //ignore possible timeouts
+
+    // check if any new page was opened by the click
+    const tabsAfterClick = page.context().pages().length;
+    const numOfNewPages = tabsAfterClick - tabsBeforeClick;
+    console.log(`${tabsBeforeClick}, ${tabsAfterClick}`)
+    if (numOfNewPages > 0) {
+        console.log(`${numOfNewPages} new tabs opened`)
+        for (let i = 0; i < numOfNewPages; i++) {
+            const newPage = page.context().pages().pop();
+            if (newPage) {
+                generator.notifyOnNewTab(newPage.url());
+            }
+        }
+    }
+
+
     logger.log('debug', `Clicked on position x:${x}, y:${y}`);
 };
 

@@ -10,7 +10,7 @@ import { definition as faRedo } from '@fortawesome/free-solid-svg-icons/faRedo';
 import { NavBarButton } from '../atoms/buttons';
 import { UrlForm }  from './UrlForm';
 import {Socket} from "socket.io-client";
-import {useEffect, useState} from "react";
+import { useCallback, useEffect, useState } from "react";
 import {useSocketStore} from "../../context/socket";
 import { getCurrentUrl } from "../../api/recording";
 
@@ -47,7 +47,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
 
   useEffect(() => {
     getCurrentUrl().then((response) => {
-      console.log("Fetching current url successful");
+      console.log("Fetching default url successful");
       if (response) {
         setCurrentUrl(response);
         // add the first url to the history array
@@ -58,19 +58,29 @@ const BrowserNavBar: FC<NavBarProps> = ({
     })
   }, []);
 
+  const handleCurrentUrl = useCallback((url: string) => {
+    setCurrentUrl(url);
+    console.log("Current url: " + url);
+  }, []);
+
+  const handleUrlAfterClick = useCallback((url: string) => {
+    setHistory([...history, url]);
+    const newIndex = historyIndex + 1;
+    setHistoryIndex(newIndex);
+    setCurrentUrl(url);
+    console.log("Current url: " + url);
+  }, []);
+
   useEffect(() => {
     if (socket) {
-      socket.on('currentUrl', (url) => {
-        setCurrentUrl(url);
-        console.log("Current url: " + url);
-      });
-      socket.on('urlAfterClick', (url) => {
-        setHistory([...history, url]);
-        const newIndex = historyIndex + 1;
-        setHistoryIndex(newIndex);
-        setCurrentUrl(url);
-        console.log("Current url: " + url);
-      });
+      socket.on('currentUrl', handleCurrentUrl);
+      socket.on('urlAfterClick', handleUrlAfterClick);
+    }
+    return () => {
+      if (socket) {
+        socket.off('currentUrl', handleCurrentUrl);
+        socket.off('urlAfterClick', handleUrlAfterClick);
+      }
     }
   }, [socket]);
 

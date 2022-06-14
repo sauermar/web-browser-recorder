@@ -3,7 +3,6 @@ import { useSocketStore } from '../../context/socket';
 import Canvas from "../atoms/canvas";
 import { useBrowserDimensionsStore } from "../../context/browserDimensions";
 import { Highlighter } from "../atoms/Highlighter";
-import canvas from "../atoms/canvas";
 
 export const BrowserWindow = () => {
 

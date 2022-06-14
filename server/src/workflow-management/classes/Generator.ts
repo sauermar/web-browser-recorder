@@ -280,6 +280,15 @@ export class WorkflowGenerator {
     }
   }
 
+  public notifyOnNewTab = (url: string) => {
+    if (this.socket){
+      const parsedUrl = new URL(url);
+      //const host = parsedUrl.hostname?.match(/\b(?!www\.)(?:[0-9A-Za-z][0-9A-Za-z-]{0,62})/g);
+      this.socket.emit('newTab', parsedUrl.hostname)
+      console.log('notified about a new tab')
+    }
+  }
+
   public onGoBack = (newUrl: string) => {
     //it's safe to always add a go back action to the first rule in the workflow
     this.workflowRecord.workflow[0].what.push({
