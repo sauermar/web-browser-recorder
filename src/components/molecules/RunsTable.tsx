@@ -39,6 +39,7 @@ interface Data {
   finishedAt: string;
   duration: string;
   task: string;
+  log: string;
 }
 
 export const RunsTable = () => {
@@ -110,7 +111,7 @@ export const RunsTable = () => {
             {rows.length !== 0 ? rows
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) =>
-                  <CollapsibleRow row={row} handleDelete={handleDelete}/>
+                  <CollapsibleRow row={row} handleDelete={handleDelete} key={`row-${row.id}`}/>
                 )
               : null }
           </TableBody>
@@ -143,7 +144,10 @@ const CollapsibleRow = ({ row, handleDelete }: CollapsibleRowProps) => {
           <IconButton
             aria-label="expand row"
             size="small"
-            onClick={() => setOpen(!open)}
+            onClick={() => {
+              setOpen(!open)
+              console.log(row);
+            }}
           >
             {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
           </IconButton>
@@ -184,7 +188,7 @@ const CollapsibleRow = ({ row, handleDelete }: CollapsibleRowProps) => {
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1}}>
               <Typography variant="h6" gutterBottom component="div">
-                There's gonna be some log
+                {row.log}
               </Typography>
             </Box>
           </Collapse>

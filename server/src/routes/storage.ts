@@ -107,7 +107,7 @@ router.get('/runs/run/:fileName', async (req, res) => {
     const browser = browserPool.getRemoteBrowser(parsedRun.browserId);
     const currentPage = browser?.getCurrentPage();
     if (browser && currentPage) {
-      const log = await browser.interpreter.InterpretRecording(parsedRecording.recording, currentPage);
+      const interpretationInfo = await browser.interpreter.InterpretRecording(parsedRecording.recording, currentPage);
       const duration = Math.round((new Date().getTime() - new Date(parsedRun.startedAt).getTime()) / 1000);
       const durString = (() => {
         if (duration < 60) {
@@ -121,7 +121,7 @@ router.get('/runs/run/:fileName', async (req, res) => {
       const success = await destroyRemoteBrowser(parsedRun.browserId);
       if (success) {
         const run_meta = {
-          status: log.includes('Match undefined') ? 'FAILED' : 'SUCCEEDED',
+          status: interpretationInfo.result,
           name: parsedRun.name,
           startedAt: parsedRun.startedAt,
           finishedAt: new Date().toLocaleString(),
@@ -132,7 +132,7 @@ router.get('/runs/run/:fileName', async (req, res) => {
         fs.mkdirSync('../storage/runs', { recursive: true })
         await saveFile(
           `../storage/runs/${parsedRun.name}.json`,
-          JSON.stringify({ ...run_meta, log }, null, 2)
+          JSON.stringify({ ...run_meta, log: interpretationInfo.log }, null, 2)
         );
         return res.send(true);
       } else {

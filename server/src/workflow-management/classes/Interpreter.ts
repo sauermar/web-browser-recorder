@@ -116,6 +116,7 @@ export class WorkflowInterpreter {
     const options = {
       maxConcurrency: 1,
       maxRepeats: 5,
+      debug: true,
       debugChannel: {
         activeId: (id: any) => {
           this.activeId = id;
@@ -138,12 +139,14 @@ export class WorkflowInterpreter {
     const interpreter = new Interpreter(workflow, options);
     this.interpreter = interpreter;
 
-    await interpreter.run(page);
+    const result = await interpreter.run(page);
 
-    console.log(this.debugMessages.join('\n'));
     logger.log('debug',`Interpretation finished`);
     this.interpreter = null;
-    return this.debugMessages.join('\n');
+    return {
+      log: this.debugMessages,
+      result,
+    }
   }
 
   public interpretationInProgress = () => {
