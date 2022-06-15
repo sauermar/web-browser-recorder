@@ -53,6 +53,7 @@ export class RemoteBrowser {
                 this.currentPage = page;
                 await this.currentPage.setViewportSize({height: 720, width: 1280})
                 this.client = await this.currentPage.context().newCDPSession(this.currentPage);
+                this.socket.emit('urlChanged', this.currentPage.url());
                 await this.makeAndEmitScreenshot();
                 await this.subscribeToScreencast();
             } else {

@@ -9,7 +9,6 @@ import { definition as faRedo } from '@fortawesome/free-solid-svg-icons/faRedo';
 
 import { NavBarButton } from '../atoms/buttons';
 import { UrlForm }  from './UrlForm';
-import {Socket} from "socket.io-client";
 import { useCallback, useEffect, useState } from "react";
 import {useSocketStore} from "../../context/socket";
 import { getCurrentUrl } from "../../api/recording";
@@ -23,74 +22,60 @@ const StyledNavBar = styled.div<{ browserWidth: number }>`
 
 interface NavBarProps {
     browserWidth: number;
-};
-
-const handleRefresh = (socket: Socket) : void => {
-    socket.emit('input:refresh');
-};
-
-const handleGoTo = (socket : Socket, address: string) : void => {
-    socket.emit('input:url', address);
+    handleUrlChanged: (url: string) => void;
 };
 
 const BrowserNavBar: FC<NavBarProps> = ({
   browserWidth,
+  handleUrlChanged,
 }) => {
 
   // context:
   const { socket } = useSocketStore();
 
   const [currentUrl, setCurrentUrl] = useState<string>('https://');
-  const [history, setHistory] = useState<string[]>([]);
-  const [historyIndex, setHistoryIndex] = useState<number>(0);
 
+  const handleRefresh = useCallback(() : void => {
+    socket?.emit('input:refresh');
+  }, []);
+
+  const handleGoTo = useCallback((address: string) : void => {
+    socket?.emit('input:url', address);
+  }, []);
+
+  const handleCurrentUrlChange = useCallback((url: string) => {
+    handleUrlChanged(url);
+    setCurrentUrl(url);
+    console.log("Current url: " + url);
+  }, []);
 
   useEffect(() => {
     getCurrentUrl().then((response) => {
       console.log("Fetching default url successful");
       if (response) {
+        handleUrlChanged(response);
         setCurrentUrl(response);
-        // add the first url to the history array
-        setHistory([...history, response]);
       }
     }).catch((error) => {
       console.log("Fetching current url failed");
     })
   }, []);
 
-  const handleCurrentUrl = useCallback((url: string) => {
-    setCurrentUrl(url);
-    console.log("Current url: " + url);
-  }, []);
-
-  const handleUrlAfterClick = useCallback((url: string) => {
-    setHistory([...history, url]);
-    const newIndex = historyIndex + 1;
-    setHistoryIndex(newIndex);
-    setCurrentUrl(url);
-    console.log("Current url: " + url);
-  }, []);
-
   useEffect(() => {
     if (socket) {
-      socket.on('currentUrl', handleCurrentUrl);
-      socket.on('urlAfterClick', handleUrlAfterClick);
+      socket.on('urlChanged', handleCurrentUrlChange);
     }
     return () => {
       if (socket) {
-        socket.off('currentUrl', handleCurrentUrl);
-        socket.off('urlAfterClick', handleUrlAfterClick);
+        socket.off('urlChanged', handleCurrentUrlChange);
       }
     }
-  }, [socket]);
+  }, [socket])
 
     const addAddress = (address: string) => {
-      // continue adding new addresses to the history array
-        setHistory([...history, address]);
-        const newIndex = historyIndex + 1;
-        setHistoryIndex(newIndex);
         if (socket) {
-          handleGoTo(socket, address);
+          handleUrlChanged(address);
+          handleGoTo(address);
         }
     };
 
@@ -100,8 +85,6 @@ const BrowserNavBar: FC<NavBarProps> = ({
                 type="button"
                 onClick={() => {
                     socket?.emit('input:back');
-                    const newIndex = historyIndex - 1;
-                    setHistoryIndex(newIndex);
                 }}
                 disabled={false}
             >
@@ -114,8 +97,6 @@ const BrowserNavBar: FC<NavBarProps> = ({
                 type="button"
                 onClick={()=>{
                   socket?.emit('input:forward');
-                    const newIndex = historyIndex + 1;
-                    setHistoryIndex(newIndex);
                 }}
                 disabled={false}
             >
@@ -128,7 +109,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
                 type="button"
                 onClick={() => {
                   if (socket) {
-                    handleRefresh(socket)
+                    handleRefresh()
                   }
                 }}
                 disabled={false}

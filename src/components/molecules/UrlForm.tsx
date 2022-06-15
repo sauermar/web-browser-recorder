@@ -55,7 +55,10 @@ export const UrlForm = ({
         }
     };
 
-    useEffect(() => setAddress(currentAddress), [currentAddress]);
+    useEffect(() => {
+        setAddress(currentAddress)
+        console.log(`changing address in url form for ${currentAddress}`)
+    }, [currentAddress]);
 
     return (
         <NavBarForm onSubmit={onSubmit}>

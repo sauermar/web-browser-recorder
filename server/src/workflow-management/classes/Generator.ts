@@ -270,21 +270,17 @@ export class WorkflowGenerator {
     }
   }
 
-  public notifyUrlChange = (url:string, fromNavBar:boolean) => {
+  public notifyUrlChange = (url:string) => {
     if (this.socket) {
-      if (fromNavBar) {
-        this.socket.emit('currentUrl', url);
-      } else {
-        this.socket.emit('urlAfterClick', url);
-      }
+      this.socket.emit('urlChanged', url);
     }
   }
 
   public notifyOnNewTab = (url: string) => {
     if (this.socket){
       const parsedUrl = new URL(url);
-      //const host = parsedUrl.hostname?.match(/\b(?!www\.)(?:[0-9A-Za-z][0-9A-Za-z-]{0,62})/g);
-      this.socket.emit('newTab', parsedUrl.hostname)
+      const host = parsedUrl.hostname?.match(/\b(?!www\.)[a-zA-Z0-9]+/g)?.join('.');
+      this.socket.emit('newTab', host ? host : 'new tab')
       console.log('notified about a new tab')
     }
   }
@@ -295,7 +291,7 @@ export class WorkflowGenerator {
       action: 'goBack',
       args: [{waitUntil: 'commit'}],
     });
-    this.notifyUrlChange(newUrl, true);
+    this.notifyUrlChange(newUrl);
     this.socket.emit('workflow', this.workflowRecord);
   }
 
@@ -305,7 +301,7 @@ export class WorkflowGenerator {
       action: 'goForward',
       args: [{waitUntil: 'commit'}],
     });
-    this.notifyUrlChange(newUrl, true);
+    this.notifyUrlChange(newUrl);
     this.socket.emit('workflow', this.workflowRecord);
   }
 

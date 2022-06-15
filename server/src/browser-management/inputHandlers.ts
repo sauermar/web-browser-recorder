@@ -56,7 +56,7 @@ const handleMousedown = async (generator: WorkflowGenerator, page: Page, { x, y 
         const currentUrl = page.url();
         console.log(`current: ${currentUrl}, previous: ${previousUrl}`)
         if (currentUrl !== previousUrl) {
-            generator.notifyUrlChange(currentUrl, false);
+            generator.notifyUrlChange(currentUrl);
         }
     } catch (e) {
         const {message} = e as Error;
