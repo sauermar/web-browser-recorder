@@ -46,22 +46,31 @@ export class RemoteBrowser {
 
 
         this.socket.on('rerender', async() => await this.makeAndEmitScreenshot());
-        this.socket.on('changeTab', async (tabIndex) => {
-            const page = this.currentPage?.context().pages()[tabIndex];
-            if (page) {
-                await this.stopScreencast();
-                this.currentPage = page;
-                await this.currentPage.setViewportSize({height: 720, width: 1280})
-                this.client = await this.currentPage.context().newCDPSession(this.currentPage);
-                this.socket.emit('urlChanged', this.currentPage.url());
-                await this.makeAndEmitScreenshot();
-                await this.subscribeToScreencast();
-            } else {
-                logger.log('error', `${tabIndex} index out of range of pages`)
-            }
-        });
+        this.socket.on('changeTab', async(tabIndex) => await this.ChangeTab(tabIndex));
         this.socket.on('addTab', async () => {
             await this.currentPage?.context().newPage();
+        });
+        this.socket.on('closeTab', async (tabInfo) => {
+            const page = this.currentPage?.context().pages()[tabInfo.index];
+            if (page) {
+                if (tabInfo.isCurrent){
+                    if (this.currentPage?.context().pages()[tabInfo.index + 1]) {
+                        // next tab
+                        await this.ChangeTab(tabInfo.index + 1);
+                    } else {
+                        //previous tab
+                        await this.ChangeTab(tabInfo.index - 1);
+                    }
+                }
+                // close the page and log it
+                await page.close();
+                logger.log(
+                  'debug',
+                  `${tabInfo.index} page was closed, new length of pages: ${this.currentPage?.context().pages().length}`
+                )
+            } else {
+                logger.log('error', `${tabInfo.index} index out of range of pages`)
+            }
         });
 
         this.socket.emit('loaded');
@@ -196,4 +205,19 @@ export class RemoteBrowser {
     public getCurrentPage = () : Page | null | undefined => {
         return this.currentPage;
     };
+
+    private ChangeTab = async (tabIndex: number) => {
+        const page = this.currentPage?.context().pages()[tabIndex];
+        if (page) {
+            await this.stopScreencast();
+            this.currentPage = page;
+            await this.currentPage.setViewportSize({height: 720, width: 1280})
+            this.client = await this.currentPage.context().newCDPSession(this.currentPage);
+            this.socket.emit('urlChanged', this.currentPage.url());
+            await this.makeAndEmitScreenshot();
+            await this.subscribeToScreencast();
+        } else {
+            logger.log('error', `${tabIndex} index out of range of pages`)
+        }
+    }
 }

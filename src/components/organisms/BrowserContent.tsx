@@ -14,9 +14,18 @@ export const BrowserContent = () => {
  const [tabs, setTabs] = useState<string[]>(['current']);
  let currentTabIndex = 0;
 
-  useEffect(() => {
-    console.log(currentTabIndex, ' tab index from effect');
-  }, [currentTabIndex]);
+  const handleCloseTab = useCallback((tabIndex: number) => {
+    // the tab needs to be closed on the backend
+    socket?.emit('closeTab', {
+      index: tabIndex,
+      isCurrent: tabIndex === currentTabIndex,
+    });
+    // update client tabs
+    setTabs((prevState) => [
+      ...prevState.slice(0, tabIndex),
+      ...prevState.slice(tabIndex + 1)
+    ])
+  }, [tabs, socket]);
 
   const handleAddNewTab = useCallback(() => {
     handleNewTab('new tab');
@@ -77,6 +86,7 @@ export const BrowserContent = () => {
         tabs={tabs}
         handleTabChange={handleTabChange}
         handleAddNewTab={handleAddNewTab}
+        handleCloseTab={handleCloseTab}
       />
       <BrowserNavBar
         browserWidth={width - 10}
