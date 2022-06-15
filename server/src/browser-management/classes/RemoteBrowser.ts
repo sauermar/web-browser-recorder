@@ -41,8 +41,25 @@ export class RemoteBrowser {
         //initialize page context
         const context = await this.browser.newContext();
         this.currentPage = await context.newPage();
-        //initialize CDP session
+        //initialize CDP session of the active page
         this.client = await this.currentPage.context().newCDPSession(this.currentPage);
+
+
+        this.socket.on('rerender', async() => await this.makeAndEmitScreenshot());
+        this.socket.on('changeTab', async (tabIndex) => {
+            const page = this.currentPage?.context().pages()[tabIndex];
+            if (page) {
+                await this.stopScreencast();
+                this.currentPage = page;
+                await this.currentPage.setViewportSize({height: 720, width: 1280})
+                this.client = await this.currentPage.context().newCDPSession(this.currentPage);
+                await this.makeAndEmitScreenshot();
+                await this.subscribeToScreencast();
+            } else {
+                logger.log('error', `${tabIndex} index out of range of pages`)
+            }
+        });
+        this.socket.emit('loaded');
 
         // TODO: remove next two lines are just for debugging
         const log = (msg: string) => console.log(msg);
@@ -50,7 +67,7 @@ export class RemoteBrowser {
     };
 
     /**
-     * Initiates screencast of the remote browser.
+     * Initiates screencast of the remote browser's page.
      */
     private startScreencast = async() : Promise<void> => {
         if (!this.client) {
@@ -58,20 +75,7 @@ export class RemoteBrowser {
             return;
         }
         await this.client.send('Page.startScreencast', { format: 'jpeg', quality: 75 });
-        logger.log('info',`Browser started with screencasting.`);
-        this.socket.on('rerender', async() => await this.makeAndEmitScreenshot());
-        this.socket.on('changeTab', async (tabIndex) => {
-            const page = this.currentPage?.context().pages()[tabIndex];
-            if (page) {
-                this.currentPage = page;
-                await this.currentPage.setViewportSize({height: 720, width: 1280})
-                this.client = await this.currentPage.context().newCDPSession(this.currentPage);
-                await this.makeAndEmitScreenshot();
-            } else {
-                logger.log('error', `${tabIndex} index out of range of pages`)
-            }
-        });
-        this.socket.emit('loaded');
+        logger.log('info',`Browser started with screencasting a page.`);
     };
 
     /**
