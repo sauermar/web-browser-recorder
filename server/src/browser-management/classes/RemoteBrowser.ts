@@ -59,6 +59,10 @@ export class RemoteBrowser {
                 logger.log('error', `${tabIndex} index out of range of pages`)
             }
         });
+        this.socket.on('addTab', async () => {
+            await this.currentPage?.context().newPage();
+        });
+
         this.socket.emit('loaded');
 
         // TODO: remove next two lines are just for debugging

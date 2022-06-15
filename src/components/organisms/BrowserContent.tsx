@@ -12,6 +12,11 @@ export const BrowserContent = () => {
 
  const [tabs, setTabs] = useState<string[]>(['current']);
 
+  const handleAddNewTab = useCallback(() => {
+    handleNewTab('new tab');
+    socket?.emit('addTab');
+  }, []);
+
  const handleNewTab = useCallback((tab: string) => {
    setTabs((prevState) => [...prevState, tab]);
    console.log(`updated tabs ${tab}`)
@@ -34,7 +39,11 @@ export const BrowserContent = () => {
 
   return (
     <BrowserContentWrapper>
-      <BrowserTabs tabs={tabs} handleTabChange={handleTabChange}/>
+      <BrowserTabs
+        tabs={tabs}
+        handleTabChange={handleTabChange}
+        handleAddNewTab={handleAddNewTab}
+      />
       <BrowserNavBar browserWidth={width - 10}/>
       <BrowserWindow/>
     </BrowserContentWrapper>
