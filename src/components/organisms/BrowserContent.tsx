@@ -12,62 +12,78 @@ export const BrowserContent = () => {
  const { socket } = useSocketStore();
 
  const [tabs, setTabs] = useState<string[]>(['current']);
- let currentTabIndex = 0;
+ const [tabIndex, setTabIndex] = React.useState(0);
 
-  const handleCloseTab = useCallback((tabIndex: number) => {
+ const handleChangeIndex = useCallback((index: number) => {
+   setTabIndex(index);
+ }, [tabIndex])
+
+  const handleCloseTab = useCallback((index: number) => {
     // the tab needs to be closed on the backend
     socket?.emit('closeTab', {
-      index: tabIndex,
-      isCurrent: tabIndex === currentTabIndex,
+      index,
+      isCurrent: tabIndex === index,
     });
+    // change the current index as current tab gets closed
+    if (tabIndex === index) {
+      if (tabs.length > index + 1) {
+        handleChangeIndex(index + 1);
+      } else {
+        handleChangeIndex(index - 1);
+      }
+    }
     // update client tabs
     setTabs((prevState) => [
-      ...prevState.slice(0, tabIndex),
-      ...prevState.slice(tabIndex + 1)
+      ...prevState.slice(0, index),
+      ...prevState.slice(index + 1)
     ])
-  }, [tabs, socket]);
+  }, [tabs, socket, tabIndex]);
 
   const handleAddNewTab = useCallback(() => {
+    // Adds new tab by pressing the plus button
     handleNewTab('new tab');
     socket?.emit('addTab');
-  }, []);
+    // changes focus on the new tab - same happens in the remote browser
+    handleChangeIndex(tabs.length);
+    handleTabChange(tabs.length);
+  }, [tabs, socket]);
 
  const handleNewTab = useCallback((tab: string) => {
+   // Adds a new tab to the end of the tabs array and shifts focus
    setTabs((prevState) => [...prevState, tab]);
    console.log(`updated tabs ${tab}`)
- }, []);
+   handleChangeIndex(tabs.length);
+   handleTabChange(tabs.length);
+ }, [tabs]);
 
-  const handleTabChange = useCallback((tabIndex: number) => {
-    console.log(currentTabIndex);
-    console.log(tabIndex);
-    currentTabIndex = tabIndex;
+  const handleTabChange = useCallback((index: number) => {
     // page screencast and focus needs to be changed on backend
-    socket?.emit('changeTab', tabIndex);
-  }, [currentTabIndex, socket]);
+      socket?.emit('changeTab', index);
+  }, [socket]);
 
   const handleUrlChanged = useCallback((url: string) => {
     const parsedUrl = new URL(url);
-    console.log(`tab index: ${currentTabIndex}, hostname: ${parsedUrl.hostname}`)
+    console.log(`tab index: ${tabIndex}, hostname: ${parsedUrl.hostname}`)
     if (parsedUrl.hostname) {
       const host = parsedUrl.hostname.match(/\b(?!www\.)[a-zA-Z0-9]+/g)?.join('.')
-      if (host && host !== tabs[currentTabIndex]) {
+      if (host && host !== tabs[tabIndex]) {
         setTabs((prevState) => [
-          ...prevState.slice(0, currentTabIndex),
+          ...prevState.slice(0, tabIndex),
           host,
-          ...prevState.slice(currentTabIndex + 1)
+          ...prevState.slice(tabIndex + 1)
         ])
       }
     } else {
-      if (tabs[currentTabIndex] !== 'new tab') {
+      if (tabs[tabIndex] !== 'new tab') {
         setTabs((prevState) => [
-          ...prevState.slice(0, currentTabIndex),
+          ...prevState.slice(0, tabIndex),
           'new tab',
-          ...prevState.slice(currentTabIndex + 1)
+          ...prevState.slice(tabIndex + 1)
         ])
       }
     }
 
-  }, [currentTabIndex, tabs])
+  }, [tabIndex, tabs])
 
  useEffect(() => {
    if (socket) {
@@ -87,6 +103,8 @@ export const BrowserContent = () => {
         handleTabChange={handleTabChange}
         handleAddNewTab={handleAddNewTab}
         handleCloseTab={handleCloseTab}
+        handleChangeIndex={handleChangeIndex}
+        tabIndex={tabIndex}
       />
       <BrowserNavBar
         browserWidth={width - 10}

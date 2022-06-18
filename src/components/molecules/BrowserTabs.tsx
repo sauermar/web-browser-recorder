@@ -9,10 +9,15 @@ interface BrowserTabsProp {
   handleTabChange: (index: number) => void,
   handleAddNewTab: () => void,
   handleCloseTab: (index: number) => void,
+  handleChangeIndex: (index: number) => void;
+  tabIndex: number
 }
 
-export const BrowserTabs = ({ tabs, handleTabChange, handleAddNewTab, handleCloseTab }: BrowserTabsProp) => {
-  const [value, setValue] = React.useState(0);
+export const BrowserTabs = (
+  {
+    tabs, handleTabChange, handleAddNewTab,
+    handleCloseTab, handleChangeIndex, tabIndex
+  }: BrowserTabsProp) => {
 
   let tabWasClosed = false;
 
@@ -20,15 +25,20 @@ export const BrowserTabs = ({ tabs, handleTabChange, handleAddNewTab, handleClos
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     if (!tabWasClosed) {
-      setValue(newValue);
+      handleChangeIndex(newValue);
     }
   };
 
   return (
-    <Box sx={{ width: `${width}px`, display: 'flex', overflow: 'auto' }}>
+    <Box sx={{
+      width: `${width}px`,
+      display: 'flex',
+      overflow: 'auto',
+      alignItems: 'center',
+    }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs
-          value={value}
+          value={tabIndex}
           onChange={handleChange}
         >
           {tabs.map((tab, index) => {
@@ -70,7 +80,8 @@ const CloseButton = ({ closeTab, disabled }: CloseButtonProps) => {
       size={"small"}
       onClick={closeTab}
       disabled={disabled}
-      sx={{ '&:hover': { color: 'white', backgroundColor: '#1976d2' } }}
+      sx={{ height: '34px',
+        '&:hover': { color: 'white', backgroundColor: '#1976d2' } }}
     >
       <Close/>
     </IconButton>
