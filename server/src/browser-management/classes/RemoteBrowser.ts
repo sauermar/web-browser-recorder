@@ -46,20 +46,24 @@ export class RemoteBrowser {
 
 
         this.socket.on('rerender', async() => await this.makeAndEmitScreenshot());
-        this.socket.on('changeTab', async(tabIndex) => await this.ChangeTab(tabIndex));
+        this.socket.on('changeTab', async(tabIndex) => await this.changeTab(tabIndex));
         this.socket.on('addTab', async () => {
             await this.currentPage?.context().newPage();
+            const lastTabIndex = this.currentPage ? this.currentPage.context().pages().length - 1 : 0;
+            await this.changeTab(lastTabIndex);
         });
         this.socket.on('closeTab', async (tabInfo) => {
             const page = this.currentPage?.context().pages()[tabInfo.index];
             if (page) {
+                console.log(tabInfo.isCurrent);
                 if (tabInfo.isCurrent){
                     if (this.currentPage?.context().pages()[tabInfo.index + 1]) {
                         // next tab
-                        await this.ChangeTab(tabInfo.index + 1);
+                        console.log('changing to next tab')
+                        await this.changeTab(tabInfo.index + 1);
                     } else {
                         //previous tab
-                        await this.ChangeTab(tabInfo.index - 1);
+                        await this.changeTab(tabInfo.index - 1);
                     }
                 }
                 // close the page and log it
@@ -206,7 +210,7 @@ export class RemoteBrowser {
         return this.currentPage;
     };
 
-    private ChangeTab = async (tabIndex: number) => {
+    private changeTab = async (tabIndex: number) => {
         const page = this.currentPage?.context().pages()[tabIndex];
         if (page) {
             await this.stopScreencast();

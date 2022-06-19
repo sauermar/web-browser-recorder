@@ -41,17 +41,20 @@ export const BrowserContent = () => {
 
   const handleAddNewTab = useCallback(() => {
     // Adds new tab by pressing the plus button
-    handleNewTab('new tab');
     socket?.emit('addTab');
-    // changes focus on the new tab - same happens in the remote browser
+    // Adds a new tab to the end of the tabs array and shifts focus
+    setTabs((prevState) => [...prevState, 'new tab']);
+    console.log(tabs);
+    console.log(`updated tabs with a new tab, changing to index ${tabs.length}`);
     handleChangeIndex(tabs.length);
-    handleTabChange(tabs.length);
-  }, [tabs, socket]);
+  }, [socket, tabs]);
 
  const handleNewTab = useCallback((tab: string) => {
    // Adds a new tab to the end of the tabs array and shifts focus
    setTabs((prevState) => [...prevState, tab]);
-   console.log(`updated tabs ${tab}`)
+   console.log(tabs);
+   console.log(`updated tabs with ${tab}, changing to index ${tabs.length}`);
+   // changes focus on the new tab - same happens in the remote browser
    handleChangeIndex(tabs.length);
    handleTabChange(tabs.length);
  }, [tabs]);
@@ -94,7 +97,7 @@ export const BrowserContent = () => {
        socket.off('newTab', handleNewTab);
      }
    }
- }, [socket])
+ }, [socket, handleNewTab])
 
   return (
     <BrowserContentWrapper>
