@@ -9,7 +9,7 @@ import {
     getActiveBrowserId,
     interpretWholeWorkflow,
     stopRunningInterpretation,
-    getActiveBrowserCurrentUrl,
+    getActiveBrowserCurrentUrl, getActiveBrowserCurrentTabs,
 } from '../browser-management/controller'
 import { chromium } from "playwright";
 import logger from "../logger";
@@ -70,6 +70,12 @@ router.get('/active/url', (req, res) => {
     const id = getActiveBrowserId();
     const url = getActiveBrowserCurrentUrl(id);
     return res.send(url);
+});
+
+router.get('/active/tabs', (req, res) => {
+    const id = getActiveBrowserId();
+    const hosts = getActiveBrowserCurrentTabs(id);
+    return res.send(hosts);
 });
 
 router.get('/interpret', async (req, res) => {

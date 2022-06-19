@@ -73,6 +73,18 @@ export const getActiveBrowserCurrentUrl = (id: string) => {
     return browserPool.getRemoteBrowser(id)?.getCurrentPage()?.url();
 };
 
+export const getActiveBrowserCurrentTabs = (id: string) => {
+    return browserPool.getRemoteBrowser(id)?.getCurrentPage()?.context().pages()
+      .map((page) => {
+          const parsedUrl = new URL(page.url());
+          const host =  parsedUrl.hostname.match(/\b(?!www\.)[a-zA-Z0-9]+/g)?.join('.');
+          if (host) {
+            return host;
+          }
+          return 'new tab';
+      });
+};
+
 export const interpretWholeWorkflow = async() => {
     const id = getActiveBrowserId();
     const browser = browserPool.getRemoteBrowser(id);

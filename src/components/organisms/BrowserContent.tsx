@@ -5,7 +5,7 @@ import { BrowserWindow } from "./BrowserWindow";
 import { useBrowserDimensionsStore } from "../../context/browserDimensions";
 import { BrowserTabs } from "../molecules/BrowserTabs";
 import { useSocketStore } from "../../context/socket";
-import { interpretCurrentRecording } from "../../api/recording";
+import { getCurrentTabs, getCurrentUrl, interpretCurrentRecording } from "../../api/recording";
 
 export const BrowserContent = () => {
  const { width } = useBrowserDimensionsStore();
@@ -100,6 +100,17 @@ export const BrowserContent = () => {
      }
    }
  }, [socket, handleNewTab])
+
+  useEffect(() => {
+    getCurrentTabs().then((response) => {
+      console.log("Fetching default url successful");
+      if (response) {
+        setTabs(response);
+      }
+    }).catch((error) => {
+      console.log("Fetching current url failed");
+    })
+  }, [])
 
   return (
     <BrowserContentWrapper>
