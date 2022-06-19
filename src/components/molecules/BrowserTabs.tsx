@@ -44,6 +44,7 @@ export const BrowserTabs = (
           {tabs.map((tab, index) => {
             return (
               <Tab
+                key={`tab-${index}`}
                 id={`tab-${index}`}
                 icon={<CloseButton closeTab={() => {
                   tabWasClosed = true;
@@ -82,6 +83,7 @@ const CloseButton = ({ closeTab, disabled }: CloseButtonProps) => {
       disabled={disabled}
       sx={{ height: '34px',
         '&:hover': { color: 'white', backgroundColor: '#1976d2' } }}
+      component="span"
     >
       <Close/>
     </IconButton>
