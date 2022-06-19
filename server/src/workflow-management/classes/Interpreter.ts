@@ -53,7 +53,7 @@ export class WorkflowInterpreter {
   ) => {
     const options = {
       maxConcurrency: 1,
-      maxRepeats: 5,
+      maxRepeats: 1,
       debugChannel: {
         activeId: (id: any) => {
           this.activeId = id;
@@ -61,7 +61,7 @@ export class WorkflowInterpreter {
         },
         debugMessage: (msg: any) => {
           this.debugMessages.push(msg);
-          this.socket.emit('debugMessage', msg)
+          this.socket.emit('log', msg)
         },
       },
       serializableCallback: (data: any) => {
@@ -115,7 +115,7 @@ export class WorkflowInterpreter {
   public InterpretRecording = async (workflow: WorkflowFile, page: Page) => {
     const options = {
       maxConcurrency: 1,
-      maxRepeats: 5,
+      maxRepeats: 1,
       debug: true,
       debugChannel: {
         activeId: (id: any) => {

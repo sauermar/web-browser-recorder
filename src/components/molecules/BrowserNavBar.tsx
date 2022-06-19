@@ -2,10 +2,10 @@ import type {
     FC,
 } from 'react';
 import styled from 'styled-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { definition as faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
-import { definition as faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
-import { definition as faRedo } from '@fortawesome/free-solid-svg-icons/faRedo';
+
+import ReplayIcon from '@mui/icons-material/Replay';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 import { NavBarButton } from '../atoms/buttons';
 import { UrlForm }  from './UrlForm';
@@ -88,9 +88,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
                 }}
                 disabled={false}
             >
-                <FontAwesomeIcon
-                    icon={faArrowLeft}
-                />
+                <ArrowBackIcon/>
             </NavBarButton>
 
             <NavBarButton
@@ -100,9 +98,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
                 }}
                 disabled={false}
             >
-                <FontAwesomeIcon
-                    icon={faArrowRight}
-                />
+                <ArrowForwardIcon/>
             </NavBarButton>
 
             <NavBarButton
@@ -114,9 +110,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
                 }}
                 disabled={false}
             >
-                <FontAwesomeIcon
-                    icon={faRedo}
-                />
+              <ReplayIcon/>
             </NavBarButton>
 
             <UrlForm

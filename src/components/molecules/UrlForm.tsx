@@ -1,7 +1,6 @@
-import {useState, useCallback, useContext, useEffect,} from 'react';
-import type { FC, SyntheticEvent, } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { definition as faAngleRight } from '@fortawesome/free-solid-svg-icons/faAngleRight';
+import {useState, useCallback, useEffect,} from 'react';
+import type { SyntheticEvent, } from 'react';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 import { NavBarForm, NavBarInput } from "../atoms/form";
 import { UrlFormButton } from "../atoms/buttons";
@@ -68,9 +67,7 @@ export const UrlForm = ({
                 onChange={onChange}
             />
             <UrlFormButton type="submit">
-                <FontAwesomeIcon
-                    icon={faAngleRight}
-                />
+                <KeyboardArrowRightIcon/>
             </UrlFormButton>
         </NavBarForm>
     );
