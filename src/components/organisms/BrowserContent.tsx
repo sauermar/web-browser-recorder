@@ -19,6 +19,7 @@ export const BrowserContent = () => {
  }, [tabIndex])
 
   const handleCloseTab = useCallback((index: number) => {
+    console.log(`Closing the tab with index: ${index}`)
     // the tab needs to be closed on the backend
     socket?.emit('closeTab', {
       index,
@@ -26,11 +27,14 @@ export const BrowserContent = () => {
     });
     // change the current index as current tab gets closed
     if (tabIndex === index) {
+      console.log('current tab')
       if (tabs.length > index + 1) {
-        handleChangeIndex(index + 1);
+        handleChangeIndex(index);
       } else {
         handleChangeIndex(index - 1);
       }
+    } else {
+      handleChangeIndex(tabIndex - 1);
     }
     // update client tabs
     setTabs((prevState) => [
@@ -44,7 +48,6 @@ export const BrowserContent = () => {
     socket?.emit('addTab');
     // Adds a new tab to the end of the tabs array and shifts focus
     setTabs((prevState) => [...prevState, 'new tab']);
-    console.log(tabs);
     console.log(`updated tabs with a new tab, changing to index ${tabs.length}`);
     handleChangeIndex(tabs.length);
   }, [socket, tabs]);
@@ -52,7 +55,6 @@ export const BrowserContent = () => {
  const handleNewTab = useCallback((tab: string) => {
    // Adds a new tab to the end of the tabs array and shifts focus
    setTabs((prevState) => [...prevState, tab]);
-   console.log(tabs);
    console.log(`updated tabs with ${tab}, changing to index ${tabs.length}`);
    // changes focus on the new tab - same happens in the remote browser
    handleChangeIndex(tabs.length);
@@ -64,7 +66,7 @@ export const BrowserContent = () => {
       socket?.emit('changeTab', index);
   }, [socket]);
 
-  const handleUrlChanged = useCallback((url: string) => {
+  const handleUrlChanged = (url: string) => {
     const parsedUrl = new URL(url);
     console.log(`tab index: ${tabIndex}, hostname: ${parsedUrl.hostname}`)
     if (parsedUrl.hostname) {
@@ -86,7 +88,7 @@ export const BrowserContent = () => {
       }
     }
 
-  }, [tabIndex, tabs])
+  };
 
  useEffect(() => {
    if (socket) {

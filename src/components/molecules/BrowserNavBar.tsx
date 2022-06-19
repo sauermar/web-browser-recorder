@@ -37,17 +37,17 @@ const BrowserNavBar: FC<NavBarProps> = ({
 
   const handleRefresh = useCallback(() : void => {
     socket?.emit('input:refresh');
-  }, []);
+  }, [socket]);
 
   const handleGoTo = useCallback((address: string) : void => {
     socket?.emit('input:url', address);
-  }, []);
+  }, [socket]);
 
   const handleCurrentUrlChange = useCallback((url: string) => {
     handleUrlChanged(url);
     setCurrentUrl(url);
     console.log("Current url: " + url);
-  }, []);
+  }, [handleUrlChanged]);
 
   useEffect(() => {
     getCurrentUrl().then((response) => {
@@ -70,7 +70,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
         socket.off('urlChanged', handleCurrentUrlChange);
       }
     }
-  }, [socket])
+  }, [socket, handleCurrentUrlChange])
 
     const addAddress = (address: string) => {
         if (socket) {

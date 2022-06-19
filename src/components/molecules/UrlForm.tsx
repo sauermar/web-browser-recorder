@@ -28,7 +28,7 @@ export const UrlForm = ({
 
     const onChange = useCallback((event: SyntheticEvent): void => {
         setAddress((event.target as HTMLInputElement).value);
-    }, []);
+    }, [address]);
 
     const onSubmit = (event: SyntheticEvent): void => {
         event.preventDefault();
