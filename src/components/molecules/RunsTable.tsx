@@ -13,10 +13,6 @@ import {  DeleteForever, KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-m
 import { useGlobalInfoStore } from "../../context/globalInfo";
 import { deleteRunFromStorage, getStoredRuns } from "../../api/storage";
 import Highlight from "react-highlight";
-import { useSocketStore } from "../../context/socket";
-import { Socket } from "socket.io-client";
-import { Simulate } from "react-dom/test-utils";
-import scroll = Simulate.scroll;
 
 interface Column {
   id: 'status' | 'name' | 'startedAt' | 'finishedAt' | 'duration' | 'task' | 'delete';
