@@ -1,6 +1,5 @@
 import React, {useCallback, useEffect, useRef} from 'react';
 import { useSocketStore } from '../../context/socket';
-import log from '../../api/logger';
 import { getMappedCoordinates } from "../../functions/inputHelpers";
 import { useGlobalInfoStore } from "../../context/globalInfo";
 
