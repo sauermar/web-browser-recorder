@@ -7,11 +7,16 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Box, Collapse, IconButton, Typography } from "@mui/material";
 import {  DeleteForever, KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import { useGlobalInfoStore } from "../../context/globalInfo";
 import { deleteRunFromStorage, getStoredRuns } from "../../api/storage";
+import Highlight from "react-highlight";
+import { useSocketStore } from "../../context/socket";
+import { Socket } from "socket.io-client";
+import { Simulate } from "react-dom/test-utils";
+import scroll = Simulate.scroll;
 
 interface Column {
   id: 'status' | 'name' | 'startedAt' | 'finishedAt' | 'duration' | 'task' | 'delete';
@@ -42,10 +47,16 @@ interface Data {
   log: string;
 }
 
-export const RunsTable = () => {
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [rows, setRows] = React.useState<Data[]>([]);
+interface RunsTableProps {
+  runningRecordingName: string;
+  currentInterpretationLog: string;
+}
+
+export const RunsTable = ({ runningRecordingName, currentInterpretationLog }: RunsTableProps) => {
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rows, setRows] = useState<Data[]>([]);
+  const [currentLog, setCurrentLog] = useState('');
 
   const { notify, rerenderRuns, setRerenderRuns } = useGlobalInfoStore();
 
@@ -83,6 +94,7 @@ export const RunsTable = () => {
 
   }, [rerenderRuns]);
 
+
   const handleDelete = () => {
     setRows([]);
     notify('success', 'Run deleted successfully');
@@ -110,8 +122,14 @@ export const RunsTable = () => {
           <TableBody>
             {rows.length !== 0 ? rows
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) =>
-                  <CollapsibleRow row={row} handleDelete={handleDelete} key={`row-${row.id}`}/>
+                .map((row, index) =>
+                  <CollapsibleRow
+                    row={row}
+                    handleDelete={handleDelete}
+                    key={`row-${row.id}`}
+                    isOpen={runningRecordingName === row.name}
+                    currentLog={currentInterpretationLog}
+                  />
                 )
               : null }
           </TableBody>
@@ -133,9 +151,24 @@ export const RunsTable = () => {
 interface CollapsibleRowProps {
   row: Data;
   handleDelete: () => void;
+  isOpen: boolean;
+  currentLog: String;
 }
-const CollapsibleRow = ({ row, handleDelete }: CollapsibleRowProps) => {
-  const [open, setOpen] = React.useState(false);
+const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog }: CollapsibleRowProps) => {
+  const [open, setOpen] = useState(isOpen);
+
+  const logEndRef = useRef<HTMLDivElement|null>(null);
+
+  const scrollToLogBottom = () => {
+    if (logEndRef.current) {
+      logEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+
+  useEffect(() => {
+    console.log('scrolling to the bottom of the log')
+    scrollToLogBottom();
+  }, [currentLog])
 
   return (
     <React.Fragment>
@@ -145,8 +178,8 @@ const CollapsibleRow = ({ row, handleDelete }: CollapsibleRowProps) => {
             aria-label="expand row"
             size="small"
             onClick={() => {
-              setOpen(!open)
-              console.log(row);
+              setOpen(!open);
+              scrollToLogBottom();
             }}
           >
             {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
@@ -186,10 +219,20 @@ const CollapsibleRow = ({ row, handleDelete }: CollapsibleRowProps) => {
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box sx={{ margin: 1}}>
-              <Typography variant="h6" gutterBottom component="div">
-                {row.log}
-              </Typography>
+            <Box sx={{ margin: 1,
+              background: '#19171c',
+              overflowY: 'scroll',
+              width: '800px',
+              aspectRatio: '4/1',
+              boxSizing: 'border-box',
+            }}>
+              <div>
+                <Highlight className="javascript">
+                  {isOpen ? currentLog : row.log}
+                </Highlight>
+                <div style={{ float:"left", clear: "both" }}
+                     ref={logEndRef}/>
+              </div>
             </Box>
           </Collapse>
         </TableCell>

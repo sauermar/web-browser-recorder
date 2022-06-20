@@ -132,7 +132,7 @@ router.get('/runs/run/:fileName', async (req, res) => {
         fs.mkdirSync('../storage/runs', { recursive: true })
         await saveFile(
           `../storage/runs/${parsedRun.name}.json`,
-          JSON.stringify({ ...run_meta, log: interpretationInfo.log }, null, 2)
+          JSON.stringify({ ...run_meta, log: interpretationInfo.log.join('\n') }, null, 2)
         );
         return res.send(true);
       } else {

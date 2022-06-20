@@ -123,7 +123,7 @@ export class WorkflowInterpreter {
           this.socket.emit('activePairId', id);
         },
         debugMessage: (msg: any) => {
-          this.debugMessages.push(msg);
+          this.debugMessages.push(`[${new Date().toLocaleString()}] ` + msg);
           this.socket.emit('debugMessage', msg)
         },
       },

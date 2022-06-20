@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { MainMenu } from "../components/organisms/MainMenu";
 import { Grid } from "@mui/material";
 import { Recordings } from "../components/organisms/Recordings";
@@ -16,10 +16,13 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
 
   const [content, setContent] = React.useState('recordings');
   const [sockets, setSockets] = React.useState<Socket[]>([]);
+  const [runningRecordingName, setRunningRecordingName] = React.useState('');
+  const [currentInterpretationLog, setCurrentInterpretationLog] = React.useState('');
 
   const { notify, setRerenderRuns } = useGlobalInfoStore();
 
   const handleRunRecording = useCallback((fileName: string) => {
+    setRunningRecordingName(fileName);
     createRunForStoredRecording(fileName).then(id => {
       const socket =
         io(`http://localhost:8080/${id}`, {
@@ -37,13 +40,16 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
             // stop the created browser
             stopRecording(id);
           }
+          setRunningRecordingName('');
+          setCurrentInterpretationLog('');
           setRerenderRuns(true);
         })
       })
-      socket.on('debugMessage', (data: any) => {
-          console.log(data);
-      });
       socket.on("connect_error", (err) => console.log(`connect_error due to ${err.message}`));
+      socket.on('debugMessage', (msg: string) => {
+        setCurrentInterpretationLog((prevState) =>
+          prevState + '\n' + `[${new Date().toLocaleString()}] ` + msg);
+      });
       setContent('runs');
       if (id) {
         notify('info', `Running recording: ${fileName}`);
@@ -51,7 +57,7 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
         notify('error', `Failed to run recording: ${fileName}`);
       }
     });
-  }, [])
+  }, [runningRecordingName])
 
   const DisplayContent = () => {
     switch (content) {
@@ -63,7 +69,10 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
       case 'tasks':
         return <h1>Tasks</h1>;
       case 'runs':
-        return <Runs/>;
+        return <Runs
+          runningRecordingName={runningRecordingName}
+          currentInterpretationLog={currentInterpretationLog}
+        />;
       default:
         return null;
     }

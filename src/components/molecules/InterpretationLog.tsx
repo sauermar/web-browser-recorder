@@ -34,7 +34,7 @@ export const InterpretationLog = () => {
   useEffect(() => {
     socket?.on('log', handleLog);
     return () => {
-      socket?.off('log', handleLog)
+      socket?.off('log', handleLog);
     }
   }, [socket, handleLog])
 
