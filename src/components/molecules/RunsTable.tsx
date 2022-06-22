@@ -13,6 +13,9 @@ import {  DeleteForever, KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-m
 import { useGlobalInfoStore } from "../../context/globalInfo";
 import { deleteRunFromStorage, getStoredRuns } from "../../api/storage";
 import Highlight from "react-highlight";
+import Button from "@mui/material/Button";
+import { stopRecording } from "../../api/recording";
+import { stopRunningInterpretation } from "../../../server/src/browser-management/controller";
 
 interface Column {
   id: 'status' | 'name' | 'startedAt' | 'finishedAt' | 'duration' | 'task' | 'delete';
@@ -46,13 +49,14 @@ interface Data {
 interface RunsTableProps {
   runningRecordingName: string;
   currentInterpretationLog: string;
+  abortRunHandler: () => void;
 }
 
-export const RunsTable = ({ runningRecordingName, currentInterpretationLog }: RunsTableProps) => {
+export const RunsTable = (
+  { runningRecordingName, currentInterpretationLog, abortRunHandler }: RunsTableProps) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [rows, setRows] = useState<Data[]>([]);
-  const [currentLog, setCurrentLog] = useState('');
 
   const { notify, rerenderRuns, setRerenderRuns } = useGlobalInfoStore();
 
@@ -125,6 +129,7 @@ export const RunsTable = ({ runningRecordingName, currentInterpretationLog }: Ru
                     key={`row-${row.id}`}
                     isOpen={runningRecordingName === row.name}
                     currentLog={currentInterpretationLog}
+                    abortRunHandler={abortRunHandler}
                   />
                 )
               : null }
@@ -148,10 +153,12 @@ interface CollapsibleRowProps {
   row: Data;
   handleDelete: () => void;
   isOpen: boolean;
-  currentLog: String;
+  currentLog: string;
+  abortRunHandler: () => void;
 }
-const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog }: CollapsibleRowProps) => {
+const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog, abortRunHandler }: CollapsibleRowProps) => {
   const [open, setOpen] = useState(isOpen);
+  const [rowData, setRowData] = useState<Data>(row);
 
   const logEndRef = useRef<HTMLDivElement|null>(null);
 
@@ -161,6 +168,10 @@ const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog }: CollapsibleRo
     }
   }
 
+  const handleAbort = () => {
+    abortRunHandler();
+  }
+
   useEffect(() => {
     console.log('scrolling to the bottom of the log')
     scrollToLogBottom();
@@ -168,7 +179,7 @@ const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog }: CollapsibleRo
 
   return (
     <React.Fragment>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} hover role="checkbox" tabIndex={-1} key={row.id}>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} hover role="checkbox" tabIndex={-1} key={rowData.id}>
         <TableCell>
           <IconButton
             aria-label="expand row"
@@ -183,7 +194,7 @@ const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog }: CollapsibleRo
         </TableCell>
         {columns.map((column) => {
           // @ts-ignore
-          const value : any = row[column.id];
+          const value : any = rowData[column.id];
           if (value !== undefined) {
             return (
               <TableCell key={column.id} align={column.align}>
@@ -196,7 +207,7 @@ const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog }: CollapsibleRo
                 return (
                   <TableCell key={column.id} align={column.align}>
                     <IconButton aria-label="add" size= "small" onClick={() => {
-                      deleteRunFromStorage(row.name).then((result: boolean) => {
+                      deleteRunFromStorage(rowData.name).then((result: boolean) => {
                         if (result) {
                           handleDelete();
                         }
@@ -224,12 +235,18 @@ const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog }: CollapsibleRo
             }}>
               <div>
                 <Highlight className="javascript">
-                  {isOpen ? currentLog : row.log}
+                  {isOpen ? currentLog : rowData.log}
                 </Highlight>
                 <div style={{ float:"left", clear: "both" }}
                      ref={logEndRef}/>
               </div>
             </Box>
+            {isOpen ? <Button
+              color="error"
+              onClick={handleAbort}
+            >
+              Abort
+            </Button> : null}
           </Collapse>
         </TableCell>
       </TableRow>

@@ -4,7 +4,7 @@ import { Grid } from "@mui/material";
 import { Recordings } from "../components/organisms/Recordings";
 import { Runs } from "../components/organisms/Runs";
 import { useGlobalInfoStore } from "../context/globalInfo";
-import { createRunForStoredRecording, interpretStoredRecording } from "../api/storage";
+import { createRunForStoredRecording, interpretStoredRecording, notifyAboutAbort } from "../api/storage";
 import { io, Socket } from "socket.io-client";
 import { stopRecording } from "../api/recording";
 
@@ -18,27 +18,45 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
   const [sockets, setSockets] = React.useState<Socket[]>([]);
   const [runningRecordingName, setRunningRecordingName] = React.useState('');
   const [currentInterpretationLog, setCurrentInterpretationLog] = React.useState('');
+  const [remoteBrowserId, setRemoteBrowserId] = React.useState('');
+
+  let aborted = false;
 
   const { notify, setRerenderRuns } = useGlobalInfoStore();
+
+  const abortRunHandler = () => {
+    aborted = true;
+    notifyAboutAbort(runningRecordingName).then((response) => {
+      if (response) {
+        notify('success', `Interpretation of ${runningRecordingName} aborted successfully`);
+        stopRecording(remoteBrowserId);
+      } else {
+        notify('error', `Failed to abort the interpretation ${runningRecordingName} recording`);
+      }
+    })
+  }
 
   const handleRunRecording = useCallback((fileName: string) => {
     setRunningRecordingName(fileName);
     createRunForStoredRecording(fileName).then(id => {
+      setRemoteBrowserId(id);
       const socket =
         io(`http://localhost:8080/${id}`, {
           transports: ["websocket"],
           rejectUnauthorized: false
         });
       setSockets(sockets => [...sockets, socket]);
-      socket.on('connect', () => console.log('connected to socket'));
       socket.on('ready-for-run', () => {
         interpretStoredRecording(fileName).then(interpretation => {
-          if (interpretation) {
-            notify('success', `Interpretation of ${fileName} succeeded`);
-          } else {
-            notify('success', `Failed to interpret ${fileName} recording`);
-            // stop the created browser
-            stopRecording(id);
+          console.log(`was aborted: ${aborted}`)
+          if (!aborted) {
+            if (interpretation) {
+              notify('success', `Interpretation of ${fileName} succeeded`);
+            } else {
+              notify('success', `Failed to interpret ${fileName} recording`);
+              // destroy the created browser
+              stopRecording(id);
+            }
           }
           setRunningRecordingName('');
           setCurrentInterpretationLog('');
@@ -57,7 +75,7 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
         notify('error', `Failed to run recording: ${fileName}`);
       }
     });
-  }, [runningRecordingName])
+  }, [runningRecordingName, aborted, sockets, remoteBrowserId])
 
   const DisplayContent = () => {
     switch (content) {
@@ -72,6 +90,7 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
         return <Runs
           runningRecordingName={runningRecordingName}
           currentInterpretationLog={currentInterpretationLog}
+          abortRunHandler={abortRunHandler}
         />;
       default:
         return null;

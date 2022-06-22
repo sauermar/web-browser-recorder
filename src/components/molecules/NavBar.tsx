@@ -64,7 +64,7 @@ export const NavBar = ({newRecording}:NavBarProps) => {
           '&:hover': {
             background: 'lightgray',
           }
-        }} onClick={goToMainMenu}>go to menu</Button>
+        }} onClick={goToMainMenu}>exit recording</Button>
       </div>
 
     </NavBarWrapper>

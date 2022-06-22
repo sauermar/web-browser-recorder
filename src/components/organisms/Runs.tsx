@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react';
 import { Grid } from "@mui/material";
 import { RunsTable } from "../molecules/RunsTable";
-import { Socket } from "socket.io-client";
 
 interface RunsProps {
   runningRecordingName: string;
   currentInterpretationLog: string;
+  abortRunHandler: () => void;
 }
 
-export const Runs = ({ runningRecordingName, currentInterpretationLog }: RunsProps) => {
+export const Runs = (
+  { runningRecordingName, currentInterpretationLog, abortRunHandler }: RunsProps) => {
 
   return (
     <Grid container direction="column" sx={{ padding: '30px'}}>
@@ -16,7 +17,11 @@ export const Runs = ({ runningRecordingName, currentInterpretationLog }: RunsPro
         <hr/>
       </Grid>
       <Grid item xs>
-        <RunsTable runningRecordingName={runningRecordingName} currentInterpretationLog={currentInterpretationLog}/>
+        <RunsTable
+          runningRecordingName={runningRecordingName}
+          currentInterpretationLog={currentInterpretationLog}
+          abortRunHandler={abortRunHandler}
+        />
       </Grid>
     </Grid>
   );

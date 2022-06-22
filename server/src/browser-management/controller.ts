@@ -58,6 +58,7 @@ export const destroyRemoteBrowser = async (id: string) : Promise<boolean> => {
     const browserSession = browserPool.getRemoteBrowser(id);
     if (browserSession) {
         logger.log('debug', `Switching off the browser with id: ${id}`);
+        await browserSession.stopCurrentInterpretation();
         await browserSession.switchOff();
     }
     return browserPool.deleteRemoteBrowser(id);

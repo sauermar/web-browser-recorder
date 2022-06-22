@@ -103,4 +103,18 @@ export const interpretStoredRecording = async (fileName: string): Promise<boolea
   }
 }
 
+export const notifyAboutAbort = async (fileName: string): Promise<boolean> => {
+  try {
+    const response = await axios.post(`http://localhost:8080/storage/runs/abort/${fileName}`);
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error(`Couldn't run a recording ${fileName}`);
+    }
+  } catch(error: any) {
+    console.log(error);
+    return false;
+  }
+}
+
 
