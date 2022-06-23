@@ -66,11 +66,12 @@ interface Data {
   pairs: number;
   update_date: string;
   content: WorkflowFile;
+  params: string[];
 }
 
 interface RecordingsTableProps {
   handleEditRecording: (fileName:string) => void;
-  handleRunRecording: (fileName:string) => void;
+  handleRunRecording: (fileName:string, params: string[]) => void;
 }
 
 export const RecordingsTable = ({ handleEditRecording, handleRunRecording }: RecordingsTableProps) => {
@@ -154,7 +155,7 @@ export const RecordingsTable = ({ handleEditRecording, handleRunRecording }: Rec
                           case 'interpret':
                             return (
                               <TableCell key={column.id} align={column.align}>
-                                <InterpretButton handleInterpret={() => handleRunRecording(row.name)}/>
+                                <InterpretButton handleInterpret={() => handleRunRecording(row.name, row.params || [])}/>
                               </TableCell>
                             );
                           case 'edit':
@@ -170,7 +171,7 @@ export const RecordingsTable = ({ handleEditRecording, handleRunRecording }: Rec
                           case 'task':
                             return (
                               <TableCell key={column.id} align={column.align}>
-                                <CreateTaskButton/>
+                                <CreateTaskButton disabled={row.params?.length === 0 || true}/>
                               </TableCell>
                             );
                           case 'delete':
@@ -229,9 +230,13 @@ const InterpretButton = ( {handleInterpret}:InterpretButtonProps) => {
   )
 }
 
-const CreateTaskButton = () => {
+interface CreateTaskButtonProps {
+  disabled?: boolean
+}
+
+const CreateTaskButton = ({ disabled }: CreateTaskButtonProps) => {
   return (
-    <IconButton aria-label="add" size= "small" onClick={() => console.log('button clicked')}
+    <IconButton aria-label="add" disabled={disabled} size= "small" onClick={() => console.log('button clicked')}
                 sx={{'&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}>
       <Assignment/>
     </IconButton>

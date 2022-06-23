@@ -171,6 +171,7 @@ router.post('/runs/abort/:fileName', async (req, res) => {
       duration: '',
       task: parsedRun.task,
       browserId: null,
+      interpreterSettings: parsedRun.interpreterSettings,
     };
     const duration = Math.round((new Date(run_meta.finishedAt).getTime() - new Date(parsedRun.startedAt).getTime()) / 1000);
     const durString = (() => {

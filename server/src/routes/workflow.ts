@@ -79,7 +79,7 @@ router.put('/:browserId/:fileName', async (req, res) => {
       const recording = await readFile(`./../storage/recordings/${req.params.fileName}.waw.json`)
       const parsedRecording = JSON.parse(recording);
       if (parsedRecording.recording) {
-        browser.generator?.updateWorkflowFile(parsedRecording.recording);
+        browser.generator?.updateWorkflowFile(parsedRecording.recording, parsedRecording.recording_meta);
         const workflowFile = browser.generator?.getWorkflowFile();
         return res.send(workflowFile);
       }

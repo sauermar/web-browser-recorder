@@ -12,13 +12,21 @@ import {
 } from "../selector";
 import { ScreenshotSettings, ScrollSettings } from "../../../../src/shared/types";
 import { workflow } from "../../routes";
-import { saveFile } from "../storage";
+import { readFile, saveFile } from "../storage";
 import fs from "fs";
 import { getBestSelectorForAction } from "../utils";
 
 interface PersistedGeneratedData {
   lastUsedSelector: string;
   lastIndex: number|null;
+}
+
+interface MetaData {
+  name: string;
+  create_date: string;
+  pairs: number;
+  update_date: string;
+  params: string[],
 }
 
 export class WorkflowGenerator {
@@ -37,6 +45,14 @@ export class WorkflowGenerator {
   private workflowRecord: WorkflowFile = {
     workflow: [],
   };
+
+  private recordingMeta: MetaData = {
+    name: '',
+    create_date: '',
+    pairs: 0,
+    update_date: '',
+    params: [],
+  }
 
   // we need to persist some data between actions for correct generating of the workflow
   private generatedData: PersistedGeneratedData = {
@@ -235,24 +251,26 @@ export class WorkflowGenerator {
     return workflow;
   };
 
-  public updateWorkflowFile = (workflowFile: WorkflowFile) => {
+  public updateWorkflowFile = (workflowFile: WorkflowFile, meta: MetaData) => {
     const stoppableWorkflow = this.AddGeneratedFlags(workflowFile);
+    this.recordingMeta = meta;
     this.workflowRecord = stoppableWorkflow;
   }
 
   public saveNewWorkflow = async (fileName: string) => {
     try {
       const recording = this.removeAllGeneratedFlags(this.workflowRecord);
-      const recording_meta = {
+      this.recordingMeta = {
         name: fileName,
-        create_date: new Date().toLocaleString(),
+        create_date: this.recordingMeta.create_date || new Date().toLocaleString(),
         pairs: recording.workflow.length,
         update_date: new Date().toLocaleString(),
-      };
+        params: this.recordingMeta.params,
+      }
       fs.mkdirSync('../storage/recordings', { recursive: true })
       await saveFile(
         `../storage/recordings/${fileName}.waw.json`,
-        JSON.stringify({ recording_meta, recording }, null, 2)
+        JSON.stringify({ recording_meta: this.recordingMeta, recording }, null, 2)
       );
     } catch (e) {
       const { message } = e as Error;
