@@ -1,5 +1,11 @@
 import {BrowserType, LaunchOptions} from "playwright";
 
+export interface InterpreterSettings {
+    maxConcurrency: number,
+    maxRepeats: number,
+    debug: boolean,
+}
+
 export interface Coordinates {
     x: number;
     y: number;

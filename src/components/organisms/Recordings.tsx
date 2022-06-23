@@ -1,13 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { RecordingsTable } from "../molecules/RecordingsTable";
 import { Grid } from "@mui/material";
+import { RunSettings, RunSettingsModal } from "../molecules/RunSettings";
 
 interface RecordingsProps {
   handleEditRecording: (fileName: string) => void;
-  handleRunRecording: (fileName: string) => void;
+  handleRunRecording: (settings: RunSettings) => void;
+  setFileName: (fileName: string) => void;
+
 }
 
-export const Recordings = ({ handleEditRecording, handleRunRecording }: RecordingsProps) => {
+export const Recordings = ({ handleEditRecording, handleRunRecording, setFileName }: RecordingsProps) => {
+  const [runSettingsAreOpen, setRunSettingsAreOpen] = useState(false);
+
+  const handleSettingsAndRun = (fileName: string) => {
+    setRunSettingsAreOpen(true);
+    setFileName(fileName);
+  }
+
+  const handleClose = () => {
+    setRunSettingsAreOpen(false);
+  }
+
   return (
     <Grid container direction="column" sx={{ padding: '30px'}}>
       <Grid item xs={ 3 }>
@@ -16,8 +30,11 @@ export const Recordings = ({ handleEditRecording, handleRunRecording }: Recordin
       <Grid item xs>
         <RecordingsTable
           handleEditRecording={handleEditRecording}
-          handleRunRecording={handleRunRecording}
+          handleRunRecording={handleSettingsAndRun}
         />
+        <RunSettingsModal isOpen={runSettingsAreOpen}
+                          handleClose={handleClose}
+                          handleStart={ (settings) => handleRunRecording(settings) }/>
       </Grid>
     </Grid>
   );

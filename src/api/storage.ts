@@ -1,5 +1,6 @@
 import { default as axios } from "axios";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
+import { RunSettings } from "../components/molecules/RunSettings";
 
 export const getStoredRecordings = async (): Promise<string[] | null> => {
   try {
@@ -75,9 +76,11 @@ export const editRecordingFromStorage = async (browserId: string, fileName: stri
   }
 };
 
-export const createRunForStoredRecording = async (fileName: string): Promise<string> => {
+export const createRunForStoredRecording = async (fileName: string, settings: RunSettings): Promise<string> => {
   try {
-    const response = await axios.put(`http://localhost:8080/storage/runs/${fileName}`);
+    const response = await axios.put(
+      `http://localhost:8080/storage/runs/${fileName}`,
+      {settings});
     if (response.status === 200) {
       return response.data;
     } else {

@@ -2,6 +2,7 @@ import Interpreter, { WorkflowFile } from "@wbr-project/wbr-interpret";
 import logger from "../../logger";
 import { Socket } from "socket.io";
 import { Page } from "playwright";
+import { InterpreterSettings } from "../../types";
 
 
 export class WorkflowInterpreter {
@@ -112,11 +113,9 @@ export class WorkflowInterpreter {
     }
   };
 
-  public InterpretRecording = async (workflow: WorkflowFile, page: Page) => {
+  public InterpretRecording = async (workflow: WorkflowFile, page: Page, settings: InterpreterSettings) => {
     const options = {
-      maxConcurrency: 1,
-      maxRepeats: 1,
-      debug: true,
+      ...settings,
       debugChannel: {
         activeId: (id: any) => {
           this.activeId = id;

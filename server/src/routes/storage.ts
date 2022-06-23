@@ -79,6 +79,7 @@ router.put('/runs/:fileName', async (req, res) => {
       duration: '',
       task: '',
       browserId: id,
+      interpreterSettings: req.body,
     };
     fs.mkdirSync('../storage/runs', { recursive: true })
     await saveFile(
@@ -107,7 +108,8 @@ router.get('/runs/run/:fileName', async (req, res) => {
     const browser = browserPool.getRemoteBrowser(parsedRun.browserId);
     const currentPage = browser?.getCurrentPage();
     if (browser && currentPage) {
-      const interpretationInfo = await browser.interpreter.InterpretRecording(parsedRecording.recording, currentPage);
+      const interpretationInfo = await browser.interpreter.InterpretRecording(
+        parsedRecording.recording, currentPage, parsedRun.interpreterSettings);
       const duration = Math.round((new Date().getTime() - new Date(parsedRun.startedAt).getTime()) / 1000);
       const durString = (() => {
         if (duration < 60) {
