@@ -130,6 +130,7 @@ router.get('/runs/run/:fileName', async (req, res) => {
           duration: durString,
           task: parsedRun.task,
           browserId: null,
+          interpreterSettings: parsedRun.interpreterSettings,
         };
         fs.mkdirSync('../storage/runs', { recursive: true })
         await saveFile(

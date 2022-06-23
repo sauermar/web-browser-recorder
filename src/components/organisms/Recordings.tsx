@@ -20,6 +20,7 @@ export const Recordings = ({ handleEditRecording, handleRunRecording, setFileNam
 
   const handleClose = () => {
     setRunSettingsAreOpen(false);
+    setFileName('');
   }
 
   return (

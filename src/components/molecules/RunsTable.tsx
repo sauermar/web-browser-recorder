@@ -14,8 +14,7 @@ import { useGlobalInfoStore } from "../../context/globalInfo";
 import { deleteRunFromStorage, getStoredRuns } from "../../api/storage";
 import Highlight from "react-highlight";
 import Button from "@mui/material/Button";
-import { stopRecording } from "../../api/recording";
-import { stopRunningInterpretation } from "../../../server/src/browser-management/controller";
+import { RunSettings } from "./RunSettings";
 
 interface Column {
   id: 'status' | 'name' | 'startedAt' | 'finishedAt' | 'duration' | 'task' | 'delete';
@@ -44,6 +43,7 @@ interface Data {
   duration: string;
   task: string;
   log: string;
+  interpreterSettings: RunSettings;
 }
 
 interface RunsTableProps {
@@ -158,7 +158,6 @@ interface CollapsibleRowProps {
 }
 const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog, abortRunHandler }: CollapsibleRowProps) => {
   const [open, setOpen] = useState(isOpen);
-  const [rowData, setRowData] = useState<Data>(row);
 
   const logEndRef = useRef<HTMLDivElement|null>(null);
 
@@ -179,7 +178,7 @@ const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog, abortRunHandler
 
   return (
     <React.Fragment>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} hover role="checkbox" tabIndex={-1} key={rowData.id}>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} hover role="checkbox" tabIndex={-1} key={row.id}>
         <TableCell>
           <IconButton
             aria-label="expand row"
@@ -194,7 +193,7 @@ const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog, abortRunHandler
         </TableCell>
         {columns.map((column) => {
           // @ts-ignore
-          const value : any = rowData[column.id];
+          const value : any = row[column.id];
           if (value !== undefined) {
             return (
               <TableCell key={column.id} align={column.align}>
@@ -207,7 +206,7 @@ const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog, abortRunHandler
                 return (
                   <TableCell key={column.id} align={column.align}>
                     <IconButton aria-label="add" size= "small" onClick={() => {
-                      deleteRunFromStorage(rowData.name).then((result: boolean) => {
+                      deleteRunFromStorage(row.name).then((result: boolean) => {
                         if (result) {
                           handleDelete();
                         }
@@ -226,6 +225,8 @@ const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog, abortRunHandler
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
+            <Typography>Interpreter settings:</Typography>
+            <Typography>{JSON.stringify(row.interpreterSettings, null, 2)}</Typography>
             <Box sx={{ margin: 1,
               background: '#19171c',
               overflowY: 'scroll',
@@ -235,7 +236,7 @@ const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog, abortRunHandler
             }}>
               <div>
                 <Highlight className="javascript">
-                  {isOpen ? currentLog : rowData.log}
+                  {isOpen ? currentLog : row.log}
                 </Highlight>
                 <div style={{ float:"left", clear: "both" }}
                      ref={logEndRef}/>

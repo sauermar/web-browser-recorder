@@ -80,7 +80,7 @@ export const createRunForStoredRecording = async (fileName: string, settings: Ru
   try {
     const response = await axios.put(
       `http://localhost:8080/storage/runs/${fileName}`,
-      {settings});
+      {...settings});
     if (response.status === 200) {
       return response.data;
     } else {
