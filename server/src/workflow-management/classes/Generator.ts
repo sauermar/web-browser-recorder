@@ -15,7 +15,6 @@ import { workflow } from "../../routes";
 import { saveFile } from "../storage";
 import fs from "fs";
 import { getBestSelectorForAction } from "../utils";
-import { SelectorArray } from "@wbr-project/wbr-interpret/build/types/workflow";
 
 interface PersistedGeneratedData {
   lastUsedSelector: string;
@@ -344,6 +343,9 @@ export class WorkflowGenerator {
     if (overShadowing.length !== 0) {
       for (const overShadowedAction of overShadowing) {
         if (overShadowedAction.index === 0) {
+          // add new selector to the where part of the overshadowing pair
+          this.workflowRecord.workflow[0].where.selectors =
+            this.workflowRecord.workflow[0].where.selectors?.concat(pair.where.selectors || []);
           // push the action automatically to the first rule which would be overShadowed
           this.workflowRecord.workflow[0].what =
             this.workflowRecord.workflow[0].what.concat(pair.what);
