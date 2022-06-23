@@ -18,6 +18,7 @@ import { getBestSelectorForAction } from "../utils";
 
 interface PersistedGeneratedData {
   lastUsedSelector: string;
+  lastIndex: number|null;
 }
 
 export class WorkflowGenerator {
@@ -30,6 +31,7 @@ export class WorkflowGenerator {
     socket.on('new-recording', () => this.workflowRecord = {
       workflow: [],
     } );
+    socket.on('activeIndex', (data) => this.generatedData.lastIndex = parseInt(data));
   }
 
   private workflowRecord: WorkflowFile = {
@@ -39,26 +41,32 @@ export class WorkflowGenerator {
   // we need to persist some data between actions for correct generating of the workflow
   private generatedData: PersistedGeneratedData = {
     lastUsedSelector: '',
+    lastIndex: null,
   }
 
   private addPairToWorkflowAndNotifyClient = async(pair: WhereWhatPair, page: Page) => {
     let matched = false;
+    // validate if a pair with the same where conditions is already present in the workflow
     if (pair.what[0].args && pair.what[0].args.length > 0) {
+      //TODO not sure about validity
       this.generatedData.lastUsedSelector = pair.what[0].args[0];
       const match = selectorAlreadyInWorkflow(pair.what[0].args[0], this.workflowRecord.workflow);
       if (match) {
-        const index = this.workflowRecord.workflow.indexOf(match);
+        // if a match of where conditions is found, the new action is added into the matched rule
+        const matchedIndex = this.workflowRecord.workflow.indexOf(match);
         pair.what.push({
           action: 'waitForLoadState',
           args: ['networkidle'],
         })
-        this.workflowRecord.workflow[index].what = this.workflowRecord.workflow[index].what.concat(pair.what);
-        logger.log('info', `Pushed ${JSON.stringify(this.workflowRecord.workflow[index])} to workflow pair`);
+        this.workflowRecord.workflow[matchedIndex].what = this.workflowRecord.workflow[matchedIndex].what.concat(pair.what);
+        logger.log('info', `Pushed ${JSON.stringify(this.workflowRecord.workflow[matchedIndex])} to workflow pair`);
         matched = true;
       }
     }
+    // is the where conditions of the pair are not already in the workflow, we need to validate the where conditions
+    // for possible overshadowing of different rules and handle cases according to the recording logic
     if (!matched) {
-      const handled = await this.handleOverShadowing(pair, page);
+      const handled = await this.handleOverShadowing(pair, page, this.generatedData.lastIndex || 0);
       if (!handled) {
         // adding flag as a top action to every pair for pausing/resuming
         pair.what.unshift({
@@ -70,16 +78,25 @@ export class WorkflowGenerator {
           action: 'waitForLoadState',
           args: ['networkidle'],
         })
-        // we want to have the most specific selectors at the beginning of the workflow
-        this.workflowRecord.workflow.unshift(pair);
-        logger.log('info', `${JSON.stringify(pair)}: Added to workflow file.`);
+        if (this.generatedData.lastIndex === 0) {
+          this.generatedData.lastIndex = null;
+          // we want to have the most specific selectors at the beginning of the workflow
+          this.workflowRecord.workflow.unshift(pair);
+        } else {
+          this.workflowRecord.workflow.splice(this.generatedData.lastIndex || 0, 0, pair);
+          if (this.generatedData.lastIndex) {
+            this.generatedData.lastIndex = this.generatedData.lastIndex - 1;
+          }
+        }
+        logger.log('info',
+          `${JSON.stringify(pair)}: Added to workflow file on index: ${this.generatedData.lastIndex || 0}`);
       } else {
-        logger.log('info', ` ${JSON.stringify(this.workflowRecord.workflow[0])} added action to workflow pair`);
+        logger.log('debug',
+          ` ${JSON.stringify(this.workflowRecord.workflow[this.generatedData.lastIndex || 0])} added action to workflow pair`);
       }
     }
     this.socket.emit('workflow', this.workflowRecord);
     logger.log('info',`Workflow emitted`);
-
   };
 
   public onClick = async (coordinates: Coordinates, page: Page) => {
@@ -337,21 +354,21 @@ export class WorkflowGenerator {
   }
 
 
-  private handleOverShadowing = async (pair: WhereWhatPair, page: Page): Promise<boolean> => {
+  private handleOverShadowing = async (pair: WhereWhatPair, page: Page, index: number): Promise<boolean> => {
     const overShadowing = (await this.IsOverShadowingAction(pair, page))
       .filter((p) => p.isOverShadowing);
     if (overShadowing.length !== 0) {
       for (const overShadowedAction of overShadowing) {
-        if (overShadowedAction.index === 0) {
+        if (overShadowedAction.index === index) {
           // add new selector to the where part of the overshadowing pair
-          this.workflowRecord.workflow[0].where.selectors =
-            this.workflowRecord.workflow[0].where.selectors?.concat(pair.where.selectors || []);
-          // push the action automatically to the first rule which would be overShadowed
-          this.workflowRecord.workflow[0].what =
-            this.workflowRecord.workflow[0].what.concat(pair.what);
+          this.workflowRecord.workflow[index].where.selectors =
+            this.workflowRecord.workflow[index].where.selectors?.concat(pair.where.selectors || []);
+          // push the action automatically to the first/the closest rule which would be overShadowed
+          this.workflowRecord.workflow[index].what =
+            this.workflowRecord.workflow[index].what.concat(pair.what);
           return true;
         } else {
-          // notify client about possible over shadowing
+          // notify client about overshadowing a further rule
           return false;
         }
       }
@@ -368,5 +385,9 @@ export class WorkflowGenerator {
       return { $regex: `^${protocol}${parsedUrl.host}${parsedUrl.pathname}.*$`}
     }
     return `${protocol}${parsedUrl.host}${parsedUrl.pathname}${parsedUrl.hash}`;
+  }
+
+  public clearLastIndex = () => {
+    this.generatedData.lastIndex = null;
   }
 }

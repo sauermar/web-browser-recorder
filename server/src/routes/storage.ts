@@ -149,3 +149,48 @@ router.get('/runs/run/:fileName', async (req, res) => {
     return res.send(false);
   }
 });
+
+
+router.post('/runs/abort/:fileName', async (req, res) => {
+  try {
+    // read the run from storage
+    const run = await readFile(`./../storage/runs/${req.params.fileName}.json`)
+    const parsedRun = JSON.parse(run);
+
+    //get current log
+    const browser = browserPool.getRemoteBrowser(parsedRun.browserId);
+    const currentLog = browser?.interpreter.debugMessages.join('/n');
+    const run_meta = {
+      status: 'ABORTED',
+      name: parsedRun.name,
+      startedAt: parsedRun.startedAt,
+      finishedAt: new Date().toLocaleString(),
+      duration: '',
+      task: parsedRun.task,
+      browserId: null,
+    };
+    const duration = Math.round((new Date(run_meta.finishedAt).getTime() - new Date(parsedRun.startedAt).getTime()) / 1000);
+    const durString = (() => {
+      if (duration < 60) {
+        return `${duration} s`;
+      }
+      else {
+        const minAndS = (duration / 60).toString().split('.');
+        return `${minAndS[0]} m ${minAndS[1]} s`;
+      }
+    })();
+    run_meta.duration = durString;
+
+    fs.mkdirSync('../storage/runs', { recursive: true })
+    await saveFile(
+      `../storage/runs/${parsedRun.name}.json`,
+      JSON.stringify({ ...run_meta, log: currentLog }, null, 2)
+    );
+    return res.send(true);
+  } catch (e) {
+    const {message} = e as Error;
+    console.log(message)
+    logger.log('info', `Error while running a recording with name: ${req.params.fileName}.json`);
+    return res.send(false);
+  }
+});

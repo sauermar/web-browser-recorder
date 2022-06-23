@@ -26,6 +26,7 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow, recordingName}:
     if (socket) {
       socket.on("activePairId", data => {
         setActiveId(parseInt(data) + 1);
+        socket.emit('activeIndex', data);
       });
       socket?.on('finished', () => {
         setActiveId(0);

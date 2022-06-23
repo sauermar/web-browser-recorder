@@ -193,6 +193,8 @@ export class RemoteBrowser {
                   workflow, this.currentPage,
                   (newPage: Page) => this.currentPage = newPage,
                 );
+                // clear the active index from generator
+                this.generator.clearLastIndex();
             } else {
                 logger.log('error', 'Could not get a new page, returned undefined');
             }
