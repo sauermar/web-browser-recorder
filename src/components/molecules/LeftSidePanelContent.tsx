@@ -5,7 +5,7 @@ import { TreeView } from "@mui/lab";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Pair } from "./Pair";
-import { WorkflowFile } from "@wbr-project/wbr-interpret";
+import { WhereWhatPair, WorkflowFile } from "@wbr-project/wbr-interpret";
 import { useSocketStore } from "../../context/socket";
 import { SaveRecording } from "./SaveRecording";
 
@@ -13,9 +13,10 @@ interface LeftSidePanelContentProps {
   workflow: WorkflowFile;
   updateWorkflow: (workflow: WorkflowFile) => void;
   recordingName: string;
+  handleSelectPairForEdit: (pair: WhereWhatPair, index: number) => void;
 }
 
-export const LeftSidePanelContent = ({ workflow, updateWorkflow, recordingName}: LeftSidePanelContentProps) => {
+export const LeftSidePanelContent = ({ workflow, updateWorkflow, recordingName, handleSelectPairForEdit}: LeftSidePanelContentProps) => {
   const [expanded, setExpanded] = React.useState<string[]>([]);
   const [activeId, setActiveId] = React.useState<number>(0);
   const [breakpoints, setBreakpoints] = React.useState<boolean[]>([]);
@@ -80,6 +81,7 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow, recordingName}:
               pair={pair}
               updateWorkflow={updateWorkflow}
               numberOfPairs={workflow.length}
+              handleSelectPairForEdit={handleSelectPairForEdit}
             />)
         }
       </TreeView>

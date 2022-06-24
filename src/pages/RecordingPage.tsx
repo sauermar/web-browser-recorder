@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
 import { BrowserContent } from "../components/organisms/BrowserContent";
 import { startRecording, getActiveBrowserId } from "../api/recording";
@@ -9,15 +9,25 @@ import { useSocketStore } from "../context/socket";
 import { useBrowserDimensionsStore } from "../context/browserDimensions";
 import { useGlobalInfoStore } from "../context/globalInfo";
 import { editRecordingFromStorage } from "../api/storage";
+import { WhereWhatPair } from "@wbr-project/wbr-interpret";
 
 interface RecordingPageProps {
   recordingName?: string;
+}
+
+export interface PairForEdit {
+  pair: WhereWhatPair | null,
+  index: number,
 }
 
 export const RecordingPage = ({ recordingName }: RecordingPageProps) => {
 
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [hasScrollbar, setHasScrollbar] = React.useState(false);
+  const [pairForEdit, setPairForEdit] = useState<PairForEdit>({
+    pair: null,
+    index: 0,
+  });
 
   const browserContentRef = React.useRef<HTMLDivElement>(null);
   const workflowListRef = React.useRef<HTMLDivElement>(null);
@@ -26,6 +36,12 @@ export const RecordingPage = ({ recordingName }: RecordingPageProps) => {
   const { setWidth } = useBrowserDimensionsStore();
   const { browserId, setBrowserId } = useGlobalInfoStore();
 
+  const handleSelectPairForEdit = (pair: WhereWhatPair, index: number) => {
+    setPairForEdit({
+      pair,
+      index,
+    });
+  };
 
   useEffect(() => {
     let isCancelled = false;
@@ -95,13 +111,14 @@ export const RecordingPage = ({ recordingName }: RecordingPageProps) => {
               sidePanelRef={workflowListRef.current}
               alreadyHasScrollbar={hasScrollbar}
               recordingName={recordingName ? recordingName : ''}
+              handleSelectPairForEdit={handleSelectPairForEdit}
             />
           </Grid>
           <Grid id="browser-content" ref={browserContentRef} item xs>
             <BrowserContent/>
           </Grid>
           <Grid item xs={2}>
-            <RightSidePanel/>
+            <RightSidePanel pairForEdit={pairForEdit}/>
           </Grid>
         </Grid>
         : <Loader/>}

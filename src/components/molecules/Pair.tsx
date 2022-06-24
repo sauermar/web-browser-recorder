@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react';
-import { Stack, Button } from "@mui/material";
+import { Stack, Button, IconButton } from "@mui/material";
 import { AddPair, deletePair, UpdatePair } from "../../api/workflow";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
 import { ClearButton } from "../atoms/ClearButton";
@@ -9,6 +9,8 @@ import { PairDisplayDiv } from "../atoms/PairDisplayDiv";
 import TreeItem from "@mui/lab/TreeItem";
 import { EditButton } from "../atoms/EditButton";
 import { BreakpointButton } from "../atoms/BreakpointButton";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import styled from "styled-components";
 
 type WhereWhatPair = WorkflowFile["workflow"][number];
 
@@ -20,9 +22,16 @@ interface PairProps {
   pair: WhereWhatPair;
   updateWorkflow: (workflow: WorkflowFile) => void;
   numberOfPairs: number;
+  handleSelectPairForEdit: (pair: WhereWhatPair, index: number) => void;
 }
 
-export const Pair: FC<PairProps> = ({ handleBreakpoint, isActive, index, pair, updateWorkflow, numberOfPairs }) => {
+
+export const Pair: FC<PairProps> = (
+  {
+    handleBreakpoint, isActive, index,
+    pair, updateWorkflow, numberOfPairs,
+    handleSelectPairForEdit
+  }) => {
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(false);
   const [breakpoint, setBreakpoint] = useState(false);
@@ -68,13 +77,7 @@ export const Pair: FC<PairProps> = ({ handleBreakpoint, isActive, index, pair, u
   };
 
   return (
-    <div style={{
-      backgroundColor: isActive ? 'rgba(25, 118, 210, 0.15)' : 'transparent',
-      display: 'flex',
-      flexDirection: 'row',
-      flexGrow: 1,
-      width: "fit-content",
-    }}>
+    <PairWrapper isActive={isActive}>
       <Stack direction="row">
         <div style={{position: 'sticky', maxWidth:'20px'}}>
           {breakpoint
@@ -93,6 +96,7 @@ export const Pair: FC<PairProps> = ({ handleBreakpoint, isActive, index, pair, u
           padding: '4px',
           position: 'relative',
           left: '10%',
+          color: 'black',
         }} nodeId={index.toString()} key={index.toString()} label={index}>
           {
             //eslint-disable-next-line
@@ -106,8 +110,11 @@ export const Pair: FC<PairProps> = ({ handleBreakpoint, isActive, index, pair, u
         </TreeItem>
         <Stack direction="row" spacing={0}
                style={{position: 'sticky', marginLeft:'50px'}}>
-          <EditButton
+          <ViewButton
             handleClick={handleOpen}
+          />
+          <EditButton
+            handleClick={() => handleSelectPairForEdit(pair, index)}
           />
           <ClearButton
             handleClick={handleDelete}
@@ -140,6 +147,34 @@ export const Pair: FC<PairProps> = ({ handleBreakpoint, isActive, index, pair, u
           </div>
         }
       </GenericModal>
-    </div>
+    </PairWrapper>
     );
 };
+
+interface ViewButtonProps {
+  handleClick: () => void;
+}
+
+const ViewButton = ({handleClick}: ViewButtonProps) => {
+  return (
+    <IconButton aria-label="add" size={"small"} onClick={handleClick}
+                sx={{color: '#1976d2',}}>
+      <VisibilityIcon/>
+    </IconButton>
+  );
+}
+
+
+const PairWrapper = styled.div<{ isActive: boolean }>`
+  background-color: ${({ isActive }) => isActive ? 'rgba(255, 0, 0, 0.1)' : 'transparent' };
+  border: ${({ isActive }) => isActive ? 'solid 2px red' : 'none' };
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  width: fit-content;
+  color: transparent;
+  &:hover { 
+    color: #1976d2; 
+    background: transparent; 
+  }
+`;

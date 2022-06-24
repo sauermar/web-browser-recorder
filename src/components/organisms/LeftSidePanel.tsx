@@ -2,7 +2,7 @@ import { Paper } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { getActiveWorkflow } from "../../api/workflow";
 import { useSocketStore } from '../../context/socket';
-import { WorkflowFile } from "@wbr-project/wbr-interpret";
+import { WhereWhatPair, WorkflowFile } from "@wbr-project/wbr-interpret";
 import { SidePanelHeader } from "../molecules/SidePanelHeader";
 import { emptyWorkflow } from "../../shared/constants";
 import { LeftSidePanelContent } from "../molecules/LeftSidePanelContent";
@@ -24,9 +24,11 @@ interface LeftSidePanelProps {
   sidePanelRef: HTMLDivElement | null;
   alreadyHasScrollbar: boolean;
   recordingName: string;
+  handleSelectPairForEdit: (pair:WhereWhatPair, index:number) => void;
 }
 
-export const LeftSidePanel = ({ sidePanelRef, alreadyHasScrollbar, recordingName }: LeftSidePanelProps) => {
+export const LeftSidePanel = (
+  { sidePanelRef, alreadyHasScrollbar, recordingName, handleSelectPairForEdit }: LeftSidePanelProps) => {
   const { id, socket } = useSocketStore();
 
   const [workflow, setWorkflow] = useState<WorkflowFile>(emptyWorkflow);
@@ -90,6 +92,7 @@ export const LeftSidePanel = ({ sidePanelRef, alreadyHasScrollbar, recordingName
         workflow={workflow}
         updateWorkflow={setWorkflow}
         recordingName={recordingName}
+        handleSelectPairForEdit={handleSelectPairForEdit}
       />
     </Paper>
   );
