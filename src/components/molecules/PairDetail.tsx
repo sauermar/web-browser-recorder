@@ -15,8 +15,8 @@ interface PairDetailProps {
 
 export const PairDetail = ({ pair, index }: PairDetailProps) => {
   const [pairIsSelected, setPairIsSelected] = useState(false);
-  const [collapseWhere, setCollapseWhere] = useState(false);
-  const [collapseWhat, setCollapseWhat] = useState(false);
+  const [collapseWhere, setCollapseWhere] = useState(true);
+  const [collapseWhat, setCollapseWhat] = useState(true);
   const [rerender, setRerender] = useState(false);
 
   const handleCollapseWhere = () => {
@@ -26,12 +26,6 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
   const handleCollapseWhat = () => {
     setCollapseWhat(!collapseWhat);
   }
-
-  useEffect(() => {
-    if (collapseWhere) {
-      setCollapseWhere(false);
-    }
-  }, [index])
 
   useLayoutEffect(() => {
     if (pair) {
@@ -107,16 +101,45 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
               >
                 {
                   Object.keys(value).map((key2, index) => {
-                    return (
-                      <TreeItem nodeId={`settings-object-${index}`} label={key2}>
-                        <TextField
-                          size='small'
-                          type="string"
-                          onChange={(e) => handleChangeValue(e, where, key, key2)}
-                          defaultValue={value[key2]}
-                        />
-                      </TreeItem>
-                    )
+                    if (typeof value[key2] === 'string') {
+                      return (
+                        <TreeItem nodeId={`settings-object-${index}`} label={key2}>
+                          <TextField
+                            size='small'
+                            type="string"
+                            onChange={(e) => handleChangeValue(e, where, key, key2)}
+                            defaultValue={value[key2]}
+                          />
+                        </TreeItem>
+                      )
+                    } else if (Array.isArray(value[key2])) {
+                      return (
+                        <TreeItem nodeId={`settings-object-${index}`} label={key2}>
+                          {// @ts-ignore
+                            value[key2].map((element, index2) => {
+                            return <TextField
+                              size='small'
+                              type="string"
+                              onChange={(e) => {
+                                if (where) {
+                                  // @ts-ignore
+                                  pair.where[key][key2][index2] = e.target.value;
+                                } else {
+                                  // @ts-ignore
+                                  pair.what[key][key2][index2] = e.target.value;
+                                }
+                              }}
+                              defaultValue={element}
+                            />
+                          })}
+                          <AddButton handleClick={()=> {
+                            //@ts-ignore
+                            pair.what[key][key2].push('');
+                            setRerender(!rerender);
+                          }}/>
+                        </TreeItem>
+                      )
+                    }
                   })
                 }
               </TreeView>
@@ -184,7 +207,7 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                     defaultExpandIcon={<ChevronRightIcon />}
                     sx={{ flexGrow: 1, overflowY: 'auto' }}
                   >
-                    <TreeItem nodeId={`${key}-${index}`} label={`${key}:`}>
+                    <TreeItem nodeId={`${key}-${index}`} label={`${pair.what[index].action}`}>
                       {
                         // @ts-ignore
                         DisplayValueContent(pair.what[key], key, false)
