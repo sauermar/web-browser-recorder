@@ -1,12 +1,14 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { WhereWhatPair } from "@wbr-project/wbr-interpret";
 import { IconButton, Stack, TextField, Typography } from "@mui/material";
-import {  KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
+import { Close, KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import TreeView from '@mui/lab/TreeView';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TreeItem from '@mui/lab/TreeItem';
 import { AddButton } from "../atoms/AddButton";
+import Button from "@mui/material/Button";
+import { UpdatePair } from "../../api/workflow";
 
 interface PairDetailProps {
   pair: WhereWhatPair | null;
@@ -200,7 +202,9 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
               <Typography>What</Typography>
             </Stack>
             {(collapseWhat && pair && pair.what)
-              ? Object.keys(pair.what).map((key, index) => {
+              ?(
+              <React.Fragment>
+              { Object.keys(pair.what).map((key, index) => {
                 return (
                   <TreeView
                     defaultCollapseIcon={<ExpandMoreIcon />}
@@ -212,10 +216,22 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                         // @ts-ignore
                         DisplayValueContent(pair.what[key], key, false)
                       }
+                      <ColoseButton handleClick={() => {
+                        //@ts-ignore
+                        pair.what.splice(key, 1);
+                        setRerender(!rerender);
+                      }}/>
                     </TreeItem>
                   </TreeView>
                 );
-              })
+              })}
+                <AddButton handleClick={()=> {
+                  //@ts-ignore
+                  pair.what.push({action:'', args: ['']});
+                  setRerender(!rerender);
+                }}/>
+              </React.Fragment>
+              )
               : null
             }
           </div>
@@ -233,13 +249,21 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
 
 interface CollapseButtonProps {
   handleClick: () => void;
-  isCollapsed: boolean;
+  isCollapsed?: boolean;
 }
 
 const CollapseButton = ({handleClick, isCollapsed } : CollapseButtonProps) => {
   return (
     <IconButton aria-label="add" size={"small"} onClick={handleClick}>
       { isCollapsed ?  <KeyboardArrowDown/> : <KeyboardArrowUp/>}
+    </IconButton>
+  );
+}
+
+const ColoseButton = ({handleClick } : CollapseButtonProps) => {
+  return (
+    <IconButton aria-label="add" size={"small"} onClick={handleClick}>
+      <Close/>
     </IconButton>
   );
 }
