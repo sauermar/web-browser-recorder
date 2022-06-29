@@ -72,6 +72,7 @@ export const RightSidePanel = ({pairForEdit}: RightSidePanelProps) => {
                 <MenuItem value="screenshot">screenshot</MenuItem>
                 <MenuItem value="scrape">scrape</MenuItem>
                 <MenuItem value="scrapeSchema">scrapeSchema</MenuItem>
+                <MenuItem value="script">script</MenuItem>
               </MuiDropdown>
             </ActionTypeWrapper>
 

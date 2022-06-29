@@ -24,6 +24,8 @@ export const ActionSettings = ({action}: ActionSettingsProps) => {
         return <Settings.ScrapeSettings ref={settingsRef}/>;
       case 'scrapeSchema':
         return <Settings.ScrapeSchemaSettings ref={settingsRef}/>;
+      case 'script':
+        return <Settings.ScriptSettings ref={settingsRef}/>;
       default:
         return null;
     }
@@ -44,7 +46,7 @@ export const ActionSettings = ({action}: ActionSettingsProps) => {
   return (
     <div>
       <ActionDescription>Action settings:</ActionDescription>
-      <ActionSettingsWrapper>
+      <ActionSettingsWrapper action={action}>
         <form onSubmit={handleSubmit}>
           <DisplaySettings/>
           <Button
@@ -65,10 +67,10 @@ export const ActionSettings = ({action}: ActionSettingsProps) => {
   );
 };
 
-const ActionSettingsWrapper = styled.div`
+const ActionSettingsWrapper = styled.div<{action: string}>`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: ${({ action }) => action === 'script' ? 'stretch' : 'center'};;
   justify-content: center;
   margin-top: 20px;
 `;
