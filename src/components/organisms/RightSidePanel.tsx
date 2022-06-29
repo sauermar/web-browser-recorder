@@ -70,6 +70,8 @@ export const RightSidePanel = ({pairForEdit}: RightSidePanelProps) => {
                 handleSelect={handleActionSelect}>
                 <MenuItem value="scroll">scroll</MenuItem>
                 <MenuItem value="screenshot">screenshot</MenuItem>
+                <MenuItem value="scrape">scrape</MenuItem>
+                <MenuItem value="scrapeSchema">scrapeSchema</MenuItem>
               </MuiDropdown>
             </ActionTypeWrapper>
 

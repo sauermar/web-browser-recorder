@@ -4,7 +4,6 @@
 import {Namespace, Socket} from 'socket.io';
 import logger from "../logger";
 import registerInputHandlers from '../browser-management/inputHandlers'
-import registerActionHandlers from "../workflow-management/actionHandlers";
 
 // uses socket.io dynamic namespaces for multiplexing the traffic from different running remote browser instances
 /**
@@ -19,7 +18,6 @@ export const createSocketConnection = (
     const onConnection = async (socket: Socket) => {
         logger.log('info',"Client connected " + socket.id);
         registerInputHandlers(socket);
-        registerActionHandlers(socket);
         socket.on('disconnect', () => logger.log('info', "Client disconnected " + socket.id));
         callback(socket);
     }

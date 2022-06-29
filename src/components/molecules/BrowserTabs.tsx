@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Box, IconButton, Tab, Tabs } from "@mui/material";
-import { AddButton } from "../atoms/AddButton";
+import { AddButton } from "../atoms/buttons/AddButton";
 import { useBrowserDimensionsStore } from "../../context/browserDimensions";
 import { Close } from "@mui/icons-material";
 

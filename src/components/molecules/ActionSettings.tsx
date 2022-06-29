@@ -1,4 +1,4 @@
-import React, { FC, useRef } from 'react';
+import React, { useRef } from 'react';
 import styled from "styled-components";
 import { Button } from "@mui/material";
 import { ActionDescription } from "../organisms/RightSidePanel";
@@ -20,6 +20,10 @@ export const ActionSettings = ({action}: ActionSettingsProps) => {
         return <Settings.ScreenshotSettings ref={settingsRef} />;
       case 'scroll':
         return <Settings.ScrollSettings ref={settingsRef}/>;
+      case 'scrape':
+        return <Settings.ScrapeSettings ref={settingsRef}/>;
+      case 'scrapeSchema':
+        return <Settings.ScrapeSchemaSettings ref={settingsRef}/>;
       default:
         return null;
     }
@@ -31,7 +35,10 @@ export const ActionSettings = ({action}: ActionSettingsProps) => {
     const settings = settingsRef.current?.getSettings();
     console.log(JSON.stringify(settings));
     //Send notification to the server and generate the pair
-    socket?.emit(`action:${action}`, settings);
+    socket?.emit(`action`, {
+      action,
+      settings
+    });
   }
 
   return (

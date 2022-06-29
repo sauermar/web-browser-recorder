@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react';
 import { InterpretationButtons } from "./InterpretationButtons";
-import { AddButton } from "../atoms/AddButton";
+import { AddButton } from "../atoms/buttons/AddButton";
 import { GenericModal } from "../atoms/GenericModal";
 import { PairEditForm } from "./PairEditForm";
 import { WhereWhatPair, WorkflowFile } from "@wbr-project/wbr-interpret";

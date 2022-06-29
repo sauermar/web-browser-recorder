@@ -4,7 +4,7 @@ import { stopRecording } from "../../api/recording";
 import { useGlobalInfoStore } from "../../context/globalInfo";
 import { Button } from "@mui/material";
 import { RecordingIcon } from "../atoms/RecorderIcon";
-import { AddButton } from "../atoms/AddButton";
+import { AddButton } from "../atoms/buttons/AddButton";
 
 interface NavBarProps {
   newRecording: () => void;

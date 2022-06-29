@@ -10,7 +10,7 @@ import {
   isRuleOvershadowing,
   selectorAlreadyInWorkflow
 } from "../selector";
-import { ScreenshotSettings, ScrollSettings } from "../../../../src/shared/types";
+import { CustomActions } from "../../../../src/shared/types";
 import { workflow } from "../../routes";
 import { readFile, saveFile } from "../storage";
 import fs from "fs";
@@ -164,30 +164,16 @@ export class WorkflowGenerator {
     await this.addPairToWorkflowAndNotifyClient(pair, page);
   };
 
-  public scroll = async ({ scrollPages }: ScrollSettings, page: Page) => {
+  public customAction = async (action: CustomActions, settings: any, page: Page) => {
     const pair: WhereWhatPair = {
       where: { url: this.getBestUrl(page.url())},
       what: [{
-        action: 'scroll',
-        args: [scrollPages],
+        action,
+        args: settings ? [settings] : [],
       }],
     }
-    // For scroll get the previous selector used to define a better where clause
-    if (this.generatedData.lastUsedSelector) {
-      pair.where.selectors = [this.generatedData.lastUsedSelector];
-    }
-    await this.addPairToWorkflowAndNotifyClient(pair, page);
-  };
 
-  public screenshot = async (settings: ScreenshotSettings, page: Page) => {
-    const pair: WhereWhatPair = {
-      where: { url: this.getBestUrl(page.url()) },
-      what: [{
-        action: 'screenshot',
-        args: [settings],
-      }],
-    }
-    // For screenshot get the previous selector used to define a better where clause
+    // update the where conditions according to the action's logic
     if (this.generatedData.lastUsedSelector) {
       pair.where.selectors = [this.generatedData.lastUsedSelector];
     }

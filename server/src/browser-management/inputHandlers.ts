@@ -9,6 +9,7 @@ import { browserPool } from "../server";
 import { WorkflowGenerator } from "../workflow-management/classes/Generator";
 import { Page } from "playwright";
 import { throttle } from "../../../src/functions/inputHelpers";
+import { CustomActions } from "../../../src/shared/types";
 
 const handleWrapper = async (
   handleCallback: (
@@ -38,6 +39,21 @@ const handleWrapper = async (
     } else {
         logger.log('warn', `No active browser for id ${id}`);
     }
+}
+
+interface CustomActionEventData {
+    action: CustomActions;
+    settings: any;
+}
+
+const onGenerateAction = async (customActionEventData: CustomActionEventData) => {
+    logger.log('debug', `Generating ${customActionEventData.action} action emitted from client`);
+    await handleWrapper(handleGenerateAction, customActionEventData);
+}
+
+const handleGenerateAction =
+  async (generator: WorkflowGenerator, page: Page, {action, settings}: CustomActionEventData) => {
+    await generator.customAction(action, settings, page);
 }
 
 const onMousedown = async (coordinates: Coordinates) => {
@@ -195,6 +211,7 @@ const registerInputHandlers = (socket: Socket) => {
     socket.on("input:refresh", onRefresh);
     socket.on("input:back", onGoBack);
     socket.on("input:forward", onGoForward);
+    socket.on("action", onGenerateAction);
 };
 
 export default registerInputHandlers;

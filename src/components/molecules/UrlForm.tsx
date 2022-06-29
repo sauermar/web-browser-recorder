@@ -3,7 +3,7 @@ import type { SyntheticEvent, } from 'react';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 import { NavBarForm, NavBarInput } from "../atoms/form";
-import { UrlFormButton } from "../atoms/buttons";
+import { UrlFormButton } from "../atoms/buttons/buttons";
 import { useSocketStore } from '../../context/socket';
 import {Socket} from "socket.io-client";
 

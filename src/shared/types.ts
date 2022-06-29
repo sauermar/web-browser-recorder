@@ -3,10 +3,6 @@ import { Locator } from "playwright";
 
 export type Workflow = WorkflowFile["workflow"];
 
-export interface ScrollSettings {
-  scrollPages: number;
-};
-
 export interface ScreenshotSettings {
   animations?: "disabled" | "allow";
   caret?: "hide" | "initial";
@@ -26,3 +22,5 @@ export interface ScreenshotSettings {
   timeout?: number;
   type?: "jpeg" | "png";
 };
+
+export declare type CustomActions = 'scrape' | 'scrapeSchema' | 'scroll' | 'screenshot' | 'script' | 'enqueueLinks' | 'flag';
