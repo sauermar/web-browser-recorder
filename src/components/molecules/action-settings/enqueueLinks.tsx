@@ -1,9 +1,9 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
-import { Stack, TextField, Typography } from "@mui/material";
-import WarningIcon from '@mui/icons-material/Warning';
-import { WarningText } from '../../atoms/texts';
+import { Stack, TextField } from "@mui/material";
+import { WarningText } from "../../atoms/texts";
+import WarningIcon from "@mui/icons-material/Warning";
 
-export const ScrapeSettings = forwardRef((props, ref) => {
+export const EnqueueLinksSettings = forwardRef((props, ref) => {
   const [settings, setSettings] = React.useState<string>('');
   useImperativeHandle(ref, () => ({
     getSettings() {
@@ -17,13 +17,14 @@ export const ScrapeSettings = forwardRef((props, ref) => {
         sx={{marginLeft: '15px', marginRight: '15px'}}
         type="string"
         label="Selector"
+        required
         onChange={(e) => setSettings(e.target.value)}
       />
       <WarningText>
         <WarningIcon color="warning"/>
-        The scrape function uses heuristic algorithm to automatically scrape only important data from the page.
-        If a selector is used it will scrape and automatically parse all available
-        data inside of the selected element(s).
+        Reads elements targeted by the selector and stores their links in a queue.
+        Those pages are then processed using the same workflow as the initial page
+        (in parallel if the maxConcurrency parameter is greater than 1).
       </WarningText>
     </Stack>
   );

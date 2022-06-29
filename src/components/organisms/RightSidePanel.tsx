@@ -68,11 +68,12 @@ export const RightSidePanel = ({pairForEdit}: RightSidePanelProps) => {
                 label="Action"
                 value={action}
                 handleSelect={handleActionSelect}>
-                <MenuItem value="scroll">scroll</MenuItem>
-                <MenuItem value="screenshot">screenshot</MenuItem>
+                <MenuItem value="enqueueLinks">enqueueLinks</MenuItem>
                 <MenuItem value="scrape">scrape</MenuItem>
                 <MenuItem value="scrapeSchema">scrapeSchema</MenuItem>
+                <MenuItem value="screenshot">screenshot</MenuItem>
                 <MenuItem value="script">script</MenuItem>
+                <MenuItem value="scroll">scroll</MenuItem>
               </MuiDropdown>
             </ActionTypeWrapper>
 
