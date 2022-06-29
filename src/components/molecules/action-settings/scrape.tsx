@@ -2,6 +2,7 @@ import React, { forwardRef, useImperativeHandle } from 'react';
 import { Stack, TextField, Typography } from "@mui/material";
 import WarningIcon from '@mui/icons-material/Warning';
 import { WarningText } from '../../atoms/texts';
+import InfoIcon from "@mui/icons-material/Info";
 
 export const ScrapeSettings = forwardRef((props, ref) => {
   const [settings, setSettings] = React.useState<string>('');
@@ -20,7 +21,7 @@ export const ScrapeSettings = forwardRef((props, ref) => {
         onChange={(e) => setSettings(e.target.value)}
       />
       <WarningText>
-        <WarningIcon color="warning"/>
+        <InfoIcon color='warning'/>
         The scrape function uses heuristic algorithm to automatically scrape only important data from the page.
         If a selector is used it will scrape and automatically parse all available
         data inside of the selected element(s).

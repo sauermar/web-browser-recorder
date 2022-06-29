@@ -2,6 +2,8 @@ import React, { forwardRef, useCallback, useImperativeHandle, useRef } from 'rea
 import { KeyValueForm } from "../../atoms/KeyValueForm";
 import { AddButton } from "../../atoms/buttons/AddButton";
 import { RemoveButton } from "../../atoms/buttons/RemoveButton";
+import { WarningText } from "../../atoms/texts";
+import InfoIcon from "@mui/icons-material/Info";
 
 export const ScrapeSchemaSettings = forwardRef((props, ref) => {
   const [numberOfPairs, setNumberOfPairs] = React.useState<number>(1);
@@ -26,12 +28,16 @@ export const ScrapeSchemaSettings = forwardRef((props, ref) => {
 
   return (
     <div>
+      <WarningText>
+        <InfoIcon color='warning'/>
+        The interpreter scrapes the data from a webpage into a "curated" table.
+      </WarningText>
       {
         keyValuePairRefs.map((ref, index) => {
           return <KeyValueForm keyLabel={'property'} valueLabel={'selector'} ref={ref} key={index}/>
         })
       }
-      <AddButton handleClick={() => setNumberOfPairs(numberOfPairs + 1)}/>
+      <AddButton handleClick={() => setNumberOfPairs(numberOfPairs + 1)} hoverEffect={false}/>
       <RemoveButton handleClick={() => setNumberOfPairs(numberOfPairs - 1)}/>
     </div>
 );

@@ -13,7 +13,7 @@ export const ScrollSettings = forwardRef((props, ref) => {
     <TextField
       sx={{marginLeft: '15px'}}
       type="number"
-      label="Number of scroll pages"
+      label="Number of pages"
       required
       onChange={(e) => setSettings(parseInt(e.target.value))}
     />

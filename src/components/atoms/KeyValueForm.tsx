@@ -37,6 +37,7 @@ export const KeyValueForm = forwardRef(({keyLabel, valueLabel}: KeyValueFormProp
         value={value}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => setValue(event.target.value)}
         size="small"
+        required
       />
     </Box>
   );

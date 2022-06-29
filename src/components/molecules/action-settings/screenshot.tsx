@@ -39,47 +39,88 @@ export const ScreenshotSettings = forwardRef((props, ref) => {
 
   return (
     <SettingsWrapper>
-      <TextField
-        type="number"
-        id = "quality"
-        label="Quality"
-        InputProps={{ inputProps: { min: 0, max: 100 } }}
-        onChange={handleInput}
-      />
+      <Dropdown
+        id="type"
+        label="type"
+        value={settings.type || "png"}
+        handleSelect={handleSelect}
+      >
+        <MenuItem value="jpeg">jpeg</MenuItem>
+        <MenuItem value="png">png</MenuItem>
+      </Dropdown>
+      { settings.type === "jpeg" ?
+        <TextField
+          type="number"
+          id="quality"
+          label="quality"
+          size='small'
+          InputProps={{ inputProps: { min: 0, max: 100 } }}
+          onChange={handleInput}
+        /> : null
+      }
       <TextField
         type="number"
         id = "timeout"
-        label="Max time in ms"
+        label="timeout"
+        size='small'
         onChange={handleInput}
+        defaultValue='30000'
       />
-
       <Dropdown
         id="animations"
-        label="Animations"
-        value={settings.animations}
+        label="animations"
+        value={settings.animations || 'allow'}
         handleSelect={handleSelect}
       >
         <MenuItem value="disabled">disabled</MenuItem>
         <MenuItem value="allow">allow</MenuItem>
       </Dropdown>
+      { settings.type === "png" ?
+        <Dropdown
+          id="omitBackground"
+          label="omitBackground"
+          value={settings.omitBackground?.toString() || "false"}
+          handleSelect={handleSelect}
+        >
+          <MenuItem value="true">true</MenuItem>
+          <MenuItem value="false">false</MenuItem>
+        </Dropdown>
+        : null
+      }
       <Dropdown
-        id="omitBackground"
-        label="Omit background"
-        value={settings.omitBackground?.toString()}
+        id="caret"
+        label="caret"
+        value={settings.caret || "hide"}
+        handleSelect={handleSelect}
+      >
+        <MenuItem value="hide">hide</MenuItem>
+        <MenuItem value="initial">initial</MenuItem>
+      </Dropdown>
+      <Dropdown
+        id="fullPage"
+        label="fullPage"
+        value={settings.fullPage?.toString() || "false"}
         handleSelect={handleSelect}
       >
         <MenuItem value="true">true</MenuItem>
         <MenuItem value="false">false</MenuItem>
       </Dropdown>
       <Dropdown
-        id="caret"
-        label="Caret"
-        value={settings.caret}
+        id="scale"
+        label="scale"
+        value={settings.scale || "device"}
         handleSelect={handleSelect}
       >
-        <MenuItem value="hide">hide</MenuItem>
-        <MenuItem value="initial">initial</MenuItem>
+        <MenuItem value="css">css</MenuItem>
+        <MenuItem value="device">device</MenuItem>
       </Dropdown>
+      <TextField
+        type="string"
+        id = "path"
+        label="path"
+        size='small'
+        onChange={handleInput}
+      />
     </SettingsWrapper>
   );
 });

@@ -6,6 +6,8 @@ import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/themes/prism.css';
 import styled from "styled-components";
+import InfoIcon from '@mui/icons-material/Info';
+import { WarningText } from "../../atoms/texts";
 
 export const ScriptSettings = forwardRef((props, ref) => {
   const [code, setCode] = React.useState('');
@@ -18,6 +20,11 @@ export const ScriptSettings = forwardRef((props, ref) => {
 
   return (
     <EditorWrapper>
+      <WarningText>
+        <InfoIcon color='warning'/>
+        Allows to run an arbitrary asynchronous function evaluated at the server
+        side accepting the current page instance argument.
+      </WarningText>
       <StyledEditor
         placeholder="Type some code…"
         value={code}
