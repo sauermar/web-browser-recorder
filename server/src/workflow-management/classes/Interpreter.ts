@@ -115,6 +115,8 @@ export class WorkflowInterpreter {
   };
 
   public InterpretRecording = async (workflow: WorkflowFile, page: Page, settings: InterpreterSettings) => {
+    const params = settings.params ? settings.params : null;
+    delete settings.params;
     const options = {
       ...settings,
       debugChannel: {
@@ -141,7 +143,7 @@ export class WorkflowInterpreter {
     const interpreter = new Interpreter(workflow, options);
     this.interpreter = interpreter;
 
-    const result = await interpreter.run(page);
+    const result = await interpreter.run(page, params);
 
     logger.log('debug',`Interpretation finished`);
     this.interpreter = null;

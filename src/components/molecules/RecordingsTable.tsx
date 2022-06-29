@@ -15,7 +15,7 @@ import { useGlobalInfoStore } from "../../context/globalInfo";
 import { deleteRecordingFromStorage, getStoredRecordings } from "../../api/storage";
 
 interface Column {
-  id: 'interpret' | 'name' | 'create_date' | 'edit' | 'task' | 'pairs' | 'update_date'| 'delete';
+  id: 'interpret' | 'name' | 'create_date' | 'edit' | 'pairs' | 'update_date'| 'delete';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -34,11 +34,6 @@ const columns: readonly Column[] = [
   {
     id: 'edit',
     label: 'Edit',
-    minWidth: 80,
-  },
-  {
-    id: 'task',
-    label: 'Run task',
     minWidth: 80,
   },
   {
@@ -168,12 +163,6 @@ export const RecordingsTable = ({ handleEditRecording, handleRunRecording }: Rec
                                 </IconButton>
                               </TableCell>
                             );
-                          case 'task':
-                            return (
-                              <TableCell key={column.id} align={column.align}>
-                                <CreateTaskButton disabled={row.params?.length === 0 || true}/>
-                              </TableCell>
-                            );
                           case 'delete':
                             return (
                               <TableCell key={column.id} align={column.align}>
@@ -226,19 +215,6 @@ const InterpretButton = ( {handleInterpret}:InterpretButtonProps) => {
     }}
                 sx={{'&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}>
       <PlayCircle/>
-    </IconButton>
-  )
-}
-
-interface CreateTaskButtonProps {
-  disabled?: boolean
-}
-
-const CreateTaskButton = ({ disabled }: CreateTaskButtonProps) => {
-  return (
-    <IconButton aria-label="add" disabled={disabled} size= "small" onClick={() => console.log('button clicked')}
-                sx={{'&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}>
-      <Assignment/>
     </IconButton>
   )
 }

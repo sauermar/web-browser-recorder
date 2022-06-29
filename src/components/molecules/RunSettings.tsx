@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GenericModal } from "../atoms/GenericModal";
-import { MenuItem, TextField } from "@mui/material";
+import { MenuItem, TextField, Typography } from "@mui/material";
 import { Dropdown } from "../atoms/DropdownMui";
 import Button from "@mui/material/Button";
 
@@ -8,15 +8,18 @@ interface RunSettingsProps {
   isOpen: boolean;
   handleStart: (settings: RunSettings) => void;
   handleClose: () => void;
+  isTask: boolean;
+  params?: string[];
 }
 
 export interface RunSettings {
-  maxConcurrency: number,
-  maxRepeats: number,
-  debug: boolean,
+  maxConcurrency: number;
+  maxRepeats: number;
+  debug: boolean;
+  params?: any;
 }
 
-export const RunSettingsModal = ({ isOpen, handleStart, handleClose }: RunSettingsProps) => {
+export const RunSettingsModal = ({ isOpen, handleStart, handleClose, isTask, params }: RunSettingsProps) => {
 
   const [settings, setSettings] = React.useState<RunSettings>({
     maxConcurrency: 1,
@@ -35,6 +38,35 @@ export const RunSettingsModal = ({ isOpen, handleStart, handleClose }: RunSettin
         alignItems: 'flex-start',
         marginLeft: '65px',
       }}>
+        { isTask
+          ?
+          (
+            <React.Fragment>
+            <Typography>Recording parameters:</Typography>
+              { params?.map((item, index) => {
+            return <TextField
+              key={`param-${index}`}
+              type="string"
+              label={item}
+              required
+              onChange={(e) => setSettings(
+                {
+                  ...settings,
+                  params: settings.params
+                    ? {
+                    ...settings.params,
+                    [item]: e.target.value,
+                  }
+                  : {
+                    [item]: e.target.value,
+                  },
+                })}
+            />
+          }) }
+            </React.Fragment>)
+          : null
+        }
+        <Typography>Interpreter settings:</Typography>
         <TextField
           sx={{ marginLeft: '15px' }}
           type="number"

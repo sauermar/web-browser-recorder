@@ -77,7 +77,7 @@ router.put('/runs/:fileName', async (req, res) => {
       startedAt: new Date().toLocaleString(),
       finishedAt: '',
       duration: '',
-      task: '',
+      task: req.body.params ? 'task-1' : '',
       browserId: id,
       interpreterSettings: req.body,
     };

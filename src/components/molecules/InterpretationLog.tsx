@@ -33,7 +33,7 @@ export const InterpretationLog = () => {
 
   const handleSerializableCallback = useCallback((data: string) => {
     setLog((prevState) =>
-      prevState + '\n' + data);
+      prevState + '\n' + JSON.stringify(data, null, 2));
     scrollLogToBottom();
   }, [log, scrollLogToBottom])
 

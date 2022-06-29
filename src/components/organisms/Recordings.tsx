@@ -12,13 +12,16 @@ interface RecordingsProps {
 
 export const Recordings = ({ handleEditRecording, handleRunRecording, setFileName }: RecordingsProps) => {
   const [runSettingsAreOpen, setRunSettingsAreOpen] = useState(false);
+  const [params, setParams] = useState<string[]>([]);
 
   const handleSettingsAndRun = (fileName: string, params: string[]) => {
     if (params.length === 0) {
       setRunSettingsAreOpen(true);
       setFileName(fileName);
     } else {
-
+      setParams(params);
+      setRunSettingsAreOpen(true);
+      setFileName(fileName);
     }
   }
 
@@ -39,7 +42,10 @@ export const Recordings = ({ handleEditRecording, handleRunRecording, setFileNam
         />
         <RunSettingsModal isOpen={runSettingsAreOpen}
                           handleClose={handleClose}
-                          handleStart={ (settings) => handleRunRecording(settings) }/>
+                          handleStart={ (settings) => handleRunRecording(settings) }
+                          isTask={params.length !== 0}
+                          params={params}
+        />
       </Grid>
     </Grid>
   );
