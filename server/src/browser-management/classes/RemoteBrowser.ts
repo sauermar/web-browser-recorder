@@ -125,6 +125,7 @@ export class RemoteBrowser {
      * Terminates the remote browser.
      */
     public switchOff = async() : Promise<void> => {
+        await this.interpreter.stopInterpretation();
         if (this.browser) {
             await this.stopScreencast();
             await this.browser.close();

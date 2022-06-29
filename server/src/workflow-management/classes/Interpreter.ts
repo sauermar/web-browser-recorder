@@ -108,7 +108,12 @@ export class WorkflowInterpreter {
     if (this.interpreter) {
       logger.log('info', 'Stopping the interpretation.');
       await this.interpreter.stop();
+      this.debugMessages = [];
+      this.interpretationIsPaused = false;
+      this.activeId = null;
       this.interpreter = null;
+      this.breakpoints = [];
+      this.interpretationResume = null;
     } else {
       logger.log('error', 'Cannot stop: No active interpretation.');
     }
