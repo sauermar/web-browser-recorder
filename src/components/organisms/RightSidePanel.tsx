@@ -33,7 +33,7 @@ export const RightSidePanel = ({pairForEdit}: RightSidePanelProps) => {
   };
 
   useEffect(() => {
-    if (content !== 'detail') {
+    if (content !== 'detail' && pairForEdit.pair !== null) {
       setContent('detail');
     }
   }, [pairForEdit])
