@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import { WhereWhatPair } from "@wbr-project/wbr-interpret";
 import { IconButton, Stack, TextField, Typography } from "@mui/material";
 import { Close, KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
@@ -7,8 +7,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TreeItem from '@mui/lab/TreeItem';
 import { AddButton } from "../atoms/buttons/AddButton";
-import Button from "@mui/material/Button";
-import { UpdatePair } from "../../api/workflow";
+import { WarningText } from "../atoms/texts";
+import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
 
 interface PairDetailProps {
   pair: WhereWhatPair | null;
@@ -236,12 +236,10 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
             }
           </div>
         )
-        : <Typography sx={{
-          padding: '15px',
-          border: 'solid 2px red',
-          marginTop: '10px',
-          background: 'rgba(255,0,0,0.1)'
-        }}>Please select a pair in the left side panel.</Typography>
+        : <WarningText>
+          <NotificationImportantIcon color="warning"/>
+          No pair from the left side panel was selected.
+          </WarningText>
     }
     </React.Fragment>
   );
