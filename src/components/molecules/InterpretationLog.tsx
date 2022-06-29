@@ -31,10 +31,26 @@ export const InterpretationLog = () => {
     scrollLogToBottom();
   }, [log, scrollLogToBottom])
 
+  const handleSerializableCallback = useCallback((data: string) => {
+    setLog((prevState) =>
+      prevState + '\n' + data);
+    scrollLogToBottom();
+  }, [log, scrollLogToBottom])
+
+  const handleBinaryCallback = useCallback(({data, mimetype}: any) => {
+    setLog((prevState) =>
+    prevState + '\n' + JSON.parse(data));
+    scrollLogToBottom();
+  }, [log, scrollLogToBottom])
+
   useEffect(() => {
     socket?.on('log', handleLog);
+    socket?.on('serializableCallback', handleSerializableCallback);
+    socket?.on('binaryCallback', handleBinaryCallback);
     return () => {
       socket?.off('log', handleLog);
+      socket?.off('serializableCallback', handleSerializableCallback);
+      socket?.off('binaryCallback', handleBinaryCallback);
     }
   }, [socket, handleLog])
 

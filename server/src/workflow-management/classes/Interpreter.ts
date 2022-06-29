@@ -3,6 +3,7 @@ import logger from "../../logger";
 import { Socket } from "socket.io";
 import { Page } from "playwright";
 import { InterpreterSettings } from "../../types";
+import { saveFile } from "../storage";
 
 
 export class WorkflowInterpreter {
@@ -127,11 +128,13 @@ export class WorkflowInterpreter {
         },
       },
       serializableCallback: (data: any) => {
+        console.log(data);
         this.socket.emit('serializableCallback', data);
       },
-      binaryCallback: (data: string, mimetype: string) => {
+      binaryCallback: async (data: string, mimetype: string) => {
         console.log(data);
         this.socket.emit('binaryCallback', {data, mimetype});
+        await saveFile(`../storage/binary.${mimetype}`, data);
       }
     }
 
