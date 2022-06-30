@@ -47,7 +47,7 @@ const BrowserNavBar: FC<NavBarProps> = ({
     handleUrlChanged(url);
     setCurrentUrl(url);
     console.log("Current url: " + url);
-  }, [handleUrlChanged]);
+  }, [handleUrlChanged, currentUrl]);
 
   useEffect(() => {
     getCurrentUrl().then((response) => {

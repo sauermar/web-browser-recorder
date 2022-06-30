@@ -1,6 +1,6 @@
 import { IconButton, Stack } from "@mui/material";
 import { PauseCircle, PlayCircle, StopCircle } from "@mui/icons-material";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { interpretCurrentRecording, stopCurrentInterpretation } from "../../api/recording";
 import { useSocketStore } from "../../context/socket";
 import { useGlobalInfoStore } from "../../context/globalInfo";
@@ -25,19 +25,27 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
   const { socket } = useSocketStore();
   const { notify } = useGlobalInfoStore();
 
+  const finishedHandler = useCallback(() => {
+    setInfo({...info, isPaused: false});
+    enableStepping(false);
+  }, [info, enableStepping]);
+
+  const breakpointHitHandler = useCallback(() => {
+    setInfo({running: false, isPaused: true});
+    notify('warning', 'Please restart the interpretation, after updating the recording');
+    enableStepping(true);
+  }, [info, enableStepping]);
+
   useEffect(() => {
     if (socket) {
-      socket.on('finished', () => {
-        setInfo({...info, isPaused: false});
-        enableStepping(false);
-      });
-      socket.on('breakpointHit', () => {
-        setInfo({running: false, isPaused: true});
-        notify('warning', 'Please restart the interpretation, after updating the recording');
-        enableStepping(true);
-      });
+      socket.on('finished', finishedHandler);
+      socket.on('breakpointHit', breakpointHitHandler);
     }
-  }, [socket, setInfo, enableStepping]);
+    return () => {
+      socket?.off('finished', finishedHandler);
+      socket?.off('breakpointHit', breakpointHitHandler);
+    }
+  }, [socket, finishedHandler, breakpointHitHandler]);
 
   const handlePlay = async () => {
     if (info.isPaused) {

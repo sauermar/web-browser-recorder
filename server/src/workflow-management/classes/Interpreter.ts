@@ -99,6 +99,7 @@ export class WorkflowInterpreter {
 
     logger.log('debug',`Interpretation finished`);
     this.interpreter = null;
+    this.socket.emit('activePairId', -1);
     this.interpretationIsPaused = false;
     this.interpretationResume = null;
     this.socket.emit('finished');

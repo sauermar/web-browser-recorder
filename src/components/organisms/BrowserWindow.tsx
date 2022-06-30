@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSocketStore } from '../../context/socket';
 import Canvas from "../atoms/canvas";
 import { useBrowserDimensionsStore } from "../../context/browserDimensions";
@@ -28,31 +28,39 @@ export const BrowserWindow = () => {
         }
     };
 
+    const screencastHandler = useCallback((data: string) => {
+        setScreenShot(data);
+    }, [screenShot]);
+
     useEffect(() =>  {
         if (socket) {
-            socket.on("screencast", data => {
-                setScreenShot(data);
-            });
+            socket.on("screencast", screencastHandler);
         }
         if (canvasRef?.current) {
             drawImage(screenShot, canvasRef.current);
         } else {
             console.log('Canvas is not initialized');
         }
+        return () => {
+            socket?.off("screencast", screencastHandler);
+        }
 
-    }, [screenShot, canvasRef, socket]);
+    }, [screenShot, canvasRef, socket, screencastHandler]);
 
+
+    const highlighterHandler = useCallback((data: {rect: DOMRect, selector: string}) => {
+        setHighlighterData(data);
+    }, [highlighterData])
 
     useEffect(() =>  {
         document.addEventListener('mousemove', onMouseMove, false);
         if (socket) {
-            socket.on("highlighter", data => {
-                setHighlighterData(data);
-            });
+            socket.on("highlighter", highlighterHandler);
         }
         //cleaning function
         return () => {
             document.removeEventListener('mousemove', onMouseMove);
+            socket?.off("highlighter", highlighterHandler);
         };
     }, [socket, onMouseMove]);
 

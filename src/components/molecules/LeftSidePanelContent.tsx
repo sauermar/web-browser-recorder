@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { TreeView } from "@mui/lab";
@@ -8,6 +8,7 @@ import { Pair } from "./Pair";
 import { WhereWhatPair, WorkflowFile } from "@wbr-project/wbr-interpret";
 import { useSocketStore } from "../../context/socket";
 import { SaveRecording } from "./SaveRecording";
+import { Socket } from "socket.io-client";
 
 interface LeftSidePanelContentProps {
   workflow: WorkflowFile;
@@ -23,15 +24,19 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow, recordingName, 
 
   const { socket } = useSocketStore();
 
+  const activePairIdHandler = useCallback((data: string, socket: Socket) => {
+    setActiveId(parseInt(data) + 1);
+    // -1 is specially emitted when the interpretation finishes
+    if (parseInt(data) === -1) {
+      return;
+    }
+    socket.emit('activeIndex', data);
+  }, [activeId])
+
   useEffect(() => {
-    if (socket) {
-      socket.on("activePairId", data => {
-        setActiveId(parseInt(data) + 1);
-        socket.emit('activeIndex', data);
-      });
-      socket?.on('finished', () => {
-        setActiveId(0);
-      });
+    socket?.on("activePairId", (data) => activePairIdHandler(data, socket));
+    return () => {
+      socket?.off("activePairId", (data) => activePairIdHandler(data, socket));
     }
   }, [socket, setActiveId]);
 

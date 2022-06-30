@@ -41,6 +41,29 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
     setRunningRecordingName(fileName);
   }
 
+  const readyForRunHandler = useCallback((id: string) => {
+    interpretStoredRecording(runningRecordingName).then(interpretation => {
+      console.log(`was aborted: ${aborted}`)
+      if (!aborted) {
+        if (interpretation) {
+          notify('success', `Interpretation of ${runningRecordingName} succeeded`);
+        } else {
+          notify('success', `Failed to interpret ${runningRecordingName} recording`);
+          // destroy the created browser
+          stopRecording(id);
+        }
+      }
+      setRunningRecordingName('');
+      setCurrentInterpretationLog('');
+      setRerenderRuns(true);
+    })
+  }, [runningRecordingName, aborted, currentInterpretationLog, notify, setRerenderRuns]);
+
+  const debugMessageHandler = useCallback((msg: string) => {
+    setCurrentInterpretationLog((prevState) =>
+      prevState + '\n' + `[${new Date().toLocaleString()}] ` + msg);
+  }, [currentInterpretationLog])
+
   const handleRunRecording = useCallback((settings: RunSettings) => {
     createRunForStoredRecording(runningRecordingName, settings).then(id => {
       setRemoteBrowserId(id);
@@ -50,28 +73,8 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
           rejectUnauthorized: false
         });
       setSockets(sockets => [...sockets, socket]);
-      socket.on('ready-for-run', () => {
-        interpretStoredRecording(runningRecordingName).then(interpretation => {
-          console.log(`was aborted: ${aborted}`)
-          if (!aborted) {
-            if (interpretation) {
-              notify('success', `Interpretation of ${runningRecordingName} succeeded`);
-            } else {
-              notify('success', `Failed to interpret ${runningRecordingName} recording`);
-              // destroy the created browser
-              stopRecording(id);
-            }
-          }
-          setRunningRecordingName('');
-          setCurrentInterpretationLog('');
-          setRerenderRuns(true);
-        })
-      })
-      socket.on("connect_error", (err) => console.log(`connect_error due to ${err.message}`));
-      socket.on('debugMessage', (msg: string) => {
-        setCurrentInterpretationLog((prevState) =>
-          prevState + '\n' + `[${new Date().toLocaleString()}] ` + msg);
-      });
+      socket.on('ready-for-run', () => readyForRunHandler(id))
+      socket.on('debugMessage', debugMessageHandler);
       setContent('runs');
       if (id) {
         notify('info', `Running recording: ${runningRecordingName}`);
@@ -79,7 +82,11 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
         notify('error', `Failed to run recording: ${runningRecordingName}`);
       }
     });
-  }, [runningRecordingName, aborted, sockets, remoteBrowserId])
+    return (socket: Socket, id: string) => {
+      socket.off('ready-for-run', () => readyForRunHandler(id));
+      socket.off('debugMessage', debugMessageHandler);
+    }
+  }, [runningRecordingName, sockets, remoteBrowserId, readyForRunHandler, debugMessageHandler])
 
   const DisplayContent = () => {
     switch (content) {

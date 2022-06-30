@@ -1,5 +1,5 @@
 import { Paper } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { getActiveWorkflow } from "../../api/workflow";
 import { useSocketStore } from '../../context/socket';
 import { WhereWhatPair, WorkflowFile } from "@wbr-project/wbr-interpret";
@@ -36,6 +36,10 @@ export const LeftSidePanel = (
 
   const { setWidth, width } = useBrowserDimensionsStore();
 
+  const workflowHandler = useCallback((data: WorkflowFile) => {
+    setWorkflow(data);
+  }, [workflow])
+
   useEffect(() => {
     // fetch the workflow every time the id changes
     if (id) {
@@ -53,9 +57,7 @@ export const LeftSidePanel = (
 
   useEffect(() => {
     if (socket) {
-      socket.on("workflow", data => {
-        setWorkflow(data);
-      });
+      socket.on("workflow", workflowHandler);
     }
 
     if (sidePanelRef) {
@@ -73,7 +75,11 @@ export const LeftSidePanel = (
         }
       }
     }
-  }, [workflow, socket]);
+
+    return () => {
+      socket?.off('workflow', workflowHandler);
+    }
+  }, [socket, workflowHandler]);
 
   return (
     <Paper
