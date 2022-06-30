@@ -16,18 +16,18 @@ export const NavBar = ({newRecording}:NavBarProps) => {
 
   // If recording is in progress, the resources and change page view by setting browserId to null
   // else it won't affect the page
-  const goToMainMenu = () => {
+  const goToMainMenu = async() => {
     if (browserId) {
-      stopRecording(browserId);
+      await stopRecording(browserId);
       notify('warning', 'Current Recording was terminated');
       setBrowserId(null);
     }
   };
 
-  const handleNewRecording = () => {
+  const handleNewRecording = async () => {
     if (browserId) {
-      stopRecording(browserId);
       setBrowserId(null);
+      await stopRecording(browserId);
     }
     newRecording();
     notify('info', 'New Recording started');
@@ -48,13 +48,18 @@ export const NavBar = ({newRecording}:NavBarProps) => {
       }}>
         <AddButton
           handleClick={handleNewRecording}
-          title="New Recording"
+          title="NEW RECORDING"
           style={{
             borderRadius: '5px',
             padding: '9px',
             background: 'rgba(25, 118, 210, 0.8)',
             color: '#fff',
             marginRight: '10px',
+            fontFamily: '"Roboto","Helvetica","Arial",sans-serif',
+            fontWeight: '500',
+            fontSize: '0.875rem',
+            lineHeight: '1.75',
+            letterSpacing: '0.02857em',
           }}
         />
         <Button sx={{

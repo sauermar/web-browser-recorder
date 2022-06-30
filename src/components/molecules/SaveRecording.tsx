@@ -26,24 +26,24 @@ export const SaveRecording = ({workflowLength, fileName}: SaveRecordingProps) =>
     setRecordingName(value);
   }
 
-  const handleSaveRecording = (event: React.SyntheticEvent) => {
+  const handleSaveRecording = async (event: React.SyntheticEvent) => {
     event.preventDefault();
     if (recordings.includes(recordingName)) {
       notify('warning', 'Recording already exists, please confirm the overwrite');
       if (needConfirm) { return; }
       setNeedConfirm(true);
     } else {
-      saveRecording();
+      await saveRecording();
     }
   };
 
   // notifies backed to save the recording in progress,
   // releases resources and changes the view for main page by clearing the global browserId
-  const saveRecording = () => {
+  const saveRecording = async () => {
     socket?.emit('save', recordingName)
     notify('success', 'Recording saved successfully');
     if (browserId) {
-      stopRecording(browserId);
+      await stopRecording(browserId);
     }
     setBrowserId(null);
   }

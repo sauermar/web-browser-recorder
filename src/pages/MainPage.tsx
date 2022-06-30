@@ -27,10 +27,10 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
 
   const abortRunHandler = () => {
     aborted = true;
-    notifyAboutAbort(runningRecordingName).then((response) => {
+    notifyAboutAbort(runningRecordingName).then(async (response) => {
       if (response) {
         notify('success', `Interpretation of ${runningRecordingName} aborted successfully`);
-        stopRecording(remoteBrowserId);
+        await stopRecording(remoteBrowserId);
       } else {
         notify('error', `Failed to abort the interpretation ${runningRecordingName} recording`);
       }
@@ -41,8 +41,8 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
     setRunningRecordingName(fileName);
   }
 
-  const readyForRunHandler = useCallback((id: string) => {
-    interpretStoredRecording(runningRecordingName).then(interpretation => {
+  const readyForRunHandler = useCallback( (id: string) => {
+    interpretStoredRecording(runningRecordingName).then( async (interpretation: boolean) => {
       console.log(`was aborted: ${aborted}`)
       if (!aborted) {
         if (interpretation) {
@@ -50,7 +50,7 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
         } else {
           notify('success', `Failed to interpret ${runningRecordingName} recording`);
           // destroy the created browser
-          stopRecording(id);
+          await stopRecording(id);
         }
       }
       setRunningRecordingName('');

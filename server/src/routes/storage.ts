@@ -68,7 +68,7 @@ router.put('/runs/:fileName', async (req, res) => {
   try {
     const id = await createRemoteBrowserForRun({
       browser: chromium,
-      launchOptions: { headless: true }
+      launchOptions: { headless: false }
     });
 
     const run_meta = {

@@ -32,7 +32,7 @@ router.get('/start', (req, res) => {
     const id = createRemoteBrowser({
         browser: chromium,
         launchOptions: {
-            headless: true,
+            headless: false,
         }
     });
     return res.send(id);
