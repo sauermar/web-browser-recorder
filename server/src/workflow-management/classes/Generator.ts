@@ -241,7 +241,9 @@ export class WorkflowGenerator {
 
   private removeAllGeneratedFlags = (workflow: WorkflowFile): WorkflowFile => {
       for (let i = 0; i < workflow.workflow.length; i++) {
-        if (workflow.workflow[i].what[0].action === 'flag' &&
+        if (
+          workflow.workflow[i].what[0] &&
+          workflow.workflow[i].what[0].action === 'flag' &&
           workflow.workflow[i].what[0].args?.includes('generated')) {
           workflow.workflow[i].what.splice(0, 1);
         }
