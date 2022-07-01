@@ -7,16 +7,21 @@ interface ModalProps {
   onClose: () => void;
   children?: JSX.Element;
   modalStyle?: React.CSSProperties;
+  canBeClosed?: boolean;
 }
 
-export const GenericModal: FC<ModalProps> = ({ isOpen, onClose, children, modalStyle }) => {
+export const GenericModal: FC<ModalProps> = (
+  { isOpen, onClose, children, modalStyle , canBeClosed= true}) => {
 
   return (
-        <Modal open={isOpen} onClose={onClose} >
+        <Modal open={isOpen} onClose={canBeClosed ? onClose : ()=>{}} >
           <Box sx={modalStyle ?  {...modalStyle,   boxShadow: 24, position: 'absolute',} : defaultModalStyle}>
-          <IconButton onClick={onClose} sx={{float: "right"}}>
-            <Clear sx={{ fontSize: 20 }}/>
-          </IconButton>
+            {canBeClosed ?
+              <IconButton onClick={onClose} sx={{ float: "right" }}>
+                <Clear sx={{ fontSize: 20 }}/>
+              </IconButton>
+              : null
+            }
             {children}
           </Box>
         </Modal>

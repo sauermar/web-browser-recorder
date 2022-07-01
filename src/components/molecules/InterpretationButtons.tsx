@@ -1,9 +1,12 @@
-import { IconButton, Stack } from "@mui/material";
+import { Button, IconButton, Stack, Typography } from "@mui/material";
 import { PauseCircle, PlayCircle, StopCircle } from "@mui/icons-material";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { interpretCurrentRecording, stopCurrentInterpretation } from "../../api/recording";
 import { useSocketStore } from "../../context/socket";
 import { useGlobalInfoStore } from "../../context/globalInfo";
+import { GenericModal } from "../atoms/GenericModal";
+import { WhereWhatPair } from "@wbr-project/wbr-interpret";
+import HelpIcon from '@mui/icons-material/Help';
 
 interface InterpretationButtonsProps {
   enableStepping: (isPaused: boolean) => void;
@@ -21,6 +24,11 @@ const interpretationInfo: InterpretationInfo = {
 
 export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsProps) => {
   const [info, setInfo] = React.useState<InterpretationInfo>(interpretationInfo);
+  const [decisionModal, setDecisionModal] = useState<{
+    pair: WhereWhatPair | null,
+    actionType: string,
+    open:boolean
+  }>({ pair: null, actionType: '', open: false} );
 
   const { socket } = useSocketStore();
   const { notify } = useGlobalInfoStore();
@@ -36,14 +44,42 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
     enableStepping(true);
   }, [info, enableStepping]);
 
+  const decisionHandler = useCallback(({pair, actionType} : {pair: WhereWhatPair | null, actionType: string}) => {
+    setDecisionModal((prevState) => {
+      return {
+        pair,
+        actionType,
+        open: true,
+      }
+    })
+  }, [decisionModal]);
+
+  const handleDecision = (decision: boolean) => {
+    const {pair, actionType} = decisionModal;
+    socket?.emit('decision', {pair, actionType, decision});
+    setDecisionModal({pair: null, actionType: '', open: false});
+  }
+
+  const handleDescription = () => {
+    switch (decisionModal.actionType){
+      case 'customAction':
+        return ( <Typography>
+          Do you want to use the previously recorded selector as a where condition for the action?
+        </Typography> );
+      default: return null;
+    }
+  }
+
   useEffect(() => {
     if (socket) {
       socket.on('finished', finishedHandler);
       socket.on('breakpointHit', breakpointHitHandler);
+      socket.on('decision', decisionHandler);
     }
     return () => {
       socket?.off('finished', finishedHandler);
       socket?.off('breakpointHit', breakpointHitHandler);
+      socket?.off('decision', decisionHandler);
     }
   }, [socket, finishedHandler, breakpointHitHandler]);
 
@@ -100,6 +136,32 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
         <StopCircle sx={{ fontSize: 30, justifySelf:'center' }}/>
         Stop
       </IconButton>
+      <GenericModal onClose={() => {}} isOpen={decisionModal.open} canBeClosed={false}
+      modalStyle={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 500,
+        background: 'white',
+        border: '2px solid #000',
+        boxShadow: '24',
+        height:'18%',
+        display:'block',
+        overflow:'scroll',
+        padding: '5px 25px 10px 25px',
+      }}>
+        <div style={{padding: '15px'}}>
+          <HelpIcon/>
+          {
+            handleDescription()
+          }
+          <div style={{float: 'right'}}>
+          <Button onClick={() => handleDecision(true)} color='success'>yes</Button>
+          <Button onClick={() => handleDecision(false)} color='error'>no</Button>
+          </div>
+        </div>
+      </GenericModal>
     </Stack>
   );
 };

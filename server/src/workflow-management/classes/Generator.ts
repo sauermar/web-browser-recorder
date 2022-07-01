@@ -15,6 +15,7 @@ import { workflow } from "../../routes";
 import { readFile, saveFile } from "../storage";
 import fs from "fs";
 import { getBestSelectorForAction } from "../utils";
+import { browserPool } from "../../server";
 
 interface PersistedGeneratedData {
   lastUsedSelector: string;
@@ -40,6 +41,22 @@ export class WorkflowGenerator {
       workflow: [],
     } );
     socket.on('activeIndex', (data) => this.generatedData.lastIndex = parseInt(data));
+    socket.on('decision', async ({pair, actionType, decision}) => {
+      const id = browserPool.getActiveBrowserId();
+      const activeBrowser = browserPool.getRemoteBrowser(id);
+      const currentPage = activeBrowser?.getCurrentPage();
+      if (decision) {
+        switch (actionType) {
+          case 'customAction':
+            pair.where.selectors = [this.generatedData.lastUsedSelector];
+            break;
+          default: break;
+        }
+      }
+      if (currentPage) {
+        await this.addPairToWorkflowAndNotifyClient(pair, currentPage);
+      }
+    })
   }
 
   private workflowRecord: WorkflowFile = {
@@ -64,8 +81,6 @@ export class WorkflowGenerator {
     let matched = false;
     // validate if a pair with the same where conditions is already present in the workflow
     if (pair.what[0].args && pair.what[0].args.length > 0) {
-      //TODO not sure about validity
-      this.generatedData.lastUsedSelector = pair.what[0].args[0];
       const match = selectorAlreadyInWorkflow(pair.what[0].args[0], this.workflowRecord.workflow);
       if (match) {
         // if a match of where conditions is found, the new action is added into the matched rule
@@ -131,6 +146,9 @@ export class WorkflowGenerator {
         args: [selector],
       }],
     }
+    if (selector) {
+      this.generatedData.lastUsedSelector = selector;
+    }
     await this.addPairToWorkflowAndNotifyClient(pair, page);
   };
 
@@ -161,6 +179,9 @@ export class WorkflowGenerator {
         args: [selector, key],
       }],
     }
+    if (selector) {
+      this.generatedData.lastUsedSelector = selector;
+    }
     await this.addPairToWorkflowAndNotifyClient(pair, page);
   };
 
@@ -173,11 +194,11 @@ export class WorkflowGenerator {
       }],
     }
 
-    // update the where conditions according to the action's logic
     if (this.generatedData.lastUsedSelector) {
-      pair.where.selectors = [this.generatedData.lastUsedSelector];
+      this.socket.emit('decision', { pair, actionType: 'customAction' });
+    } else {
+      await this.addPairToWorkflowAndNotifyClient(pair, page);
     }
-    await this.addPairToWorkflowAndNotifyClient(pair, page);
   };
 
   public getWorkflowFile = () => {
