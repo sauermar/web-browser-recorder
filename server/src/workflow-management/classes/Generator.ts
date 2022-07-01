@@ -80,8 +80,9 @@ export class WorkflowGenerator {
   private addPairToWorkflowAndNotifyClient = async(pair: WhereWhatPair, page: Page) => {
     let matched = false;
     // validate if a pair with the same where conditions is already present in the workflow
-    if (pair.what[0].args && pair.what[0].args.length > 0) {
-      const match = selectorAlreadyInWorkflow(pair.what[0].args[0], this.workflowRecord.workflow);
+    if (pair.where.selectors && pair.where.selectors[0]) {
+      const match = selectorAlreadyInWorkflow(pair.where.selectors[0], this.workflowRecord.workflow);
+      console.log(match, 'Does the new pair have previously recorded selectors?')
       if (match) {
         // if a match of where conditions is found, the new action is added into the matched rule
         const matchedIndex = this.workflowRecord.workflow.indexOf(match);
@@ -195,7 +196,7 @@ export class WorkflowGenerator {
     }
 
     if (this.generatedData.lastUsedSelector) {
-      this.socket.emit('decision', { pair, actionType: 'customAction' });
+      this.socket.emit('decision', { pair, actionType: 'customAction', selector: this.generatedData.lastUsedSelector });
     } else {
       await this.addPairToWorkflowAndNotifyClient(pair, page);
     }

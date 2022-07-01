@@ -1,4 +1,4 @@
-import { Button, IconButton, Stack, Typography } from "@mui/material";
+import { Box, Button, IconButton, Stack, Typography } from "@mui/material";
 import { PauseCircle, PlayCircle, StopCircle } from "@mui/icons-material";
 import React, { useCallback, useEffect, useState } from "react";
 import { interpretCurrentRecording, stopCurrentInterpretation } from "../../api/recording";
@@ -27,8 +27,9 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
   const [decisionModal, setDecisionModal] = useState<{
     pair: WhereWhatPair | null,
     actionType: string,
+    selector: string,
     open:boolean
-  }>({ pair: null, actionType: '', open: false} );
+  }>({ pair: null, actionType: '', selector: '', open: false} );
 
   const { socket } = useSocketStore();
   const { notify } = useGlobalInfoStore();
@@ -44,11 +45,13 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
     enableStepping(true);
   }, [info, enableStepping]);
 
-  const decisionHandler = useCallback(({pair, actionType} : {pair: WhereWhatPair | null, actionType: string}) => {
+  const decisionHandler = useCallback(({pair, actionType, selector}
+                                         : {pair: WhereWhatPair | null, actionType: string, selector: string}) => {
     setDecisionModal((prevState) => {
       return {
         pair,
         actionType,
+        selector,
         open: true,
       }
     })
@@ -57,14 +60,17 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
   const handleDecision = (decision: boolean) => {
     const {pair, actionType} = decisionModal;
     socket?.emit('decision', {pair, actionType, decision});
-    setDecisionModal({pair: null, actionType: '', open: false});
+    setDecisionModal({pair: null, actionType: '', selector: '', open: false});
   }
 
   const handleDescription = () => {
     switch (decisionModal.actionType){
       case 'customAction':
         return ( <Typography>
-          Do you want to use the previously recorded selector as a where condition for the action?
+          Do you want to use the previously recorded selector as a where condition for matching the action?
+          <Box>
+            <pre>{decisionModal.selector}</pre>
+          </Box>
         </Typography> );
       default: return null;
     }
@@ -146,7 +152,7 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
         background: 'white',
         border: '2px solid #000',
         boxShadow: '24',
-        height:'18%',
+        height:'fit-content',
         display:'block',
         overflow:'scroll',
         padding: '5px 25px 10px 25px',
