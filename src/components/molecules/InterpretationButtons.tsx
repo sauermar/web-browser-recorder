@@ -28,8 +28,9 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
     pair: WhereWhatPair | null,
     actionType: string,
     selector: string,
+    action: string,
     open:boolean
-  }>({ pair: null, actionType: '', selector: '', open: false} );
+  }>({ pair: null, actionType: '', selector: '', action: '', open: false} );
 
   const { socket } = useSocketStore();
   const { notify } = useGlobalInfoStore();
@@ -45,13 +46,16 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
     enableStepping(true);
   }, [info, enableStepping]);
 
-  const decisionHandler = useCallback(({pair, actionType, selector}
-                                         : {pair: WhereWhatPair | null, actionType: string, selector: string}) => {
+  const decisionHandler = useCallback(
+    ({pair, actionType, lastData}
+       : {pair: WhereWhatPair | null, actionType: string, lastData: { selector: string, action: string }}) => {
+      const {selector, action} = lastData;
     setDecisionModal((prevState) => {
       return {
         pair,
         actionType,
         selector,
+        action,
         open: true,
       }
     })
@@ -60,20 +64,21 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
   const handleDecision = (decision: boolean) => {
     const {pair, actionType} = decisionModal;
     socket?.emit('decision', {pair, actionType, decision});
-    setDecisionModal({pair: null, actionType: '', selector: '', open: false});
+    setDecisionModal({pair: null, actionType: '', selector: '', action: '', open: false});
   }
 
   const handleDescription = () => {
     switch (decisionModal.actionType){
       case 'customAction':
         return ( <Typography>
-          Do you want to use the previously recorded selector as a where condition for matching the action?
-          <Box>
+          Do you want to use the previously recorded selector
+          as a where condition for matching the action?
+          <Box style={{marginTop: '4px'}}>
+            [previous action: <b>{decisionModal.action}</b>]
             <pre>{decisionModal.selector}</pre>
           </Box>
         </Typography> );
-      default: return null;
-    }
+      default: return null;}
   }
 
   useEffect(() => {

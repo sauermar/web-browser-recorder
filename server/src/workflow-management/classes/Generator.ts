@@ -20,6 +20,7 @@ import { browserPool } from "../../server";
 interface PersistedGeneratedData {
   lastUsedSelector: string;
   lastIndex: number|null;
+  lastAction: string;
 }
 
 interface MetaData {
@@ -75,6 +76,7 @@ export class WorkflowGenerator {
   private generatedData: PersistedGeneratedData = {
     lastUsedSelector: '',
     lastIndex: null,
+    lastAction: '',
   }
 
   private addPairToWorkflowAndNotifyClient = async(pair: WhereWhatPair, page: Page) => {
@@ -149,6 +151,7 @@ export class WorkflowGenerator {
     }
     if (selector) {
       this.generatedData.lastUsedSelector = selector;
+      this.generatedData.lastAction = 'click';
     }
     await this.addPairToWorkflowAndNotifyClient(pair, page);
   };
@@ -182,6 +185,7 @@ export class WorkflowGenerator {
     }
     if (selector) {
       this.generatedData.lastUsedSelector = selector;
+      this.generatedData.lastAction = 'press';
     }
     await this.addPairToWorkflowAndNotifyClient(pair, page);
   };
@@ -196,7 +200,12 @@ export class WorkflowGenerator {
     }
 
     if (this.generatedData.lastUsedSelector) {
-      this.socket.emit('decision', { pair, actionType: 'customAction', selector: this.generatedData.lastUsedSelector });
+      this.socket.emit('decision', {
+        pair, actionType: 'customAction',
+        lastData: {
+          selector: this.generatedData.lastUsedSelector,
+          action: this.generatedData.lastAction,
+        } });
     } else {
       await this.addPairToWorkflowAndNotifyClient(pair, page);
     }

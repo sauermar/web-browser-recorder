@@ -20,6 +20,9 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
   const [collapseWhere, setCollapseWhere] = useState(true);
   const [collapseWhat, setCollapseWhat] = useState(true);
   const [rerender, setRerender] = useState(false);
+  const [expanded, _] = React.useState<string[]>(
+    pair ? Object.keys(pair.where).map((key, index) => `${key}-${index}`) : []
+  );
 
   const handleCollapseWhere = () => {
       setCollapseWhere(!collapseWhere);
@@ -148,6 +151,7 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
             )
           }
         }
+        break;
       default:
         return null;
     }
@@ -174,11 +178,12 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                 ? Object.keys(pair.where).map((key, index) => {
                   return (
                     <TreeView
+                      expanded={expanded}
                       defaultCollapseIcon={<ExpandMoreIcon />}
                       defaultExpandIcon={<ChevronRightIcon />}
                       sx={{ flexGrow: 1, overflowY: 'auto' }}
                     >
-                      <TreeItem nodeId={`${key}-${index}`} label={`${key}:`}>
+                      <TreeItem nodeId={`${key}-${index}`} label={`${key}:`} key={`${key}-${index}`}>
                         {
                           // @ts-ignore
                           DisplayValueContent(pair.where[key], key)
