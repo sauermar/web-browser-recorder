@@ -32,23 +32,10 @@ router.get('/:browserId', (req, res) => {
 
 router.delete('/pair/:index', (req, res) => {
   const id = browserPool.getActiveBrowserId();
-  const browser = browserPool.getRemoteBrowser(id);
-  if (browser && browser.generator) {
-    browser.generator?.removePairFromWorkflow(parseInt(req.params.index));
-    const workflowFile = browser.generator?.getWorkflowFile();
-    return res.send(workflowFile);
-  }
-  return res.send(null);
-});
-
-router.post('/pair/:index', (req, res) => {
-  const id = browserPool.getActiveBrowserId();
-  const browser = browserPool.getRemoteBrowser(id);
-  logger.log('debug', `Adding pair to workflow`);
-  if (browser && browser.generator) {
-    logger.log('debug', `Adding pair to workflow: ${JSON.stringify(req.body)}`);
-    if (req.body.pair) {
-      browser.generator?.addPairToWorkflow(parseInt(req.params.index), req.body.pair);
+  if (id) {
+    const browser = browserPool.getRemoteBrowser(id);
+    if (browser) {
+      browser.generator?.removePairFromWorkflow(parseInt(req.params.index));
       const workflowFile = browser.generator?.getWorkflowFile();
       return res.send(workflowFile);
     }
@@ -56,16 +43,35 @@ router.post('/pair/:index', (req, res) => {
   return res.send(null);
 });
 
+router.post('/pair/:index', (req, res) => {
+  const id = browserPool.getActiveBrowserId();
+  if (id) {
+    const browser = browserPool.getRemoteBrowser(id);
+    logger.log('debug', `Adding pair to workflow`);
+    if (browser) {
+      logger.log('debug', `Adding pair to workflow: ${JSON.stringify(req.body)}`);
+      if (req.body.pair) {
+        browser.generator?.addPairToWorkflow(parseInt(req.params.index), req.body.pair);
+        const workflowFile = browser.generator?.getWorkflowFile();
+        return res.send(workflowFile);
+      }
+    }
+  }
+  return res.send(null);
+});
+
 router.put('/pair/:index', (req, res) => {
   const id = browserPool.getActiveBrowserId();
-  const browser = browserPool.getRemoteBrowser(id);
-  logger.log('debug', `Updating pair in workflow`);
-  if (browser && browser.generator) {
-    logger.log('debug', `New value: ${JSON.stringify(req.body)}`);
-    if (req.body.pair) {
-      browser.generator?.updatePairInWorkflow(parseInt(req.params.index), req.body.pair);
-      const workflowFile = browser.generator?.getWorkflowFile();
-      return res.send(workflowFile);
+  if (id) {
+    const browser = browserPool.getRemoteBrowser(id);
+    logger.log('debug', `Updating pair in workflow`);
+    if (browser) {
+      logger.log('debug', `New value: ${JSON.stringify(req.body)}`);
+      if (req.body.pair) {
+        browser.generator?.updatePairInWorkflow(parseInt(req.params.index), req.body.pair);
+        const workflowFile = browser.generator?.getWorkflowFile();
+        return res.send(workflowFile);
+      }
     }
   }
   return res.send(null);

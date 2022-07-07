@@ -20,7 +20,7 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
   const [collapseWhere, setCollapseWhere] = useState(true);
   const [collapseWhat, setCollapseWhat] = useState(true);
   const [rerender, setRerender] = useState(false);
-  const [expanded, _] = React.useState<string[]>(
+  const [expanded, setExpanded] = React.useState<string[]>(
     pair ? Object.keys(pair.where).map((key, index) => `${key}-${index}`) : []
   );
 
@@ -31,6 +31,10 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
   const handleCollapseWhat = () => {
     setCollapseWhat(!collapseWhat);
   }
+
+  const handleToggle = (event: React.SyntheticEvent, nodeIds: string[]) => {
+    setExpanded(nodeIds);
+  };
 
   useLayoutEffect(() => {
     if (pair) {
@@ -162,7 +166,7 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
     {
       pairIsSelected
         ? (
-          <div style={{padding: '10px'}}>
+          <div style={{padding: '10px', overflow: 'hidden'}}>
             <Stack spacing={0} direction='row' sx={{
               display: 'flex',
               alignItems: 'center',
@@ -182,6 +186,7 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                       defaultCollapseIcon={<ExpandMoreIcon />}
                       defaultExpandIcon={<ChevronRightIcon />}
                       sx={{ flexGrow: 1, overflowY: 'auto' }}
+                      onNodeToggle={handleToggle}
                     >
                       <TreeItem nodeId={`${key}-${index}`} label={`${key}:`} key={`${key}-${index}`}>
                         {

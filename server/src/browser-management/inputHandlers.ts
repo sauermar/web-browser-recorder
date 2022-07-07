@@ -20,14 +20,14 @@ const handleWrapper = async (
   args?: any
 ) => {
     const id = browserPool.getActiveBrowserId();
-    const activeBrowser = browserPool.getRemoteBrowser(id);
-    if (activeBrowser) {
-        if (activeBrowser.interpreter.interpretationInProgress() && !activeBrowser.interpreter.interpretationIsPaused) {
+    if (id) {
+        const activeBrowser = browserPool.getRemoteBrowser(id);
+        if (activeBrowser?.interpreter.interpretationInProgress() && !activeBrowser.interpreter.interpretationIsPaused) {
             logger.log('debug', `Ignoring input, while interpretation is in progress`);
             return;
         }
-        const currentPage = activeBrowser.getCurrentPage();
-        if (currentPage) {
+        const currentPage = activeBrowser?.getCurrentPage();
+        if (currentPage && activeBrowser) {
             if (args) {
                 await handleCallback(activeBrowser.generator, currentPage, args);
             } else {

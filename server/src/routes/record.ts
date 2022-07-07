@@ -4,12 +4,12 @@
 import { Router } from 'express';
 
 import {
-    createRemoteBrowser,
+    initializeRemoteBrowserForRecording,
     destroyRemoteBrowser,
     getActiveBrowserId,
     interpretWholeWorkflow,
     stopRunningInterpretation,
-    getActiveBrowserCurrentUrl, getActiveBrowserCurrentTabs,
+    getRemoteBrowserCurrentUrl, getRemoteBrowserCurrentTabs,
 } from '../browser-management/controller'
 import { chromium } from "playwright";
 import logger from "../logger";
@@ -29,7 +29,7 @@ router.all('/', (req, res, next) => {
  * returns session's id
  */
 router.get('/start', (req, res) => {
-    const id = createRemoteBrowser({
+    const id = initializeRemoteBrowserForRecording({
         browser: chromium,
         launchOptions: {
             headless: false,
@@ -43,7 +43,7 @@ router.get('/start', (req, res) => {
  * returns session's id
  */
 router.post('/start', (req, res) => {
-    const id = createRemoteBrowser({
+    const id = initializeRemoteBrowserForRecording({
         browser: chromium,
         launchOptions: req.body,
     });
@@ -59,8 +59,6 @@ router.get('/stop/:browserId', async (req, res) => {
     return res.send(success);
 });
 
-// development only
-//TODO remove this endpoint and reprogram it
 router.get('/active', (req, res) => {
     const id = getActiveBrowserId();
     return res.send(id);
@@ -68,14 +66,20 @@ router.get('/active', (req, res) => {
 
 router.get('/active/url', (req, res) => {
     const id = getActiveBrowserId();
-    const url = getActiveBrowserCurrentUrl(id);
-    return res.send(url);
+    if (id) {
+        const url = getRemoteBrowserCurrentUrl(id);
+        return res.send(url);
+    }
+    return res.send(null);
 });
 
 router.get('/active/tabs', (req, res) => {
     const id = getActiveBrowserId();
-    const hosts = getActiveBrowserCurrentTabs(id);
-    return res.send(hosts);
+    if (id) {
+        const hosts = getRemoteBrowserCurrentTabs(id);
+        return res.send(hosts);
+    }
+    return res.send([]);
 });
 
 router.get('/interpret', async (req, res) => {

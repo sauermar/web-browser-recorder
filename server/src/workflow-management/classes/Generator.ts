@@ -12,7 +12,7 @@ import {
 } from "../selector";
 import { CustomActions } from "../../../../src/shared/types";
 import { workflow } from "../../routes";
-import { readFile, saveFile } from "../storage";
+import { saveFile } from "../storage";
 import fs from "fs";
 import { getBestSelectorForAction } from "../utils";
 import { browserPool } from "../../server";
@@ -44,6 +44,7 @@ export class WorkflowGenerator {
     socket.on('activeIndex', (data) => this.generatedData.lastIndex = parseInt(data));
     socket.on('decision', async ({pair, actionType, decision}) => {
       const id = browserPool.getActiveBrowserId();
+      if (id) {
       const activeBrowser = browserPool.getRemoteBrowser(id);
       const currentPage = activeBrowser?.getCurrentPage();
       if (decision) {
@@ -57,6 +58,7 @@ export class WorkflowGenerator {
       if (currentPage) {
         await this.addPairToWorkflowAndNotifyClient(pair, currentPage);
       }
+    }
     })
   }
 

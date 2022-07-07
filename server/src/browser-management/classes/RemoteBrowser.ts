@@ -2,6 +2,7 @@ import {
     Page,
     Browser,
     CDPSession,
+    BrowserContext,
 } from 'playwright';
 import { Socket } from "socket.io";
 
@@ -10,20 +11,60 @@ import { RemoteBrowserOptions } from "../../types";
 import { WorkflowGenerator } from "../../workflow-management/classes/Generator";
 import { WorkflowInterpreter } from "../../workflow-management/classes/Interpreter";
 
+/**
+ * This class represents a remote browser instance.
+ * It is used to allow a variety of interaction with the Playwright's browser instance.
+ * Every remote browser holds an instance of a generator and interpreter classes with
+ * the purpose of generating and interpreting workflows.
+ */
 export class RemoteBrowser {
 
+    /**
+     * Playwright's [browser](https://playwright.dev/docs/api/class-browser) instance.
+     * {@link Browser}
+     * @private
+     */
     private browser: Browser | null = null;
 
+    /**
+     * The Playwright's [CDPSession](https://playwright.dev/docs/api/class-cdpsession) instance,
+     * used to talk raw Chrome Devtools Protocol.
+     * {@link CDPSession}
+     * @private
+     */
     private client : CDPSession | null | undefined = null;
 
+    /**
+     * Socket.io socket instance enabling communication with the client (frontend) side.
+     * {@link Socket}
+     * @private
+     */
     private socket : Socket;
 
+    /**
+     * The Playwright's [Page](https://playwright.dev/docs/api/class-page) instance
+     * as current interactive remote browser's page.
+     * {@link Page}
+     * @private
+     */
     private currentPage : Page | null | undefined = null;
 
+    /**
+     * {@link WorkflowGenerator} instance specific to the remote browser.
+     */
     public generator: WorkflowGenerator;
 
+    /**
+     * {@link WorkflowInterpreter} instance specific to the remote browser.
+     */
     public interpreter: WorkflowInterpreter;
 
+    /**
+     * Initializes a new instances of the {@link Generator} and {@link WorkflowInterpreter} classes and
+     * assigns the socket instance everywhere.
+     * @param socket socket.io socket instance used to communicate with the client side
+     * @constructor
+     */
     public constructor(socket: Socket) {
         this.socket = socket;
         this.interpreter = new WorkflowInterpreter(socket);
@@ -31,20 +72,25 @@ export class RemoteBrowser {
     }
 
     /**
-     * Constructor for asynchronous properties.
+     * An asynchronous constructor for asynchronously initialized properties.
      * Must be called right after creating an instance of RemoteBrowser class.
-     * @param options remote browser options
+     * @param options remote browser options to be used when launching the browser
+     * @returns {Promise<void>}
      */
     public initialize = async(options: RemoteBrowserOptions) : Promise<void> => {
-        // initialize the browser instance
         this.browser = <Browser>(await options.browser.launch(options.launchOptions));
-        //initialize page context
         const context = await this.browser.newContext();
         this.currentPage = await context.newPage();
-        //initialize CDP session of the active page
         this.client = await this.currentPage.context().newCDPSession(this.currentPage);
+    };
 
-
+    /**
+     * Registers all event listeners needed for the recording editor session.
+     * Emits the loaded event.
+     * Should be called only once after the full initialization of the remote browser.
+     * @returns {Promise<void>}
+     */
+    public registerEditorEvents = async() : Promise<void> => {
         this.socket.on('rerender', async() => await this.makeAndEmitScreenshot());
         this.socket.on('changeTab', async(tabIndex) => await this.changeTab(tabIndex));
         this.socket.on('addTab', async () => {
@@ -59,7 +105,6 @@ export class RemoteBrowser {
                 if (tabInfo.isCurrent){
                     if (this.currentPage?.context().pages()[tabInfo.index + 1]) {
                         // next tab
-                        console.log('changing to next tab')
                         await this.changeTab(tabInfo.index + 1);
                     } else {
                         //previous tab
@@ -76,28 +121,15 @@ export class RemoteBrowser {
                 logger.log('error', `${tabInfo.index} index out of range of pages`)
             }
         });
-
         this.socket.emit('loaded');
-
-        // TODO: remove next two lines are just for debugging
-        const log = (msg: string) => console.log(msg);
-        await this.currentPage.exposeFunction("log", log);
-    };
+    }
 
     /**
-     * Initiates screencast of the remote browser's page.
-     */
-    private startScreencast = async() : Promise<void> => {
-        if (!this.client) {
-            logger.log('warn','client is not initialized');
-            return;
-        }
-        await this.client.send('Page.startScreencast', { format: 'jpeg', quality: 75 });
-        logger.log('info',`Browser started with screencasting a page.`);
-    };
-
-    /**
-     * Sends a screenshot every time the browser active page updates.
+     * Subscribes the remote browser for a screencast session
+     * on [CDP](https://chromedevtools.github.io/devtools-protocol/) level,
+     * where screenshot is being sent through the socket
+     * every time the browser's active page updates.
+     * @returns {Promise<void>}
      */
     public subscribeToScreencast = async() : Promise<void> => {
         await this.startScreencast();
@@ -122,7 +154,9 @@ export class RemoteBrowser {
     };
 
     /**
-     * Terminates the remote browser.
+     * Terminates the screencast session and closes the remote browser.
+     * If an interpretation was running it will be stopped.
+     * @returns {Promise<void>}
      */
     public switchOff = async() : Promise<void> => {
         await this.interpreter.stopInterpretation();
@@ -131,38 +165,14 @@ export class RemoteBrowser {
             await this.browser.close();
         } else {
             logger.log('error', 'Browser wasn\'t initialized');
-            throw new Error('Switching off the browser failed');
+            logger.log('error','Switching off the browser failed');
         }
     };
 
     /**
-     * Unsubscribes the browser from screencast.
+     * Makes and emits a single screenshot to the client side.
+     * @returns {Promise<void>}
      */
-    private stopScreencast = async() : Promise<void> => {
-        if (!this.client) {
-            logger.log('error','client is not initialized');
-            throw new Error('Screencast stop failed');
-        }
-        await this.client.send('Page.stopScreencast');
-        logger.log('info',`Browser stopped with screencasting.`);
-    };
-
-    /**
-     * Helper for emitting the screenshot of browser's active page through websocket.
-     * @param payload the screenshot binary data
-     */
-    private emitScreenshot = (payload: any) : void => {
-        const dataWithMimeType = ('data:image/jpeg;base64,').concat(payload);
-        this.socket.emit('screencast', dataWithMimeType);
-        logger.log('debug',`Screenshot emitted`);
-    };
-
-    public updateSocket = (socket: Socket) : void => {
-        this.socket = socket;
-        this.generator?.updateSocket(socket);
-        this.interpreter?.updateSocket(socket);
-    };
-
     public makeAndEmitScreenshot = async() : Promise<void> => {
         try {
             const screenshot = await this.currentPage?.screenshot();
@@ -175,16 +185,23 @@ export class RemoteBrowser {
         }
     };
 
-    private initializeNewPage = async (options?: Object) : Promise<void> => {
-        const newPage = options ? await this.browser?.newPage(options)
-          : await this.browser?.newPage();
-
-        await this.currentPage?.close();
-        this.currentPage = newPage;
-        this.client = await this.currentPage?.context().newCDPSession(this.currentPage);
-        await this.subscribeToScreencast();
+    /**
+     * Updates the active socket instance.
+     * This will update all registered events for the socket and
+     * all the properties using the socket.
+     * @param socket socket.io socket instance used to communicate with the client side
+     * @returns void
+     */
+    public updateSocket = (socket: Socket) : void => {
+        this.socket = socket;
+        this.generator?.updateSocket(socket);
+        this.interpreter?.updateSocket(socket);
     };
 
+    /**
+     * Starts the interpretation of the currently generated workflow.
+     * @returns {Promise<void>}
+     */
     public interpretCurrentRecording = async () : Promise<void> => {
         if (this.generator) {
             const workflow = this.generator.getWorkflowFile();
@@ -204,16 +221,31 @@ export class RemoteBrowser {
         }
     };
 
+    /**
+     * Stops the workflow interpretation and initializes a new page.
+     * @returns {Promise<void>}
+     */
     public stopCurrentInterpretation = async () : Promise<void> => {
         await this.interpreter.stopInterpretation();
         await this.initializeNewPage();
     };
 
+    /**
+     * Returns the current page instance.
+     * @returns {Page | null | undefined}
+     */
     public getCurrentPage = () : Page | null | undefined => {
         return this.currentPage;
     };
 
-    private changeTab = async (tabIndex: number) => {
+    /**
+     * Changes the active page to the page instance on the given index
+     * available in pages array on the {@link BrowserContext}.
+     * Automatically stops the screencast session on the previous page and starts the new one.
+     * @param tabIndex index of the page in the pages array on the {@link BrowserContext}
+     * @returns {Promise<void>}
+     */
+    private changeTab = async (tabIndex: number) : Promise<void>=> {
         const page = this.currentPage?.context().pages()[tabIndex];
         if (page) {
             await this.stopScreencast();
@@ -227,4 +259,59 @@ export class RemoteBrowser {
             logger.log('error', `${tabIndex} index out of range of pages`)
         }
     }
+
+    /**
+     * Internal method for a new page initialization. Subscribes this page to the screencast.
+     * @param options optional page options to be used when creating a new page
+     * @returns {Promise<void>}
+     */
+    private initializeNewPage = async (options?: Object) : Promise<void> => {
+        const newPage = options ? await this.browser?.newPage(options)
+          : await this.browser?.newPage();
+
+        await this.currentPage?.close();
+        this.currentPage = newPage;
+        this.client = await this.currentPage?.context().newCDPSession(this.currentPage);
+        await this.subscribeToScreencast();
+    };
+
+    /**
+     * Initiates screencast of the remote browser through socket,
+     * registers listener for rerender event and emits the loaded event.
+     * Should be called only once after the browser is fully initialized.
+     * @returns {Promise<void>}
+     */
+    private startScreencast = async() : Promise<void> => {
+        if (!this.client) {
+            logger.log('warn','client is not initialized');
+            return;
+        }
+        await this.client.send('Page.startScreencast', { format: 'jpeg', quality: 75 });
+        logger.log('info',`Browser started with screencasting a page.`);
+    };
+
+    /**
+     * Unsubscribes the current page from the screencast session.
+     * @returns {Promise<void>}
+     */
+    private stopScreencast = async() : Promise<void> => {
+        if (!this.client) {
+            logger.log('error','client is not initialized');
+            logger.log('error','Screencast stop failed');
+        } else {
+            await this.client.send('Page.stopScreencast');
+            logger.log('info', `Browser stopped with screencasting.`);
+        }
+    };
+
+    /**
+     * Helper for emitting the screenshot of browser's active page through websocket.
+     * @param payload the screenshot binary data
+     * @returns void
+     */
+    private emitScreenshot = (payload: any) : void => {
+        const dataWithMimeType = ('data:image/jpeg;base64,').concat(payload);
+        this.socket.emit('screencast', dataWithMimeType);
+        logger.log('debug',`Screenshot emitted`);
+    };
 }

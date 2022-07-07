@@ -66,7 +66,7 @@ router.delete('/runs/:fileName', async (req, res) => {
 
 router.put('/runs/:fileName', async (req, res) => {
   try {
-    const id = await createRemoteBrowserForRun({
+    const id = createRemoteBrowserForRun({
       browser: chromium,
       launchOptions: { headless: false }
     });
