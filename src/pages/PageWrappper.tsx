@@ -46,7 +46,7 @@ export const PageWrapper = () => {
 
   return (
     <div>
-      <NavBar newRecording={handleNewRecording}/>
+      <NavBar newRecording={handleNewRecording} recordingName={recordingName}/>
         {browserId
           ? (
             <SocketProvider>

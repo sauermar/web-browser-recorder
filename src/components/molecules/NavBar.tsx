@@ -5,14 +5,17 @@ import { useGlobalInfoStore } from "../../context/globalInfo";
 import { Button } from "@mui/material";
 import { RecordingIcon } from "../atoms/RecorderIcon";
 import { AddButton } from "../atoms/buttons/AddButton";
+import Box from "@mui/material/Box";
+import { SaveRecording } from "./SaveRecording";
 
 interface NavBarProps {
   newRecording: () => void;
+  recordingName: string;
 }
 
-export const NavBar = ({newRecording}:NavBarProps) => {
+export const NavBar = ({newRecording, recordingName}:NavBarProps) => {
 
-  const { notify, browserId, setBrowserId } = useGlobalInfoStore();
+  const { notify, browserId, setBrowserId, recordingLength } = useGlobalInfoStore();
 
   // If recording is in progress, the resources and change page view by setting browserId to null
   // else it won't affect the page
@@ -51,7 +54,7 @@ export const NavBar = ({newRecording}:NavBarProps) => {
           title="NEW RECORDING"
           style={{
             borderRadius: '5px',
-            padding: '9px',
+            padding: '8px',
             background: 'rgba(25, 118, 210, 0.8)',
             color: '#fff',
             marginRight: '10px',
@@ -62,6 +65,11 @@ export const NavBar = ({newRecording}:NavBarProps) => {
             letterSpacing: '0.02857em',
           }}
         />
+        {
+          recordingLength > 0
+            ? <SaveRecording fileName={recordingName}/>
+            :null
+        }
         <Button sx={{
           background: '#fff',
           padding: '9px',

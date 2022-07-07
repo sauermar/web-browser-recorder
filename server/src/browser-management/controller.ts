@@ -38,6 +38,7 @@ export const initializeRemoteBrowserForRecording = (options: RemoteBrowserOption
                 await browserSession.subscribeToScreencast();
                 browserPool.addRemoteBrowser(id, browserSession, true);
             }
+          socket.emit('loaded');
         });
     return id;
 };

@@ -92,22 +92,14 @@ export const Pair: FC<PairProps> = (
             }} onClick={handleBreakpointClick}/>
           }
         </div>
-        <TreeItem sx={{
+        <button style={{
           padding: '4px',
           position: 'relative',
           left: '10%',
           color: 'black',
-        }} nodeId={index.toString()} key={index.toString()} label={index}>
-          {
-            //eslint-disable-next-line
-            pair.what.map((what, i) => {
-              if (what) {
-                const id = `${index.toString()}.${i.toString()}`;
-                return <TreeItem nodeId={id} key={id} label={what.action}/>
-              }
-            })
-          }
-        </TreeItem>
+        }} key={`pair-${index}`}>
+          {index}
+        </button>
         <Stack direction="row" spacing={0}
                style={{position: 'sticky', marginLeft:'50px'}}>
           <ViewButton

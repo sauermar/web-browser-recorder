@@ -74,7 +74,7 @@ export class BrowserPool {
      */
     public getRemoteBrowser = (id: string) : RemoteBrowser | undefined => {
         logger.log('debug', `Remote browser with id: ${id} retrieved from the pool`);
-        return this.pool[id].browser;
+        return this.pool[id]?.browser;
     };
 
     /**
@@ -84,11 +84,11 @@ export class BrowserPool {
      * @returns the first remote active browser instance's id from the pool
      */
     public getActiveBrowserId = () : string | null => {
-        Object.keys(this.pool).forEach((key) => {
-            if (this.pool[key].active) {
-                return key;
+        for (const id of Object.keys(this.pool)) {
+            if (this.pool[id].active) {
+                return id;
             }
-        })
+        }
         logger.log('warn', `No active browser in the pool`);
         return null;
     };

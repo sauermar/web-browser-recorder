@@ -43,10 +43,6 @@ export const MainMenu = ({ value = 'recordings', handleChangeContent }: MainMenu
           <Tab sx={{
             alignItems: 'baseline',
             fontSize:'medium',
-          }} value="tasks" label="Tasks" />
-          <Tab sx={{
-            alignItems: 'baseline',
-            fontSize:'medium',
           }} value="runs" label="Runs" />
         </Tabs>
       </Box>

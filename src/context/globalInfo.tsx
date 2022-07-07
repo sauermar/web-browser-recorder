@@ -14,11 +14,14 @@ interface GlobalInfo {
   setRecordings: (recordings: string[]) => void;
   rerenderRuns: boolean;
   setRerenderRuns: (rerenderRuns: boolean) => void;
+  recordingLength: number;
+  setRecordingLength: (recordingLength: number) => void;
 };
 
 class GlobalInfoStore implements Partial<GlobalInfo>{
   browserId = null;
   lastAction = '';
+  recordingLength = 0;
   notification: AlertSnackbarProps = {
     severity: 'info',
     message: '',
@@ -39,6 +42,7 @@ export const GlobalInfoProvider = ({ children }: { children: JSX.Element }) => {
   const [notification, setNotification] = useState<AlertSnackbarProps>(globalInfoStore.notification);
   const [recordings, setRecordings] = useState<string[]>(globalInfoStore.recordings);
   const [rerenderRuns, setRerenderRuns] = useState<boolean>(globalInfoStore.rerenderRuns);
+  const [recordingLength, setRecordingLength] = useState<number>(globalInfoStore.recordingLength);
 
   const notify = (severity: 'error' | 'warning' | 'info' | 'success', message: string) => {
     setNotification({severity, message, isOpen: true});
@@ -48,11 +52,18 @@ export const GlobalInfoProvider = ({ children }: { children: JSX.Element }) => {
     setNotification( globalInfoStore.notification);
   }
 
+  const setBrowserIdWithValidation = (browserId: string | null) => {
+    setBrowserId(browserId);
+    if (!browserId) {
+      setRecordingLength(0);
+    }
+  }
+
   return (
     <globalInfoContext.Provider
       value={{
         browserId,
-        setBrowserId,
+        setBrowserId: setBrowserIdWithValidation,
         lastAction,
         setLastAction,
         notification,
@@ -62,6 +73,8 @@ export const GlobalInfoProvider = ({ children }: { children: JSX.Element }) => {
         setRecordings,
         rerenderRuns,
         setRerenderRuns,
+        recordingLength,
+        setRecordingLength,
       }}
     >
       {children}

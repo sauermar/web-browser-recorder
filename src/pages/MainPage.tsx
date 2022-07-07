@@ -96,8 +96,6 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
           handleRunRecording={handleRunRecording}
           setFileName={setFileName}
         />;
-      case 'tasks':
-        return <h1>Tasks</h1>;
       case 'runs':
         return <Runs
           runningRecordingName={runningRecordingName}

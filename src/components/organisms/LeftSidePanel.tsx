@@ -7,6 +7,7 @@ import { SidePanelHeader } from "../molecules/SidePanelHeader";
 import { emptyWorkflow } from "../../shared/constants";
 import { LeftSidePanelContent } from "../molecules/LeftSidePanelContent";
 import { useBrowserDimensionsStore } from "../../context/browserDimensions";
+import { useGlobalInfoStore } from "../../context/globalInfo";
 
 const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) => {
   getActiveWorkflow(id).then(
@@ -29,27 +30,29 @@ interface LeftSidePanelProps {
 
 export const LeftSidePanel = (
   { sidePanelRef, alreadyHasScrollbar, recordingName, handleSelectPairForEdit }: LeftSidePanelProps) => {
-  const { id, socket } = useSocketStore();
 
   const [workflow, setWorkflow] = useState<WorkflowFile>(emptyWorkflow);
   const [hasScrollbar, setHasScrollbar] = useState<boolean>(alreadyHasScrollbar);
 
+  const { id, socket } = useSocketStore();
   const { setWidth, width } = useBrowserDimensionsStore();
+  const { setRecordingLength } = useGlobalInfoStore();
 
   const workflowHandler = useCallback((data: WorkflowFile) => {
     setWorkflow(data);
+    setRecordingLength(data.workflow.length);
   }, [workflow])
 
   useEffect(() => {
     // fetch the workflow every time the id changes
     if (id) {
-      fetchWorkflow(id, setWorkflow);
+      fetchWorkflow(id, workflowHandler);
       console.log("Fetching workflow successful");
     }
     // fetch workflow in 15min intervals
     let interval = setInterval(() =>{
     if (id) {
-      fetchWorkflow(id, setWorkflow);
+      fetchWorkflow(id, workflowHandler);
       console.log("Fetching workflow successful");
     }}, (1000 * 60 * 15));
     return () => clearInterval(interval)

@@ -86,7 +86,6 @@ export class RemoteBrowser {
 
     /**
      * Registers all event listeners needed for the recording editor session.
-     * Emits the loaded event.
      * Should be called only once after the full initialization of the remote browser.
      * @returns {Promise<void>}
      */
@@ -121,7 +120,6 @@ export class RemoteBrowser {
                 logger.log('error', `${tabInfo.index} index out of range of pages`)
             }
         });
-        this.socket.emit('loaded');
     }
 
     /**
