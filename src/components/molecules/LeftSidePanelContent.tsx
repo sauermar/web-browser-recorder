@@ -50,20 +50,20 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow, recordingName, 
   };
 
   return (
-    <Box sx={{ flexGrow: 1, maxWidth: 150 }}>
-        {
-          workflow.workflow.map((pair, i, workflow, ) =>
-            <Pair
-              handleBreakpoint={() => handleBreakpointClick(i)}
-              isActive={ activeId === i + 1}
-              key={workflow.length - i}
-              index={workflow.length - i}
-              pair={pair}
-              updateWorkflow={updateWorkflow}
-              numberOfPairs={workflow.length}
-              handleSelectPairForEdit={handleSelectPairForEdit}
-            />)
-        }
-    </Box>
+    <div>
+      {
+        workflow.workflow.map((pair, i, workflow, ) =>
+          <Pair
+            handleBreakpoint={() => handleBreakpointClick(i)}
+            isActive={ activeId === i + 1}
+            key={workflow.length - i}
+            index={workflow.length - i}
+            pair={pair}
+            updateWorkflow={updateWorkflow}
+            numberOfPairs={workflow.length}
+            handleSelectPairForEdit={handleSelectPairForEdit}
+          />)
+      }
+    </div>
   );
 };

@@ -11,6 +11,7 @@ import { EditButton } from "../atoms/buttons/EditButton";
 import { BreakpointButton } from "../atoms/buttons/BreakpointButton";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import styled from "styled-components";
+import { LoadingButton } from "@mui/lab";
 
 type WhereWhatPair = WorkflowFile["workflow"][number];
 
@@ -79,34 +80,38 @@ export const Pair: FC<PairProps> = (
   return (
     <PairWrapper isActive={isActive}>
       <Stack direction="row">
-        <div style={{position: 'sticky', maxWidth:'20px'}}>
-          {breakpoint
-            ? <BreakpointButton  handleClick={handleBreakpointClick}/>
-            : <button style={{
-              padding:'10px 15px',
-              backgroundColor: 'transparent',
-              borderRight: '3px solid gray',
-              borderTop: 'none',
-              borderBottom: 'none',
-              borderLeft: 'none',
-            }} onClick={handleBreakpointClick}/>
+        <div style={{display: 'flex', maxWidth:'20px', alignItems:'center', justifyContent: 'center',
+          marginLeft: '5px',}}>
+          {isActive ? <LoadingButton loading variant="text"/>
+            : breakpoint ? <BreakpointButton changeColor={true} handleClick={handleBreakpointClick}/>
+              : <BreakpointButton handleClick={handleBreakpointClick}/>
           }
         </div>
-        <button style={{
-          padding: '4px',
+        <Button sx={{
           position: 'relative',
-          left: '10%',
+          left: '6%',
           color: 'black',
-        }} key={`pair-${index}`}>
+          padding: '5px 35%',
+          fontSize: '1rem',
+        }} variant='text' key={`pair-${index}`}
+        onClick={() => handleSelectPairForEdit(pair, index)}>
           {index}
-        </button>
+        </Button>
         <Stack direction="row" spacing={0}
-               style={{position: 'sticky', marginLeft:'50px'}}>
+        sx={{
+          color: 'inherit',
+          "&:hover": {
+            color: 'inherit',
+          }
+        }}>
           <ViewButton
             handleClick={handleOpen}
           />
           <EditButton
-            handleClick={() => handleSelectPairForEdit(pair, index)}
+            handleClick={() => {
+              enableEdit();
+              handleOpen();
+            }}
           />
           <ClearButton
             handleClick={handleDelete}
@@ -130,12 +135,6 @@ export const Pair: FC<PairProps> = (
               title={index.toString() || pair?.what[0]?.action}
               pair={pair}
             />
-            <Button
-              onClick={enableEdit}
-              variant="contained"
-            >
-              Edit
-            </Button>
           </div>
         }
       </GenericModal>
@@ -150,7 +149,7 @@ interface ViewButtonProps {
 const ViewButton = ({handleClick}: ViewButtonProps) => {
   return (
     <IconButton aria-label="add" size={"small"} onClick={handleClick}
-                sx={{color: '#1976d2',}}>
+                sx={{color: 'inherit', '&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}>
       <VisibilityIcon/>
     </IconButton>
   );
@@ -163,10 +162,10 @@ const PairWrapper = styled.div<{ isActive: boolean }>`
   display: flex;
   flex-direction: row;
   flex-grow: 1;
-  width: fit-content;
-  color: transparent;
+  width: 98%;
+  color: gray;
   &:hover { 
-    color: #1976d2; 
-    background: transparent; 
+    color: dimgray; 
+    background: ${({ isActive }) => isActive ? 'rgba(255, 0, 0, 0.1)' : 'transparent' };
   }
 `;
