@@ -93,10 +93,7 @@ export const LeftSidePanel = (
         alignItems: "center",
       }}
     >
-      <SidePanelHeader
-        updateWorkflow={setWorkflow}
-        numberOfPairs={workflow.workflow.length}
-      />
+      <SidePanelHeader/>
       <LeftSidePanelContent
         workflow={workflow}
         updateWorkflow={setWorkflow}

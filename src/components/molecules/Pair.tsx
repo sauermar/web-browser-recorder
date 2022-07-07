@@ -1,12 +1,11 @@
 import React, { FC, useState } from 'react';
-import { Stack, Button, IconButton } from "@mui/material";
+import { Stack, Button, IconButton, Tooltip } from "@mui/material";
 import { AddPair, deletePair, UpdatePair } from "../../api/workflow";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
 import { ClearButton } from "../atoms/buttons/ClearButton";
 import { GenericModal } from "../atoms/GenericModal";
 import { PairEditForm } from "./PairEditForm";
 import { PairDisplayDiv } from "../atoms/PairDisplayDiv";
-import TreeItem from "@mui/lab/TreeItem";
 import { EditButton } from "../atoms/buttons/EditButton";
 import { BreakpointButton } from "../atoms/buttons/BreakpointButton";
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -91,7 +90,7 @@ export const Pair: FC<PairProps> = (
           position: 'relative',
           left: '6%',
           color: 'black',
-          padding: '5px 35%',
+          padding: '5px 25%',
           fontSize: '1rem',
         }} variant='text' key={`pair-${index}`}
         onClick={() => handleSelectPairForEdit(pair, index)}>
@@ -104,18 +103,29 @@ export const Pair: FC<PairProps> = (
             color: 'inherit',
           }
         }}>
+          <Tooltip title="View" placement='right' arrow>
+          <div>
           <ViewButton
             handleClick={handleOpen}
           />
+          </div>
+          </Tooltip>
+
+          <Tooltip title="Raw edit" placement='right' arrow>
+            <div>
           <EditButton
             handleClick={() => {
               enableEdit();
               handleOpen();
             }}
           />
-          <ClearButton
-            handleClick={handleDelete}
-          />
+            </div>
+            </Tooltip>
+          <Tooltip title="Delete" placement='right' arrow>
+            <div>
+              <ClearButton handleClick={handleDelete}/>
+            </div>
+          </Tooltip>
         </Stack>
       </Stack>
       <GenericModal isOpen={open} onClose={handleClose}>
@@ -125,7 +135,6 @@ export const Pair: FC<PairProps> = (
               onSubmitOfPair={handleEdit}
               numberOfPairs={numberOfPairs}
               index={index.toString()}
-              title={index.toString()}
               where={pair.where ? JSON.stringify(pair.where) : undefined}
               what={pair.what ? JSON.stringify(pair.what) : undefined}
             />

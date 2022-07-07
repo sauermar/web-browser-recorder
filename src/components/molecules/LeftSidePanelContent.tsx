@@ -1,14 +1,15 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import { TreeView } from "@mui/lab";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Pair } from "./Pair";
 import { WhereWhatPair, WorkflowFile } from "@wbr-project/wbr-interpret";
 import { useSocketStore } from "../../context/socket";
-import { SaveRecording } from "./SaveRecording";
+import { Add } from "@mui/icons-material";
 import { Socket } from "socket.io-client";
+import { AddButton } from "../atoms/buttons/AddButton";
+import { AddPair } from "../../api/workflow";
+import { GenericModal } from "../atoms/GenericModal";
+import { PairEditForm } from "./PairEditForm";
+import { Fab, Tooltip, Typography } from "@mui/material";
 
 interface LeftSidePanelContentProps {
   workflow: WorkflowFile;
@@ -20,6 +21,7 @@ interface LeftSidePanelContentProps {
 export const LeftSidePanelContent = ({ workflow, updateWorkflow, recordingName, handleSelectPairForEdit}: LeftSidePanelContentProps) => {
   const [activeId, setActiveId] = React.useState<number>(0);
   const [breakpoints, setBreakpoints] = React.useState<boolean[]>([]);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const { socket } = useSocketStore();
 
@@ -31,6 +33,15 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow, recordingName, 
     }
     socket.emit('activeIndex', data);
   }, [activeId])
+
+  const addPair = (pair: WhereWhatPair, index: number) => {
+    AddPair((index - 1), pair).then((updatedWorkflow) => {
+      updateWorkflow(updatedWorkflow);
+    }).catch((error) => {
+      console.error(error);
+    });
+    setShowEditModal(false);
+  };
 
   useEffect(() => {
     socket?.on("activePairId", (data) => activePairIdHandler(data, socket));
@@ -49,8 +60,34 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow, recordingName, 
     });
   };
 
+  const handleAddPair = () => {
+    setShowEditModal(true);
+  };
+
   return (
     <div>
+      <Tooltip title='Add pair' placement='left' arrow>
+        <div style={{ marginRight: '15px', float: 'right'}}>
+          <AddButton
+            handleClick={handleAddPair}
+            title=''
+            hoverEffect={false}
+            style={{color: 'white', background: '#1976d2'}}
+          />
+        </div>
+      </Tooltip>
+      <GenericModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+      >
+        <PairEditForm
+          onSubmitOfPair={addPair}
+          numberOfPairs={workflow.workflow.length}
+        />
+      </GenericModal>
+
+      <Typography sx={{margin: '10px'}}>Recording:</Typography>
+  <div>
       {
         workflow.workflow.map((pair, i, workflow, ) =>
           <Pair
@@ -64,6 +101,7 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow, recordingName, 
             handleSelectPairForEdit={handleSelectPairForEdit}
           />)
       }
+    </div>
     </div>
   );
 };

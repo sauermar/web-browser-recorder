@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, Typography } from "@mui/material";
 import React, { FC } from "react";
 import { Preprocessor, WhereWhatPair } from "@wbr-project/wbr-interpret";
 
@@ -13,7 +13,6 @@ interface PairEditFormProps {
   onSubmitOfPair: (value: WhereWhatPair, index: number) => void;
   numberOfPairs: number;
   index?: string;
-  title?: string;
   where?: string;
   what?: string;
 }
@@ -23,7 +22,6 @@ export const PairEditForm: FC<PairEditFormProps> = (
     onSubmitOfPair,
     numberOfPairs,
     index,
-    title,
     where,
     what,
   }) => {
@@ -114,34 +112,26 @@ export const PairEditForm: FC<PairEditFormProps> = (
         marginTop: "36px",
       }}
     >
+      <Typography sx={{marginBottom:'30px'}} variant='h5'>Raw pair edit form:</Typography>
       <TextField sx={{
         display:"block",
         marginBottom: "20px"
       }} id="index" label="Index" type="number"
-       InputProps={{ inputProps: { min: 1 } }}
-        InputLabelProps={{
+                 InputProps={{ inputProps: { min: 1 } }}
+                 InputLabelProps={{
           shrink: true,
         }} defaultValue={pairProps.index}
-        onChange={handleInputChange}
-        error={errors.index ? true : false} helperText={errors.index}
-      />
-      <TextField
-        required
-        sx={{marginBottom: "20px"}}
-        onChange={handleInputChange}
-        id="title"
-        label="Title"
-        variant="outlined"
-        defaultValue={title || ''}
+                 onChange={handleInputChange}
+                 error={!!errors.index} helperText={errors.index}
       />
       <TextField multiline sx={{marginBottom: "20px"}}
-        id="where" label="Where" variant="outlined" onChange={handleInputChange}
+                 id="where" label="Where" variant="outlined" onChange={handleInputChange}
                  defaultValue={ where || '{"url":"","selectors":[""]}' }
-                 error={errors.where ? true : false} helperText={errors.where}/>
+                 error={!!errors.where} helperText={errors.where}/>
       <TextField multiline sx={{marginBottom: "20px"}}
-        id="what" label="What" variant="outlined" onChange={handleInputChange}
+                 id="what" label="What" variant="outlined" onChange={handleInputChange}
                  defaultValue={ what || '[{"action":"","args":[""]}]' }
-                 error={errors.what ? true : false} helperText={errors.what}/>
+                 error={!!errors.what} helperText={errors.what}/>
       <Button
         type="submit"
         variant="contained"

@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import Button from "@mui/material/Button";
+import React, { useState } from 'react';
+import { IconButton, Button } from "@mui/material";
 import { GenericModal } from "../atoms/GenericModal";
 import { stopRecording } from "../../api/recording";
 import { useGlobalInfoStore } from "../../context/globalInfo";
@@ -7,6 +7,7 @@ import { useSocketStore } from "../../context/socket";
 import { TextField, Typography } from "@mui/material";
 import { WarningText } from "../atoms/texts";
 import NotificationImportantIcon from "@mui/icons-material/NotificationImportant";
+import FlagIcon from '@mui/icons-material/Flag';
 
 interface SaveRecordingProps {
   fileName: string;
@@ -53,13 +54,14 @@ export const SaveRecording = ({fileName}: SaveRecordingProps) => {
   return (
     <div>
       <Button sx={{
-        background: 'rgba(25, 118, 210, 0.8)',
-        color: '#fff',
-        '&:hover': {background: '#1976d2'},
-        padding: '10px',
+        width:'100px',
+        background: 'white',
+        color: 'rgba(0,128,0,0.7)',
+        '&:hover': {background: 'white', color: 'green'},
+        padding: '11px',
         marginRight: '10px',
       }} onClick={() => setOpenModal(true)}>
-        Finish Recording
+        <FlagIcon sx={{marginRight:'3px'}}/> FINISH
       </Button>
 
       <GenericModal isOpen={openModal} onClose={() => setOpenModal(false)} modalStyle={modalStyle}>
@@ -67,7 +69,7 @@ export const SaveRecording = ({fileName}: SaveRecordingProps) => {
           <Typography>Save the recording as:</Typography>
           <TextField
             required
-            sx={{width: '250px', paddingBottom: '10px', margin: '15px'}}
+            sx={{width: '250px', paddingBottom: '10px', margin: '15px 0px'}}
             onChange={handleChangeOfTitle}
             id="title"
             label="Recording title"

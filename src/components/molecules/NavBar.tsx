@@ -2,18 +2,19 @@ import React from 'react';
 import styled from "styled-components";
 import { stopRecording } from "../../api/recording";
 import { useGlobalInfoStore } from "../../context/globalInfo";
-import { Button } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 import { RecordingIcon } from "../atoms/RecorderIcon";
-import { AddButton } from "../atoms/buttons/AddButton";
-import Box from "@mui/material/Box";
 import { SaveRecording } from "./SaveRecording";
+import { Circle } from "@mui/icons-material";
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 
 interface NavBarProps {
   newRecording: () => void;
   recordingName: string;
+  isRecording: boolean;
 }
 
-export const NavBar = ({newRecording, recordingName}:NavBarProps) => {
+export const NavBar = ({newRecording, recordingName, isRecording}:NavBarProps) => {
 
   const { notify, browserId, setBrowserId, recordingLength } = useGlobalInfoStore();
 
@@ -49,35 +50,46 @@ export const NavBar = ({newRecording, recordingName}:NavBarProps) => {
         display: 'flex',
         justifyContent: 'flex-end',
       }}>
-        <AddButton
-          handleClick={handleNewRecording}
-          title="NEW RECORDING"
-          style={{
+        <IconButton
+          aria-label="new"
+          size={"small"}
+          onClick={handleNewRecording}
+          sx={{
+            width: isRecording ? '100px' : '130px',
             borderRadius: '5px',
             padding: '8px',
-            background: 'rgba(25, 118, 210, 0.8)',
-            color: '#fff',
+            background: 'white',
+            color: 'rgba(255,0,0,0.7)',
             marginRight: '10px',
             fontFamily: '"Roboto","Helvetica","Arial",sans-serif',
             fontWeight: '500',
             fontSize: '0.875rem',
             lineHeight: '1.75',
             letterSpacing: '0.02857em',
-          }}
-        />
+            '&:hover': { color: 'red', backgroundColor: 'white' }}
+          }
+        >
+          <Circle sx={{marginRight: '5px'}}/> {isRecording ? 'NEW' : 'RECORD'}
+        </IconButton>
         {
           recordingLength > 0
             ? <SaveRecording fileName={recordingName}/>
             :null
         }
-        <Button sx={{
+        { isRecording ? <Button sx={{
+          width:'100px',
           background: '#fff',
+          color: 'rgba(25, 118, 210, 0.7)',
           padding: '9px',
           marginRight: '19px',
           '&:hover': {
-            background: 'lightgray',
+            background: 'white',
+            color: 'rgb(25, 118, 210)',
           }
-        }} onClick={goToMainMenu}>exit recording</Button>
+        }} onClick={goToMainMenu}>
+          <MeetingRoomIcon sx={{marginRight: '5px'}}/>
+          exit</Button>
+          : null }
       </div>
 
     </NavBarWrapper>

@@ -10,35 +10,11 @@ import { FastForward } from "@mui/icons-material";
 import { useSocketStore } from "../../context/socket";
 import { useGlobalInfoStore } from "../../context/globalInfo";
 
-interface SidePanelHeaderProps {
-  numberOfPairs: number;
-  updateWorkflow: (workflow: WorkflowFile) => void;
-}
+export const SidePanelHeader = () => {
 
-export const SidePanelHeader: FC<SidePanelHeaderProps> = (
-  {
-    numberOfPairs,
-    updateWorkflow,
-  }
-) => {
-
- const [showEditModal, setShowEditModal] = useState(false);
  const [steppingIsDisabled, setSteppingIsDisabled] = useState(true);
 
  const { socket } = useSocketStore();
-
- const addPair = (pair: WhereWhatPair, index: number) => {
-  AddPair((index - 1), pair).then((updatedWorkflow) => {
-   updateWorkflow(updatedWorkflow);
-  }).catch((error) => {
-   console.error(error);
-  });
-  setShowEditModal(false);
- };
-
- const handleAddPair = () => {
-  setShowEditModal(true);
- };
 
  const handleStep = () => {
    socket?.emit('step');
@@ -47,30 +23,15 @@ export const SidePanelHeader: FC<SidePanelHeaderProps> = (
  return (
    <div>
     <InterpretationButtons enableStepping={(isPaused) => setSteppingIsDisabled(!isPaused)}/>
-     <Stack direction="row" spacing={3}>
-    <AddButton
-      handleClick={handleAddPair}
-      title="Add rule"
-      hoverEffect={false}
-    />
      <Button
        variant='outlined'
        disabled={steppingIsDisabled}
        onClick={handleStep}
+       sx={{marginLeft: '15px'}}
      >
        step
        <FastForward/>
      </Button>
-     </Stack>
-    <GenericModal
-      isOpen={showEditModal}
-      onClose={() => setShowEditModal(false)}
-    >
-     <PairEditForm
-       onSubmitOfPair={addPair}
-       numberOfPairs={numberOfPairs}
-     />
-    </GenericModal>
     <hr/>
    </div>
  );
