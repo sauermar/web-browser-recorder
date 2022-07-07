@@ -11,10 +11,11 @@ import { PairDetail } from "../molecules/PairDetail";
 import { PairForEdit } from "../../pages/RecordingPage";
 
 interface RightSidePanelProps {
-  pairForEdit: PairForEdit,
+  pairForEdit: PairForEdit;
+  changeBrowserDimensions: () => void;
 }
 
-export const RightSidePanel = ({pairForEdit}: RightSidePanelProps) => {
+export const RightSidePanel = ({pairForEdit, changeBrowserDimensions}: RightSidePanelProps) => {
 
   const [content, setContent] = useState<string>('action');
   const [action, setAction] = React.useState<string>('');
@@ -47,6 +48,9 @@ export const RightSidePanel = ({pairForEdit}: RightSidePanelProps) => {
         backgroundColor: 'white',
         alignItems: "center",
       }}>
+      <Button onClick={() => {
+        changeBrowserDimensions();
+      }}>resize browser</Button>
       <SimpleBox height={60} width='100%' background='lightGray' radius='0%'>
         <Typography sx={{ padding: '10px' }}>
           Last action:

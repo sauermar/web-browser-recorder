@@ -43,6 +43,9 @@ export const RecordingPage = ({ recordingName }: RecordingPageProps) => {
     });
   };
 
+  //resize browser content when loaded event is fired
+  useEffect(() => changeBrowserDimensions(), [isLoaded])
+
   useEffect(() => {
     let isCancelled = false;
     console.log('RecordingPage.useEffect called');
@@ -62,18 +65,6 @@ export const RecordingPage = ({ recordingName }: RecordingPageProps) => {
       }
     };
 
-    if (browserContentRef.current) {
-      const currentWidth = Math.floor(browserContentRef.current.getBoundingClientRect().width);
-      const innerHeightWithoutNavBar = window.innerHeight - 54.5;
-      if (innerHeightWithoutNavBar <= (currentWidth / 1.6)) {
-        setWidth(currentWidth - 10);
-        setHasScrollbar(true);
-      } else {
-        setWidth(currentWidth);
-        console.log(currentWidth, 'browser width set');
-      }
-    }
-
     handleRecording();
 
     return () => {
@@ -81,6 +72,20 @@ export const RecordingPage = ({ recordingName }: RecordingPageProps) => {
       console.log('RecordingPage unmounting');
     }
   }, [setId]);
+
+  const changeBrowserDimensions = () => {
+    if (browserContentRef.current) {
+      const currentWidth = Math.floor(browserContentRef.current.getBoundingClientRect().width);
+      const innerHeightWithoutNavBar = window.innerHeight - 54.5;
+      if ( innerHeightWithoutNavBar <= (currentWidth / 1.6)) {
+        setWidth(currentWidth - 10);
+        setHasScrollbar(true);
+      } else {
+        setWidth(currentWidth);
+      }
+      socket?.emit("rerender");
+    }
+  };
 
   const handleLoaded = useCallback(() => {
     console.log(recordingName);
@@ -118,7 +123,7 @@ export const RecordingPage = ({ recordingName }: RecordingPageProps) => {
             <BrowserContent/>
           </Grid>
           <Grid item xs={2}>
-            <RightSidePanel pairForEdit={pairForEdit}/>
+            <RightSidePanel pairForEdit={pairForEdit} changeBrowserDimensions={changeBrowserDimensions}/>
           </Grid>
         </Grid>
         : <Loader/>}

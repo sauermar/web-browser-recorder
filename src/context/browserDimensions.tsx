@@ -1,5 +1,4 @@
 import React, { createContext, useCallback, useContext, useState } from "react";
-import { useSocketStore } from "./socket";
 
 interface BrowserDimensions {
   width: number;
@@ -21,13 +20,9 @@ export const BrowserDimensionsProvider = ({ children }: { children: JSX.Element 
   const [width, setWidth] = useState<number>(browserDimensionsStore.width);
   const [height, setHeight] = useState<number>(browserDimensionsStore.height);
 
-  const { socket } = useSocketStore();
-
   const setNewWidth = useCallback((newWidth: number) => {
     setWidth(newWidth);
     setHeight(Math.round(newWidth / 1.6));
-    socket?.emit("rerender");
-    console.log("rerender emmited");
   }, [setWidth, setHeight]);
 
   return (
