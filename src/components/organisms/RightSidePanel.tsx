@@ -72,6 +72,7 @@ export const RightSidePanel = ({pairForEdit, changeBrowserDimensions}: RightSide
                 label="Action"
                 value={action}
                 handleSelect={handleActionSelect}>
+                <MenuItem value="mouse.click">click on coordinates</MenuItem>
                 <MenuItem value="enqueueLinks">enqueueLinks</MenuItem>
                 <MenuItem value="scrape">scrape</MenuItem>
                 <MenuItem value="scrapeSchema">scrapeSchema</MenuItem>

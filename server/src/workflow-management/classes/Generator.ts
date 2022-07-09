@@ -197,7 +197,7 @@ export class WorkflowGenerator {
       where: { url: this.getBestUrl(page.url())},
       what: [{
         action,
-        args: settings ? [settings] : [],
+        args: settings ? Array.isArray(settings) ? settings : [settings] : [],
       }],
     }
 

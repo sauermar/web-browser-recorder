@@ -4,6 +4,7 @@ import { ScrapeSettings } from "./scrape";
 import { ScrapeSchemaSettings } from "./scrapeSchema";
 import { ScriptSettings } from "./script";
 import { EnqueueLinksSettings } from "./enqueueLinks";
+import { ClickOnCoordinatesSettings } from "./clickOnCoordinates";
 
 export {
   ScrollSettings,
@@ -12,4 +13,5 @@ export {
   ScrapeSchemaSettings,
   ScriptSettings,
   EnqueueLinksSettings,
+  ClickOnCoordinatesSettings,
 };

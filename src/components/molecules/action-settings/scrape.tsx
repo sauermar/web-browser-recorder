@@ -1,6 +1,5 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
-import { Stack, TextField, Typography } from "@mui/material";
-import WarningIcon from '@mui/icons-material/Warning';
+import { Stack, TextField } from "@mui/material";
 import { WarningText } from '../../atoms/texts';
 import InfoIcon from "@mui/icons-material/Info";
 
