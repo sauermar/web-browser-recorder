@@ -4,16 +4,17 @@ import { WhereWhatPair } from "@wbr-project/wbr-interpret";
 import styled from "styled-components";
 
 interface PairDisplayDivProps {
-  title: string;
+  index: string;
   pair: WhereWhatPair;
 }
 
-export const PairDisplayDiv: FC<PairDisplayDivProps> = ({title, pair}) => {
+export const PairDisplayDiv: FC<PairDisplayDivProps> = ({index, pair}) => {
 
   return (
     <div>
-      <Typography sx={{ marginBottom: '10px', marginTop: '25px'}} id="pair-title" variant="h5" component="h2">
-        {`Title: ${title}`}
+      <Typography sx={{ marginBottom: '10px', marginTop: '25px'}} id="pair-index" variant="h6" component="h2">
+        {`Index: ${index}`}
+        { pair.id ? `, Id: ${pair.id}` : ''}
       </Typography>
       <Typography id="where-title" variant="h6" component="h2">
         {"Where:"}

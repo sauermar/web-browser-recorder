@@ -9,6 +9,7 @@ import TreeItem from '@mui/lab/TreeItem';
 import { AddButton } from "../atoms/buttons/AddButton";
 import { WarningText } from "../atoms/texts";
 import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
+import { RemoveButton } from "../atoms/buttons/RemoveButton";
 
 interface PairDetailProps {
   pair: WhereWhatPair | null;
@@ -42,61 +43,62 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
     }
   }, [pair])
 
-  const handleChangeValue = (e: React.SyntheticEvent, where: boolean, key: string, additional?: string|number) => {
-    if (where) {
-      if (additional){
-        // @ts-ignore
-        pair.where[key][additional] = e.target.value;
-      } else {
-        // @ts-ignore
-        pair.where[key] = e.target.value;
-      }
-    } else {
-      if (additional){
-        // @ts-ignore
-        pair.what[key][additional] = e.target.value;
-      } else {
-        // @ts-ignore
-        pair.what[key] = e.target.value;
-      }
+  const handleChangeValue = (value: any, where: boolean, keys: (string|number)[]) => {
+    // a moving reference to internal objects within pair.where or pair.what
+    let schema: any = where ? pair?.where : pair?.what;
+    const length = keys.length;
+    for(let i = 0; i < length-1; i++) {
+      const elem = keys[i];
+      if( !schema[elem] ) schema[elem] = {}
+      schema = schema[elem];
     }
+
+    schema[keys[length-1]] = value;
     setRerender(!rerender);
   }
 
 
-    const DisplayValueContent = (value: any, key: string, where: boolean = true) => {
+    const DisplayValueContent = (value: any, keys: (string|number)[], where: boolean = true) => {
     switch (typeof(value)) {
       case 'string':
         return <TextField
           size='small'
           type="string"
-          onChange={(e) => handleChangeValue(e, where, key)}
+          onChange={(e) => handleChangeValue(e.target.value, where, keys)}
           defaultValue={value}
         />
       case 'number':
         return <TextField
           size='small'
           type="number"
-          onChange={(e) => handleChangeValue(e, where, key)}
+          onChange={(e) => handleChangeValue(e.target.value, where, keys)}
           defaultValue={value}
         />
-      // @ts-ignore
       case 'object':
         if (value) {
           if (Array.isArray(value)) {
             return (
               <React.Fragment>
-                {value.map((element, index) => {
-                  return <TextField
-                    size='small'
-                    type="string"
-                    onChange={(e) => handleChangeValue(e, where, key, index)}
-                    defaultValue={element}
-                  />
-                })}
+                {
+                  value.map((element, index) => {
+                  return DisplayValueContent(element, [...keys, index], where);
+                  })
+                }
                 <AddButton handleClick={()=> {
-                  //@ts-ignore
-                  pair.where[key].push('');
+                  let prevValue:any = where ? pair?.where : pair?.what;
+                  for (const key of keys) {
+                    prevValue = prevValue[key];
+                  }
+                  handleChangeValue([...prevValue, ''], where, keys);
+                  setRerender(!rerender);
+                }}/>
+                <RemoveButton handleClick={()=> {
+                  let prevValue:any = where ? pair?.where : pair?.what;
+                  for (const key of keys) {
+                    prevValue = prevValue[key];
+                  }
+                  prevValue.splice(-1);
+                  handleChangeValue(prevValue, where, keys);
                   setRerender(!rerender);
                 }}/>
               </React.Fragment>
@@ -109,46 +111,13 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                 sx={{ flexGrow: 1, overflowY: 'auto' }}
               >
                 {
-                  Object.keys(value).map((key2, index) => {
-                    if (typeof value[key2] === 'string') {
-                      return (
-                        <TreeItem nodeId={`settings-object-${index}`} label={key2}>
-                          <TextField
-                            size='small'
-                            type="string"
-                            onChange={(e) => handleChangeValue(e, where, key, key2)}
-                            defaultValue={value[key2]}
-                          />
-                        </TreeItem>
-                      )
-                    } else if (Array.isArray(value[key2])) {
-                      return (
-                        <TreeItem nodeId={`settings-object-${index}`} label={key2}>
-                          {// @ts-ignore
-                            value[key2].map((element, index2) => {
-                            return <TextField
-                              size='small'
-                              type="string"
-                              onChange={(e) => {
-                                if (where) {
-                                  // @ts-ignore
-                                  pair.where[key][key2][index2] = e.target.value;
-                                } else {
-                                  // @ts-ignore
-                                  pair.what[key][key2][index2] = e.target.value;
-                                }
-                              }}
-                              defaultValue={element}
-                            />
-                          })}
-                          <AddButton handleClick={()=> {
-                            //@ts-ignore
-                            pair.what[key][key2].push('');
-                            setRerender(!rerender);
-                          }}/>
-                        </TreeItem>
-                      )
-                    }
+                  Object.keys(value).map((key2, index) =>
+                  {
+                    return (
+                      <TreeItem nodeId={`${key2}-${index}`} label={`${key2}:`} key={`${key2}-${index}`}>
+                        { DisplayValueContent(value[key2], [...keys, key2], where) }
+                      </TreeItem>
+                    )
                   })
                 }
               </TreeView>
@@ -167,6 +136,13 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
       pairIsSelected
         ? (
           <div style={{padding: '10px', overflow: 'hidden'}}>
+             <TextField
+              size='small'
+              type="string"
+              label='id'
+              onChange={(e) => pair ? pair.id = e.target.value : null}
+              value={pair ? pair.id ? pair.id : '' : ''}
+            />
             <Stack spacing={0} direction='row' sx={{
               display: 'flex',
               alignItems: 'center',
@@ -191,7 +167,7 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                       <TreeItem nodeId={`${key}-${index}`} label={`${key}:`} key={`${key}-${index}`}>
                         {
                           // @ts-ignore
-                          DisplayValueContent(pair.where[key], key)
+                          DisplayValueContent(pair.where[key], [key])
                         }
                       </TreeItem>
                     </TreeView>
@@ -224,7 +200,7 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                     <TreeItem nodeId={`${key}-${index}`} label={`${pair.what[index].action}`}>
                       {
                         // @ts-ignore
-                        DisplayValueContent(pair.what[key], key, false)
+                        DisplayValueContent(pair.what[key], [key], false)
                       }
                       <ColoseButton handleClick={() => {
                         //@ts-ignore
@@ -239,7 +215,7 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                   //@ts-ignore
                   pair.what.push({action:'', args: ['']});
                   setRerender(!rerender);
-                }}/>
+                }} style={{color:'white', background:'#1976d2'}} hoverEffect={false}/>
               </React.Fragment>
               )
               : null

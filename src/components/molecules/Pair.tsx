@@ -137,11 +137,12 @@ export const Pair: FC<PairProps> = (
               index={index.toString()}
               where={pair.where ? JSON.stringify(pair.where) : undefined}
               what={pair.what ? JSON.stringify(pair.what) : undefined}
+              id={pair.id}
             />
           :
           <div>
             <PairDisplayDiv
-              title={index.toString() || pair?.what[0]?.action}
+              index={index.toString()}
               pair={pair}
             />
           </div>

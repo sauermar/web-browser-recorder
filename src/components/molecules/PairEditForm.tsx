@@ -4,7 +4,7 @@ import { Preprocessor, WhereWhatPair } from "@wbr-project/wbr-interpret";
 
 interface PairProps {
   index: string;
-  title?: string;
+  id?: string;
   where: string | null;
   what: string | null;
 }
@@ -15,6 +15,7 @@ interface PairEditFormProps {
   index?: string;
   where?: string;
   what?: string;
+  id?: string;
 }
 
 export const PairEditForm: FC<PairEditFormProps> = (
@@ -24,11 +25,13 @@ export const PairEditForm: FC<PairEditFormProps> = (
     index,
     where,
     what,
+    id,
   }) => {
   const [pairProps, setPairProps] = React.useState<PairProps>({
     where: where || null,
     what: what || null,
     index: index || "1",
+    id: id || '',
   });
   const [errors, setErrors] = React.useState<PairProps>({
     where: null,
@@ -97,10 +100,18 @@ export const PairEditForm: FC<PairEditFormProps> = (
       setErrors({ ...errors, index: '' });
     }
       // submit the pair
-      onSubmitOfPair({
+      onSubmitOfPair(pairProps.id
+      ? {
+        id: pairProps.id,
         where: whereFromPair?.where || {},
         what: whatFromPair?.what || [],
-      }, index);
+      }
+      : {
+          id: pairProps.id,
+          where: whereFromPair?.where || {},
+          what: whatFromPair?.what || [],
+        }
+        , index);
   };
 
   return (
@@ -123,6 +134,13 @@ export const PairEditForm: FC<PairEditFormProps> = (
         }} defaultValue={pairProps.index}
                  onChange={handleInputChange}
                  error={!!errors.index} helperText={errors.index}
+                 required
+      />
+      <TextField sx={{
+        marginBottom: "20px"
+      }} id="id" label="Id" type="string"
+                 defaultValue={pairProps.id}
+                 onChange={handleInputChange}
       />
       <TextField multiline sx={{marginBottom: "20px"}}
                  id="where" label="Where" variant="outlined" onChange={handleInputChange}
@@ -137,7 +155,7 @@ export const PairEditForm: FC<PairEditFormProps> = (
         variant="contained"
         sx={{ padding: "8px 20px", }}
       >
-        Submit
+        Save
       </Button>
     </form>
   );
