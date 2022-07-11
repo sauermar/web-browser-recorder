@@ -165,5 +165,6 @@ export class WorkflowInterpreter {
 
   public updateSocket = (socket: Socket) : void => {
     this.socket = socket;
+    this.subscribeToPausing();
   };
 }

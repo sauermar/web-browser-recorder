@@ -37,32 +37,7 @@ export class WorkflowGenerator {
 
   public constructor(socket: Socket) {
     this.socket = socket;
-    socket.on('save', (fileName: string) => this.saveNewWorkflow(fileName));
-    socket.on('new-recording', () => this.workflowRecord = {
-      workflow: [],
-    } );
-    socket.on('activeIndex', (data) => this.generatedData.lastIndex = parseInt(data));
-    socket.on('decision', async ({pair, actionType, decision}) => {
-      const id = browserPool.getActiveBrowserId();
-      if (id) {
-      const activeBrowser = browserPool.getRemoteBrowser(id);
-      const currentPage = activeBrowser?.getCurrentPage();
-      if (decision) {
-        switch (actionType) {
-          case 'customAction':
-            pair.where.selectors = [this.generatedData.lastUsedSelector];
-            break;
-          default: break;
-        }
-      }
-      if (currentPage) {
-        await this.addPairToWorkflowAndNotifyClient(pair, currentPage);
-      }
-    }
-    })
-    socket.on('updatePair', (data) => {
-      this.updatePairInWorkflow(data.index, data.pair);
-    })
+    this.registerEventHandlers(socket);
   }
 
   private workflowRecord: WorkflowFile = {
@@ -83,6 +58,35 @@ export class WorkflowGenerator {
     lastIndex: null,
     lastAction: '',
   }
+
+  private registerEventHandlers = (socket: Socket) => {
+    socket.on('save', (fileName: string) => this.saveNewWorkflow(fileName));
+    socket.on('new-recording', () => this.workflowRecord = {
+      workflow: [],
+    } );
+    socket.on('activeIndex', (data) => this.generatedData.lastIndex = parseInt(data));
+    socket.on('decision', async ({pair, actionType, decision}) => {
+      const id = browserPool.getActiveBrowserId();
+      if (id) {
+        const activeBrowser = browserPool.getRemoteBrowser(id);
+        const currentPage = activeBrowser?.getCurrentPage();
+        if (decision) {
+          switch (actionType) {
+            case 'customAction':
+              pair.where.selectors = [this.generatedData.lastUsedSelector];
+              break;
+            default: break;
+          }
+        }
+        if (currentPage) {
+          await this.addPairToWorkflowAndNotifyClient(pair, currentPage);
+        }
+      }
+    })
+    socket.on('updatePair', (data) => {
+      this.updatePairInWorkflow(data.index, data.pair);
+    })
+  };
 
   private addPairToWorkflowAndNotifyClient = async(pair: WhereWhatPair, page: Page) => {
     let matched = false;
@@ -251,6 +255,7 @@ export class WorkflowGenerator {
 
   public updateSocket = (socket: Socket) : void => {
     this.socket = socket;
+    this.registerEventHandlers(socket);
   };
 
   private removeAllGeneratedFlags = (workflow: WorkflowFile): WorkflowFile => {

@@ -87,9 +87,9 @@ export class RemoteBrowser {
     /**
      * Registers all event listeners needed for the recording editor session.
      * Should be called only once after the full initialization of the remote browser.
-     * @returns {Promise<void>}
+     * @returns void
      */
-    public registerEditorEvents = async() : Promise<void> => {
+    public registerEditorEvents = () : void => {
         this.socket.on('rerender', async() => await this.makeAndEmitScreenshot());
         this.socket.on('changeTab', async(tabIndex) => await this.changeTab(tabIndex));
         this.socket.on('addTab', async () => {
@@ -192,6 +192,7 @@ export class RemoteBrowser {
      */
     public updateSocket = (socket: Socket) : void => {
         this.socket = socket;
+        this.registerEditorEvents();
         this.generator?.updateSocket(socket);
         this.interpreter?.updateSocket(socket);
     };
