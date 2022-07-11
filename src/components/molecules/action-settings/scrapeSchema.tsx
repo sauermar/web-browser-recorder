@@ -1,5 +1,5 @@
 import React, { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
-import { KeyValueForm } from "../../atoms/KeyValueForm";
+import { KeyValuePair } from "../../atoms/KeyValuePair";
 import { AddButton } from "../../atoms/buttons/AddButton";
 import { RemoveButton } from "../../atoms/buttons/RemoveButton";
 import { WarningText } from "../../atoms/texts";
@@ -34,7 +34,7 @@ export const ScrapeSchemaSettings = forwardRef((props, ref) => {
       </WarningText>
       {
         keyValuePairRefs.map((ref, index) => {
-          return <KeyValueForm keyLabel={'property'} valueLabel={'selector'} ref={ref} key={index}/>
+          return <KeyValuePair keyLabel={'property'} valueLabel={'selector'} ref={ref} key={index}/>
         })
       }
       <AddButton handleClick={() => setNumberOfPairs(numberOfPairs + 1)} hoverEffect={false}/>

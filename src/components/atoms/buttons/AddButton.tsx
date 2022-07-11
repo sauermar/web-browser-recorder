@@ -26,7 +26,7 @@ export const AddButton: FC<AddButtonProps> = (
       onClick={handleClick}
       disabled={disabled}
       sx={ hoverEffect
-        ? {...style, '&:hover': { background: 'transparent', color: '#1976d2' }}
+        ? {...style, '&:hover': { background: 'rgba(0, 0, 0, 0.05)', color: 'rgba(0, 0, 0, 0.54)' }}
         : {...style, '&:hover': { color: '#1976d2', backgroundColor: 'white' }}
     }
     >

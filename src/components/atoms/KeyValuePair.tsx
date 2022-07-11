@@ -6,7 +6,7 @@ interface KeyValueFormProps {
   valueLabel?: string;
 }
 
-export const KeyValueForm = forwardRef(({keyLabel, valueLabel}: KeyValueFormProps, ref) => {
+export const KeyValuePair = forwardRef(({keyLabel, valueLabel}: KeyValueFormProps, ref) => {
   const [key, setKey] = React.useState<string>('');
   const [value, setValue] = React.useState<string>('');
   useImperativeHandle(ref, () => ({

@@ -1,6 +1,6 @@
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { WhereWhatPair } from "@wbr-project/wbr-interpret";
-import { IconButton, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, IconButton, MenuItem, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { Close, KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import TreeView from '@mui/lab/TreeView';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -10,6 +10,8 @@ import { AddButton } from "../atoms/buttons/AddButton";
 import { WarningText } from "../atoms/texts";
 import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
 import { RemoveButton } from "../atoms/buttons/RemoveButton";
+import { KeyValueForm } from "./KeyValueForm";
+import { AddWhereCondModal } from "./AddWhereCondModal";
 
 interface PairDetailProps {
   pair: WhereWhatPair | null;
@@ -24,6 +26,8 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
   const [expanded, setExpanded] = React.useState<string[]>(
     pair ? Object.keys(pair.where).map((key, index) => `${key}-${index}`) : []
   );
+  const [addWhereCondOpen, setAddWhereCondOpen] = useState(false);
+
 
   const handleCollapseWhere = () => {
       setCollapseWhere(!collapseWhere);
@@ -66,13 +70,15 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
           type="string"
           onChange={(e) => handleChangeValue(e.target.value, where, keys)}
           defaultValue={value}
+          key={`text-field-${keys.join('-')}-${where}`}
         />
       case 'number':
         return <TextField
           size='small'
           type="number"
-          onChange={(e) => handleChangeValue(e.target.value, where, keys)}
+          onChange={(e) => handleChangeValue(Number(e.target.value), where, keys)}
           defaultValue={value}
+          key={`text-field-${keys.join('-')}-${where}`}
         />
       case 'object':
         if (value) {
@@ -132,6 +138,9 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
 
   return (
     <React.Fragment>
+      { pair &&
+      <AddWhereCondModal isOpen={addWhereCondOpen} onClose={() => setAddWhereCondOpen(false)} pair={pair}/>
+      }
     {
       pairIsSelected
         ? (
@@ -153,9 +162,19 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                 isCollapsed={collapseWhere}
               />
               <Typography>Where</Typography>
+              <Tooltip title='Add where condition' placement='top'>
+                <div style={{marginLeft:'40%'}}>
+                  <AddButton handleClick={()=> {
+                    setAddWhereCondOpen(true);
+                    setRerender(!rerender);
+                  }} style={{color:'rgba(0, 0, 0, 0.54)', background:'transparent'}}/>
+                </div>
+              </Tooltip>
             </Stack>
               {(collapseWhere && pair && pair.where)
-                ? Object.keys(pair.where).map((key, index) => {
+                ?
+                <React.Fragment>
+                    { Object.keys(pair.where).map((key, index) => {
                   return (
                     <TreeView
                       expanded={expanded}
@@ -172,10 +191,10 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                       </TreeItem>
                     </TreeView>
                     );
-                })
+                })}
+                </React.Fragment>
                 : null
               }
-
             <Stack spacing={0} direction='row' sx={{
               display: 'flex',
               alignItems: 'center',

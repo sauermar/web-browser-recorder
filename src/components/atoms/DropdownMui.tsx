@@ -20,6 +20,7 @@ export const Dropdown = ({id, label, value, handleSelect, children}: DropdownPro
         value={value}
         label={label}
         onChange={handleSelect}
+        size='small'
       >
         {children}
       </Select>
