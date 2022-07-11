@@ -8,7 +8,7 @@ interface KeyValueFormProps {
 
 export const KeyValuePair = forwardRef(({keyLabel, valueLabel}: KeyValueFormProps, ref) => {
   const [key, setKey] = React.useState<string>('');
-  const [value, setValue] = React.useState<string>('');
+  const [value, setValue] = React.useState<string|number>('');
   useImperativeHandle(ref, () => ({
     getKeyValuePair() {
       return { key, value };
@@ -35,7 +35,15 @@ export const KeyValuePair = forwardRef(({keyLabel, valueLabel}: KeyValueFormProp
         id="outlined-name"
         label={valueLabel || "Value"}
         value={value}
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setValue(event.target.value)}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          const num = Number(event.target.value);
+          if (isNaN(num)){
+            setValue(event.target.value);
+          }
+          else {
+            setValue(num);
+          }
+        }}
         size="small"
         required
       />

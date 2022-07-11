@@ -68,7 +68,18 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
         return <TextField
           size='small'
           type="string"
-          onChange={(e) => handleChangeValue(e.target.value, where, keys)}
+          onChange={(e) => {
+            try {
+              const obj = JSON.parse(e.target.value);
+              handleChangeValue(obj, where, keys);
+            } catch (error) {
+              const num = Number(e.target.value);
+              if (!isNaN(num)) {
+                handleChangeValue(num, where, keys);
+              }
+              handleChangeValue(e.target.value, where, keys)
+            }
+          }}
           defaultValue={value}
           key={`text-field-${keys.join('-')}-${where}`}
         />
@@ -97,7 +108,7 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                   }
                   handleChangeValue([...prevValue, ''], where, keys);
                   setRerender(!rerender);
-                }}/>
+                }} hoverEffect={false}/>
                 <RemoveButton handleClick={()=> {
                   let prevValue:any = where ? pair?.where : pair?.what;
                   for (const key of keys) {
@@ -145,6 +156,7 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
       pairIsSelected
         ? (
           <div style={{padding: '10px', overflow: 'hidden'}}>
+            <Typography>Pair number: {index}</Typography>
              <TextField
               size='small'
               type="string"
@@ -166,7 +178,6 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                 <div style={{marginLeft:'40%'}}>
                   <AddButton handleClick={()=> {
                     setAddWhereCondOpen(true);
-                    setRerender(!rerender);
                   }} style={{color:'rgba(0, 0, 0, 0.54)', background:'transparent'}}/>
                 </div>
               </Tooltip>
@@ -221,11 +232,15 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                         // @ts-ignore
                         DisplayValueContent(pair.what[key], [key], false)
                       }
-                      <ColoseButton handleClick={() => {
+                      <Tooltip title='remove action' placement='left'>
+                      <div style={{float:'right'}}>
+                      <CloseButton handleClick={() => {
                         //@ts-ignore
                         pair.what.splice(key, 1);
                         setRerender(!rerender);
                       }}/>
+                      </div>
+                      </Tooltip>
                     </TreeItem>
                   </TreeView>
                 );
@@ -263,9 +278,10 @@ const CollapseButton = ({handleClick, isCollapsed } : CollapseButtonProps) => {
   );
 }
 
-const ColoseButton = ({handleClick } : CollapseButtonProps) => {
+const CloseButton = ({handleClick } : CollapseButtonProps) => {
   return (
-    <IconButton aria-label="add" size={"small"} onClick={handleClick}>
+    <IconButton aria-label="add" size={"small"} onClick={handleClick}
+                sx={{'&:hover': { color: '#1976d2', backgroundColor: 'white' }}}>
       <Close/>
     </IconButton>
   );
