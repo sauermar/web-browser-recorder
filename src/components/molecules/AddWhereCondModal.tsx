@@ -9,20 +9,24 @@ import { GenericModal } from "../atoms/GenericModal";
 import { WhereWhatPair } from "@wbr-project/wbr-interpret";
 import { SelectChangeEvent } from "@mui/material/Select/Select";
 import { DisplayConditionSettings } from "./DisplayWhereConditionSettings";
+import { useSocketStore } from "../../context/socket";
 
 interface AddWhereCondModalProps {
   isOpen: boolean;
   onClose: () => void;
   pair: WhereWhatPair;
+  index: number;
 }
 
-export const AddWhereCondModal = ({isOpen, onClose, pair}: AddWhereCondModalProps) => {
+export const AddWhereCondModal = ({isOpen, onClose, pair, index}: AddWhereCondModalProps) => {
   const [whereProp, setWhereProp] = React.useState<string>('');
   const [additionalSettings, setAdditionalSettings] = React.useState<string>('');
   const [newValue, setNewValue] = React.useState<any>('');
   const [checked, setChecked] = React.useState<boolean[]>(new Array(Object.keys(pair.where).length).fill(false));
 
   const keyValueFormRef = useRef<{getObject: () => object}>(null);
+
+  const {socket} = useSocketStore();
 
   const handlePropSelect = (event: SelectChangeEvent<string>) => {
     setWhereProp(event.target.value);
@@ -35,7 +39,6 @@ export const AddWhereCondModal = ({isOpen, onClose, pair}: AddWhereCondModalProp
 
   const handleSubmit = () => {
     onClose();
-    if (pair) {
       switch (whereProp) {
         case 'url':
           if (additionalSettings === 'string'){
@@ -79,7 +82,7 @@ export const AddWhereCondModal = ({isOpen, onClose, pair}: AddWhereCondModalProp
         default:
           return;
       }
-    }
+    socket?.emit('updatePair', {index: index-1, pair: pair});
   }
 
   return (

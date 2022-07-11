@@ -10,8 +10,9 @@ import { AddButton } from "../atoms/buttons/AddButton";
 import { WarningText } from "../atoms/texts";
 import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
 import { RemoveButton } from "../atoms/buttons/RemoveButton";
-import { KeyValueForm } from "./KeyValueForm";
 import { AddWhereCondModal } from "./AddWhereCondModal";
+import { UpdatePair } from "../../api/workflow";
+import { useSocketStore } from "../../context/socket";
 
 interface PairDetailProps {
   pair: WhereWhatPair | null;
@@ -27,6 +28,8 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
     pair ? Object.keys(pair.where).map((key, index) => `${key}-${index}`) : []
   );
   const [addWhereCondOpen, setAddWhereCondOpen] = useState(false);
+
+  const {socket} = useSocketStore();
 
 
   const handleCollapseWhere = () => {
@@ -58,6 +61,9 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
     }
 
     schema[keys[length-1]] = value;
+    if (pair && socket) {
+      socket.emit('updatePair', {index: index-1, pair: pair});
+    }
     setRerender(!rerender);
   }
 
@@ -150,7 +156,8 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
   return (
     <React.Fragment>
       { pair &&
-      <AddWhereCondModal isOpen={addWhereCondOpen} onClose={() => setAddWhereCondOpen(false)} pair={pair}/>
+      <AddWhereCondModal isOpen={addWhereCondOpen} onClose={() => setAddWhereCondOpen(false)}
+                         pair={pair} index={index}/>
       }
     {
       pairIsSelected
@@ -159,9 +166,13 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
             <Typography>Pair number: {index}</Typography>
              <TextField
               size='small'
-              type="string"
               label='id'
-              onChange={(e) => pair ? pair.id = e.target.value : null}
+              onChange={(e) => {
+                if (pair && socket) {
+                  socket.emit('updatePair', {index: index-1, pair: pair});
+                  pair.id = e.target.value;
+                }
+              }}
               value={pair ? pair.id ? pair.id : '' : ''}
             />
             <Stack spacing={0} direction='row' sx={{
@@ -248,6 +259,7 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                 <AddButton handleClick={()=> {
                   //@ts-ignore
                   pair.what.push({action:'', args: ['']});
+                  socket?.emit('updatePair', {index: index-1, pair: pair});
                   setRerender(!rerender);
                 }} style={{color:'white', background:'#1976d2'}} hoverEffect={false}/>
               </React.Fragment>
