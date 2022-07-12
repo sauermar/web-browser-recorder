@@ -1,27 +1,14 @@
 import React, { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
-import { KeyValuePair } from "../../atoms/KeyValuePair";
-import { AddButton } from "../../atoms/buttons/AddButton";
-import { RemoveButton } from "../../atoms/buttons/RemoveButton";
 import { WarningText } from "../../atoms/texts";
 import InfoIcon from "@mui/icons-material/Info";
+import { KeyValueForm } from "../KeyValueForm";
 
 export const ScrapeSchemaSettings = forwardRef((props, ref) => {
-  const [numberOfPairs, setNumberOfPairs] = React.useState<number>(1);
-  const keyValuePairRefs = new Array(numberOfPairs).fill(useRef<{getKeyValuePair: () => { key: string, value: string }}>(null));
+  const keyValueFormRef = useRef<{getObject: () => object}>(null);
 
   useImperativeHandle(ref, () => ({
     getSettings() {
-      const settings = keyValuePairRefs.reduce((reducedObject : any, ref) => {
-        const keyValuePair = ref.current?.getKeyValuePair();
-        if (keyValuePair) {
-          return {
-            ...reducedObject,
-            [keyValuePair.key]: keyValuePair.value
-          }
-        } else {
-          return reducedObject;
-        }
-      }, {})
+      const settings = keyValueFormRef.current?.getObject() as Record<string,string>
       return settings;
     }
   }));
@@ -32,13 +19,7 @@ export const ScrapeSchemaSettings = forwardRef((props, ref) => {
         <InfoIcon color='warning'/>
         The interpreter scrapes the data from a webpage into a "curated" table.
       </WarningText>
-      {
-        keyValuePairRefs.map((ref, index) => {
-          return <KeyValuePair keyLabel={'property'} valueLabel={'selector'} ref={ref} key={index}/>
-        })
-      }
-      <AddButton handleClick={() => setNumberOfPairs(numberOfPairs + 1)} hoverEffect={false}/>
-      <RemoveButton handleClick={() => setNumberOfPairs(numberOfPairs - 1)}/>
+      <KeyValueForm ref={keyValueFormRef}/>
     </div>
 );
 });

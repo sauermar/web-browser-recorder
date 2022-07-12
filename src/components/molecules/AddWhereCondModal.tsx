@@ -60,15 +60,16 @@ export const AddWhereCondModal = ({isOpen, onClose, pair, index}: AddWhereCondMo
           pair.where.$after = newValue;
           break;
         case 'boolean':
-          const booleanObj = {};
+          const booleanArr = [];
           const deleteKeys: string[] = [];
           for (let i = 0; i < checked.length; i++) {
             if (checked[i]) {
               if (Object.keys(pair.where)[i]) {
                 //@ts-ignore
                 if (pair.where[Object.keys(pair.where)[i]]) {
-                  //@ts-ignore
-                  booleanObj[Object.keys(pair.where)[i]] = pair.where[Object.keys(pair.where)[i]];
+                  booleanArr.push({
+                    //@ts-ignore
+                    [Object.keys(pair.where)[i]]: pair.where[Object.keys(pair.where)[i]]});
                 }
                 deleteKeys.push(Object.keys(pair.where)[i]);
               }
@@ -77,7 +78,7 @@ export const AddWhereCondModal = ({isOpen, onClose, pair, index}: AddWhereCondMo
           // @ts-ignore
           deleteKeys.forEach((key: string) => delete pair.where[key]);
           //@ts-ignore
-          pair.where[`$${additionalSettings}`] = booleanObj;
+          pair.where[`$${additionalSettings}`] = booleanArr;
           break;
         default:
           return;
