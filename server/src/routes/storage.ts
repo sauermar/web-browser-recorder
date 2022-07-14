@@ -124,6 +124,7 @@ router.get('/runs/run/:fileName', async (req, res) => {
       })();
       await destroyRemoteBrowser(parsedRun.browserId);
         const run_meta = {
+          ...parsedRun,
           status: interpretationInfo.result,
           finishedAt: new Date().toLocaleString(),
           duration: durString,
@@ -131,7 +132,6 @@ router.get('/runs/run/:fileName', async (req, res) => {
           log: interpretationInfo.log.join('\n'),
           serializableOutput: interpretationInfo.serializableOutput,
           binaryOutput: interpretationInfo.binaryOutput,
-          ...parsedRun,
         };
         fs.mkdirSync('../storage/runs', { recursive: true })
         await saveFile(
