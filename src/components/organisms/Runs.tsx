@@ -3,13 +3,13 @@ import { Grid } from "@mui/material";
 import { RunsTable } from "../molecules/RunsTable";
 
 interface RunsProps {
-  runningRecordingName: string;
   currentInterpretationLog: string;
   abortRunHandler: () => void;
+  runId: string;
 }
 
 export const Runs = (
-  { runningRecordingName, currentInterpretationLog, abortRunHandler }: RunsProps) => {
+  { currentInterpretationLog, abortRunHandler, runId }: RunsProps) => {
 
   return (
     <Grid container direction="column" sx={{ padding: '30px'}}>
@@ -18,9 +18,9 @@ export const Runs = (
       </Grid>
       <Grid item xs>
         <RunsTable
-          runningRecordingName={runningRecordingName}
           currentInterpretationLog={currentInterpretationLog}
           abortRunHandler={abortRunHandler}
+          runId={runId}
         />
       </Grid>
     </Grid>

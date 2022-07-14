@@ -84,6 +84,7 @@ router.put('/runs/:fileName', async (req, res) => {
       browserId: id,
       interpreterSettings: req.body,
       log: '',
+      runId,
     };
     fs.mkdirSync('../storage/runs', { recursive: true })
     await saveFile(
