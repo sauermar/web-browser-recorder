@@ -13,6 +13,7 @@ import { RemoveButton } from "../atoms/buttons/RemoveButton";
 import { AddWhereCondModal } from "./AddWhereCondModal";
 import { UpdatePair } from "../../api/workflow";
 import { useSocketStore } from "../../context/socket";
+import { AddWhatCondModal } from "./AddWhatCondModal";
 
 interface PairDetailProps {
   pair: WhereWhatPair | null;
@@ -28,9 +29,9 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
     pair ? Object.keys(pair.where).map((key, index) => `${key}-${index}`) : []
   );
   const [addWhereCondOpen, setAddWhereCondOpen] = useState(false);
+  const [addWhatCondOpen, setAddWhatCondOpen] = useState(false);
 
-  const {socket} = useSocketStore();
-
+  const { socket } = useSocketStore();
 
   const handleCollapseWhere = () => {
       setCollapseWhere(!collapseWhere);
@@ -132,6 +133,7 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                 defaultCollapseIcon={<ExpandMoreIcon />}
                 defaultExpandIcon={<ChevronRightIcon />}
                 sx={{ flexGrow: 1, overflowY: 'auto' }}
+                key={`tree-view-nested-${keys.join('-')}-${where}`}
               >
                 {
                   Object.keys(value).map((key2, index) =>
@@ -156,8 +158,12 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
   return (
     <React.Fragment>
       { pair &&
-      <AddWhereCondModal isOpen={addWhereCondOpen} onClose={() => setAddWhereCondOpen(false)}
+        <React.Fragment>
+          <AddWhatCondModal isOpen={addWhatCondOpen} onClose={() => setAddWhatCondOpen(false)}
+                            pair={pair} index={index}/>
+          <AddWhereCondModal isOpen={addWhereCondOpen} onClose={() => setAddWhereCondOpen(false)}
                          pair={pair} index={index}/>
+        </React.Fragment>
       }
     {
       pairIsSelected
@@ -185,8 +191,8 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                 isCollapsed={collapseWhere}
               />
               <Typography>Where</Typography>
-              <Tooltip title='Add where condition' placement='top'>
-                <div style={{marginLeft:'40%'}}>
+              <Tooltip title='Add where condition' placement='right'>
+                <div>
                   <AddButton handleClick={()=> {
                     setAddWhereCondOpen(true);
                   }} style={{color:'rgba(0, 0, 0, 0.54)', background:'transparent'}}/>
@@ -204,6 +210,7 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                       defaultExpandIcon={<ChevronRightIcon />}
                       sx={{ flexGrow: 1, overflowY: 'auto' }}
                       onNodeToggle={handleToggle}
+                      key={`tree-view-${key}-${index}`}
                     >
                       <TreeItem nodeId={`${key}-${index}`} label={`${key}:`} key={`${key}-${index}`}>
                         {
@@ -227,6 +234,14 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                 isCollapsed={collapseWhat}
               />
               <Typography>What</Typography>
+
+              <Tooltip title='Add what condition' placement='right'>
+                <div>
+                  <AddButton handleClick={()=> {
+                    setAddWhatCondOpen(true);
+                  }} style={{color:'rgba(0, 0, 0, 0.54)', background:'transparent'}}/>
+                </div>
+              </Tooltip>
             </Stack>
             {(collapseWhat && pair && pair.what)
               ?(
@@ -237,6 +252,7 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                     defaultCollapseIcon={<ExpandMoreIcon />}
                     defaultExpandIcon={<ChevronRightIcon />}
                     sx={{ flexGrow: 1, overflowY: 'auto' }}
+                    key={`tree-view-2-${key}-${index}`}
                   >
                     <TreeItem nodeId={`${key}-${index}`} label={`${pair.what[index].action}`}>
                       {
@@ -256,12 +272,6 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
                   </TreeView>
                 );
               })}
-                <AddButton handleClick={()=> {
-                  //@ts-ignore
-                  pair.what.push({action:'', args: ['']});
-                  socket?.emit('updatePair', {index: index-1, pair: pair});
-                  setRerender(!rerender);
-                }} style={{color:'white', background:'#1976d2'}} hoverEffect={false}/>
               </React.Fragment>
               )
               : null

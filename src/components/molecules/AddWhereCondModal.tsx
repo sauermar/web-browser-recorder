@@ -38,7 +38,6 @@ export const AddWhereCondModal = ({isOpen, onClose, pair, index}: AddWhereCondMo
   }
 
   const handleSubmit = () => {
-    onClose();
       switch (whereProp) {
         case 'url':
           if (additionalSettings === 'string'){
@@ -83,11 +82,20 @@ export const AddWhereCondModal = ({isOpen, onClose, pair, index}: AddWhereCondMo
         default:
           return;
       }
+    onClose();
+    setWhereProp('');
+    setAdditionalSettings('');
+    setNewValue('');
     socket?.emit('updatePair', {index: index-1, pair: pair});
   }
 
   return (
-    <GenericModal isOpen={isOpen} onClose={onClose} modalStyle={modalStyle}>
+    <GenericModal isOpen={isOpen} onClose={() => {
+      setWhereProp('');
+      setAdditionalSettings('');
+      setNewValue('');
+      onClose();
+    }} modalStyle={modalStyle}>
       <div>
         <Typography sx={{margin: '20px 0px'}}>Add where condition:</Typography>
       <div style={{margin:'8px'}}>
