@@ -106,9 +106,9 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
         />;
       case 'runs':
         return <Runs
-          runningRecordingName={runningRecordingName}
           currentInterpretationLog={currentInterpretationLog}
           abortRunHandler={() => abortRunHandler(ids.runId)}
+          runId={ids.runId}
         />;
       default:
         return null;

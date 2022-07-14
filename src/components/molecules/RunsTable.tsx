@@ -14,7 +14,7 @@ import { RunSettings } from "./RunSettings";
 import { CollapsibleRow } from "./ColapsibleRow";
 
 interface Column {
-  id: 'status' | 'name' | 'startedAt' | 'finishedAt' | 'duration' | 'task' | 'delete';
+  id: 'status' | 'name' | 'startedAt' | 'finishedAt' | 'duration' | 'task' | 'runId' | 'delete';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -28,6 +28,7 @@ export const columns: readonly Column[] = [
   { id: 'finishedAt', label: 'Finished at', minWidth: 80 },
   { id: 'duration', label: 'Duration', minWidth: 80 },
   { id: 'task', label: 'Task', minWidth: 80 },
+  { id: 'runId', label: 'Run id', minWidth: 80 },
   { id: 'delete', label: 'Delete', minWidth: 80 },
 ];
 
@@ -40,17 +41,18 @@ export interface Data {
   duration: string;
   task: string;
   log: string;
+  runId: string;
   interpreterSettings: RunSettings;
 }
 
 interface RunsTableProps {
-  runningRecordingName: string;
   currentInterpretationLog: string;
   abortRunHandler: () => void;
+  runId: string;
 }
 
 export const RunsTable = (
-  { runningRecordingName, currentInterpretationLog, abortRunHandler }: RunsTableProps) => {
+  { currentInterpretationLog, abortRunHandler, runId }: RunsTableProps) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [rows, setRows] = useState<Data[]>([]);
@@ -124,7 +126,7 @@ export const RunsTable = (
                     row={row}
                     handleDelete={handleDelete}
                     key={`row-${row.id}`}
-                    isOpen={runningRecordingName === row.name}
+                    isOpen={runId === row.runId}
                     currentLog={currentInterpretationLog}
                     abortRunHandler={abortRunHandler}
                   />
