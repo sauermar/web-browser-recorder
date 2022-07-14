@@ -13,24 +13,32 @@ interface MainPageProps {
   handleEditRecording: (fileName: string) => void;
 }
 
+export interface CreateRunResponse {
+  browserId: string;
+  runId: string;
+}
+
 export const MainPage = ({ handleEditRecording }: MainPageProps) => {
 
   const [content, setContent] = React.useState('recordings');
   const [sockets, setSockets] = React.useState<Socket[]>([]);
   const [runningRecordingName, setRunningRecordingName] = React.useState('');
   const [currentInterpretationLog, setCurrentInterpretationLog] = React.useState('');
-  const [remoteBrowserId, setRemoteBrowserId] = React.useState('');
+  const [ids, setIds] = React.useState<CreateRunResponse>({
+    browserId: '',
+    runId: ''
+  });
 
   let aborted = false;
 
   const { notify, setRerenderRuns } = useGlobalInfoStore();
 
-  const abortRunHandler = () => {
+  const abortRunHandler = (runId: string) => {
     aborted = true;
-    notifyAboutAbort(runningRecordingName).then(async (response) => {
+    notifyAboutAbort(runningRecordingName, runId).then(async (response) => {
       if (response) {
         notify('success', `Interpretation of ${runningRecordingName} aborted successfully`);
-        await stopRecording(remoteBrowserId);
+        await stopRecording(ids.browserId);
       } else {
         notify('error', `Failed to abort the interpretation ${runningRecordingName} recording`);
       }
@@ -41,8 +49,8 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
     setRunningRecordingName(fileName);
   }
 
-  const readyForRunHandler = useCallback( (id: string) => {
-    interpretStoredRecording(runningRecordingName).then( async (interpretation: boolean) => {
+  const readyForRunHandler = useCallback( (browserId: string, runId: string) => {
+    interpretStoredRecording(runningRecordingName, runId).then( async (interpretation: boolean) => {
       console.log(`was aborted: ${aborted}`)
       if (!aborted) {
         if (interpretation) {
@@ -50,7 +58,7 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
         } else {
           notify('success', `Failed to interpret ${runningRecordingName} recording`);
           // destroy the created browser
-          await stopRecording(id);
+          await stopRecording(browserId);
         }
       }
       setRunningRecordingName('');
@@ -65,28 +73,28 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
   }, [currentInterpretationLog])
 
   const handleRunRecording = useCallback((settings: RunSettings) => {
-    createRunForStoredRecording(runningRecordingName, settings).then(id => {
-      setRemoteBrowserId(id);
+    createRunForStoredRecording(runningRecordingName, settings).then(({browserId, runId}: CreateRunResponse) => {
+      setIds({browserId, runId});
       const socket =
-        io(`http://localhost:8080/${id}`, {
+        io(`http://localhost:8080/${browserId}`, {
           transports: ["websocket"],
           rejectUnauthorized: false
         });
       setSockets(sockets => [...sockets, socket]);
-      socket.on('ready-for-run', () => readyForRunHandler(id))
+      socket.on('ready-for-run', () => readyForRunHandler(browserId, runId));
       socket.on('debugMessage', debugMessageHandler);
       setContent('runs');
-      if (id) {
+      if (browserId) {
         notify('info', `Running recording: ${runningRecordingName}`);
       } else {
         notify('error', `Failed to run recording: ${runningRecordingName}`);
       }
     });
-    return (socket: Socket, id: string) => {
-      socket.off('ready-for-run', () => readyForRunHandler(id));
+    return (socket: Socket, browserId: string, runId: string) => {
+      socket.off('ready-for-run', () => readyForRunHandler(browserId, runId));
       socket.off('debugMessage', debugMessageHandler);
     }
-  }, [runningRecordingName, sockets, remoteBrowserId, readyForRunHandler, debugMessageHandler])
+  }, [runningRecordingName, sockets, ids, readyForRunHandler, debugMessageHandler])
 
   const DisplayContent = () => {
     switch (content) {
@@ -100,7 +108,7 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
         return <Runs
           runningRecordingName={runningRecordingName}
           currentInterpretationLog={currentInterpretationLog}
-          abortRunHandler={abortRunHandler}
+          abortRunHandler={() => abortRunHandler(ids.runId)}
         />;
       default:
         return null;

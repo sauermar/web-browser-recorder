@@ -9,6 +9,7 @@ import { createRemoteBrowserForRun, destroyRemoteBrowser } from "../browser-mana
 import { chromium } from "playwright";
 import { browserPool } from "../server";
 import fs from "fs";
+import { uuid } from "uuidv4";
 
 export const router = Router();
 
@@ -71,24 +72,29 @@ router.put('/runs/:fileName', async (req, res) => {
       launchOptions: { headless: false }
     });
 
+    const runId = uuid();
+
     const run_meta = {
       status: 'RUNNING',
       name: req.params.fileName,
       startedAt: new Date().toLocaleString(),
       finishedAt: '',
       duration: '',
-      task: req.body.params ? 'task-1' : '',
+      task: req.body.params ? 'task' : '',
       browserId: id,
       interpreterSettings: req.body,
       log: '',
     };
     fs.mkdirSync('../storage/runs', { recursive: true })
     await saveFile(
-      `../storage/runs/${req.params.fileName}.json`,
+      `../storage/runs/${req.params.fileName}_${runId}.json`,
       JSON.stringify({ ...run_meta }, null, 2)
     );
     logger.log('debug', `Created run with name: ${req.params.fileName}.json`);
-    return res.send(id);
+    return res.send({
+      browserId: id,
+      runId: runId,
+    });
   } catch (e) {
     const {message} = e as Error;
     console.log(message)
@@ -97,13 +103,26 @@ router.put('/runs/:fileName', async (req, res) => {
   }
 });
 
-router.get('/runs/run/:fileName', async (req, res) => {
+router.get('/runs/run/:fileName/:runId', async (req, res) => {
+  try {
+    // read the run from storage
+    const run = await readFile(`./../storage/runs/${req.params.fileName}_${req.params.runId}.json`)
+    const parsedRun = JSON.parse(run);
+    return res.send(parsedRun);
+  } catch (e) {
+    const { message } = e as Error;
+    logger.log('error', `Error ${message} while reading a run with name: ${req.params.fileName}_${req.params.runId}.json`);
+    return res.send(null);
+  }
+});
+
+router.post('/runs/run/:fileName/:runId', async (req, res) => {
   try {
     // read the recording from storage
     const recording = await readFile(`./../storage/recordings/${req.params.fileName}.waw.json`)
     const parsedRecording = JSON.parse(recording);
     // read the run from storage
-    const run = await readFile(`./../storage/runs/${req.params.fileName}.json`)
+    const run = await readFile(`./../storage/runs/${req.params.fileName}_${req.params.runId}.json`)
     const parsedRun = JSON.parse(run);
 
     // interpret the run in active browser
@@ -135,7 +154,7 @@ router.get('/runs/run/:fileName', async (req, res) => {
         };
         fs.mkdirSync('../storage/runs', { recursive: true })
         await saveFile(
-          `../storage/runs/${parsedRun.name}.json`,
+          `../storage/runs/${parsedRun.name}_${req.params.runId}.json`,
           JSON.stringify(run_meta, null, 2)
         );
         return res.send(true);
@@ -145,16 +164,16 @@ router.get('/runs/run/:fileName', async (req, res) => {
   } catch (e) {
     const {message} = e as Error;
     console.log(message)
-    logger.log('info', `Error while running a recording with name: ${req.params.fileName}.json`);
+    logger.log('info', `Error while running a recording with name: ${req.params.fileName}_${req.params.runId}.json`);
     return res.send(false);
   }
 });
 
 
-router.post('/runs/abort/:fileName', async (req, res) => {
+router.post('/runs/abort/:fileName/:runId', async (req, res) => {
   try {
     // read the run from storage
-    const run = await readFile(`./../storage/runs/${req.params.fileName}.json`)
+    const run = await readFile(`./../storage/runs/${req.params.fileName}_${req.params.runId}.json`)
     const parsedRun = JSON.parse(run);
 
     //get current log
@@ -183,14 +202,14 @@ router.post('/runs/abort/:fileName', async (req, res) => {
 
     fs.mkdirSync('../storage/runs', { recursive: true })
     await saveFile(
-      `../storage/runs/${parsedRun.name}.json`,
+      `../storage/runs/${parsedRun.name}_${req.params.runId}.json`,
       JSON.stringify({ ...run_meta, serializableOutput, binaryOutput }, null, 2)
     );
     return res.send(true);
   } catch (e) {
     const {message} = e as Error;
     console.log(message)
-    logger.log('info', `Error while running a recording with name: ${req.params.fileName}.json`);
+    logger.log('info', `Error while running a recording with name: ${req.params.fileName}_${req.params.runId}.json`);
     return res.send(false);
   }
 });
