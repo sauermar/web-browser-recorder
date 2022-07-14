@@ -114,13 +114,6 @@ export const ScreenshotSettings = forwardRef((props, ref) => {
         <MenuItem value="css">css</MenuItem>
         <MenuItem value="device">device</MenuItem>
       </Dropdown>
-      <TextField
-        type="string"
-        id = "path"
-        label="path"
-        size='small'
-        onChange={handleInput}
-      />
     </SettingsWrapper>
   );
 });

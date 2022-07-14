@@ -18,6 +18,10 @@ export class WorkflowInterpreter {
 
   public debugMessages: string[] = [];
 
+  public serializableData: string[] = [];
+
+  public binaryData: {mimetype: string, data: string}[] = [];
+
   private breakpoints: boolean[] = [];
 
   private interpretationResume: (() => void) | null = null;
@@ -109,16 +113,22 @@ export class WorkflowInterpreter {
     if (this.interpreter) {
       logger.log('info', 'Stopping the interpretation.');
       await this.interpreter.stop();
-      this.debugMessages = [];
-      this.interpretationIsPaused = false;
-      this.activeId = null;
-      this.interpreter = null;
-      this.breakpoints = [];
-      this.interpretationResume = null;
+      this.clearState();
     } else {
       logger.log('error', 'Cannot stop: No active interpretation.');
     }
   };
+
+  private clearState = () => {
+    this.debugMessages = [];
+    this.interpretationIsPaused = false;
+    this.activeId = null;
+    this.interpreter = null;
+    this.breakpoints = [];
+    this.interpretationResume = null;
+    this.serializableData = [];
+    this.binaryData = [];
+  }
 
   public InterpretRecording = async (workflow: WorkflowFile, page: Page, settings: InterpreterSettings) => {
     const params = settings.params ? settings.params : null;
@@ -135,28 +145,41 @@ export class WorkflowInterpreter {
           this.socket.emit('debugMessage', msg)
         },
       },
-      serializableCallback: (data: any) => {
-        console.log(data);
+      serializableCallback: (data: string) => {
+        this.serializableData.push(data);
         this.socket.emit('serializableCallback', data);
       },
       binaryCallback: async (data: string, mimetype: string) => {
-        console.log(data);
+        this.binaryData.push({mimetype, data: JSON.stringify(data)});
         this.socket.emit('binaryCallback', {data, mimetype});
-        await saveFile(`../storage/binary.${mimetype}`, data);
       }
     }
 
     const interpreter = new Interpreter(workflow, options);
     this.interpreter = interpreter;
 
-    const result = await interpreter.run(page, params);
+    const status = await interpreter.run(page, params);
+
+    const result = {
+      log: this.debugMessages,
+      result: status,
+      serializableOutput: this.serializableData.reduce((reducedObject, item, index) => {
+        return {
+          [`item-${index}`]: item,
+          ...reducedObject,
+        }
+      }, {}),
+      binaryOutput: this.binaryData.reduce((reducedObject, item, index) => {
+        return {
+          [`item-${index}`]: item,
+          ...reducedObject,
+        }
+      }, {})
+    }
 
     logger.log('debug',`Interpretation finished`);
-    this.interpreter = null;
-    return {
-      log: this.debugMessages,
-      result,
-    }
+    this.clearState();
+    return result;
   }
 
   public interpretationInProgress = () => {

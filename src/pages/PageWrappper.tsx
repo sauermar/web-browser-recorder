@@ -46,22 +46,24 @@ export const PageWrapper = () => {
 
   return (
     <div>
-      <NavBar newRecording={handleNewRecording} recordingName={recordingName} isRecording={!!browserId}/>
-        {browserId
-          ? (
-            <SocketProvider>
-              <BrowserDimensionsProvider>
-                <div>
-                  <RecordingPage recordingName={recordingName}/>
-                  <InterpretationLog/>
-                </div>
-              </BrowserDimensionsProvider>
-            </SocketProvider>
-          )
-          : <MainPage
-            handleEditRecording={handleEditRecording}
-          />
-        }
+      <SocketProvider>
+        <React.Fragment>
+          <NavBar newRecording={handleNewRecording} recordingName={recordingName} isRecording={!!browserId}/>
+            {browserId
+              ? (
+                  <BrowserDimensionsProvider>
+                    <React.Fragment>
+                      <RecordingPage recordingName={recordingName}/>
+                      <InterpretationLog/>
+                    </React.Fragment>
+                  </BrowserDimensionsProvider>
+              )
+              : <MainPage
+                handleEditRecording={handleEditRecording}
+              />
+            }
+        </React.Fragment>
+      </SocketProvider>
       { isNotification() ?
         <AlertSnackbar severity={notification.severity}
                        message={notification.message}

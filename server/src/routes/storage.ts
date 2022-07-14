@@ -80,12 +80,14 @@ router.put('/runs/:fileName', async (req, res) => {
       task: req.body.params ? 'task-1' : '',
       browserId: id,
       interpreterSettings: req.body,
+      log: '',
     };
     fs.mkdirSync('../storage/runs', { recursive: true })
     await saveFile(
       `../storage/runs/${req.params.fileName}.json`,
-      JSON.stringify({ ...run_meta, log: '' }, null, 2)
+      JSON.stringify({ ...run_meta }, null, 2)
     );
+    logger.log('debug', `Created run with name: ${req.params.fileName}.json`);
     return res.send(id);
   } catch (e) {
     const {message} = e as Error;
@@ -120,31 +122,26 @@ router.get('/runs/run/:fileName', async (req, res) => {
           return `${minAndS[0]} m ${minAndS[1]} s`;
         }
       })();
-      const success = await destroyRemoteBrowser(parsedRun.browserId);
-      if (success) {
+      await destroyRemoteBrowser(parsedRun.browserId);
         const run_meta = {
           status: interpretationInfo.result,
-          name: parsedRun.name,
-          startedAt: parsedRun.startedAt,
           finishedAt: new Date().toLocaleString(),
           duration: durString,
-          task: parsedRun.task,
           browserId: null,
-          interpreterSettings: parsedRun.interpreterSettings,
+          log: interpretationInfo.log.join('\n'),
+          serializableOutput: interpretationInfo.serializableOutput,
+          binaryOutput: interpretationInfo.binaryOutput,
+          ...parsedRun,
         };
         fs.mkdirSync('../storage/runs', { recursive: true })
         await saveFile(
           `../storage/runs/${parsedRun.name}.json`,
-          JSON.stringify({ ...run_meta, log: interpretationInfo.log.join('\n') }, null, 2)
+          JSON.stringify(run_meta, null, 2)
         );
         return res.send(true);
       } else {
         throw new Error('Could not destroy browser');
       }
-    } else {
-       throw new Error('Browser not initialized properly');
-    }
-    return res.send();
   } catch (e) {
     const {message} = e as Error;
     console.log(message)
@@ -163,32 +160,31 @@ router.post('/runs/abort/:fileName', async (req, res) => {
     //get current log
     const browser = browserPool.getRemoteBrowser(parsedRun.browserId);
     const currentLog = browser?.interpreter.debugMessages.join('/n');
+    const serializableOutput = browser?.interpreter.serializableData.reduce((reducedObject, item, index) => {
+      return {
+        [`item-${index}`]: item,
+        ...reducedObject,
+      }
+    }, {});
+    const binaryOutput = browser?.interpreter.binaryData.reduce((reducedObject, item, index) => {
+      return {
+        [`item-${index}`]: item,
+        ...reducedObject,
+      }
+    }, {});
     const run_meta = {
       status: 'ABORTED',
-      name: parsedRun.name,
-      startedAt: parsedRun.startedAt,
-      finishedAt: new Date().toLocaleString(),
+      finishedAt: null,
       duration: '',
-      task: parsedRun.task,
       browserId: null,
-      interpreterSettings: parsedRun.interpreterSettings,
+      log: currentLog,
+      ...parsedRun,
     };
-    const duration = Math.round((new Date(run_meta.finishedAt).getTime() - new Date(parsedRun.startedAt).getTime()) / 1000);
-    const durString = (() => {
-      if (duration < 60) {
-        return `${duration} s`;
-      }
-      else {
-        const minAndS = (duration / 60).toString().split('.');
-        return `${minAndS[0]} m ${minAndS[1]} s`;
-      }
-    })();
-    run_meta.duration = durString;
 
     fs.mkdirSync('../storage/runs', { recursive: true })
     await saveFile(
       `../storage/runs/${parsedRun.name}.json`,
-      JSON.stringify({ ...run_meta, log: currentLog }, null, 2)
+      JSON.stringify({ ...run_meta, serializableOutput, binaryOutput }, null, 2)
     );
     return res.send(true);
   } catch (e) {

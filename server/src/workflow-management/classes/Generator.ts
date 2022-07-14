@@ -60,7 +60,10 @@ export class WorkflowGenerator {
   }
 
   private registerEventHandlers = (socket: Socket) => {
-    socket.on('save', (fileName: string) => this.saveNewWorkflow(fileName));
+    socket.on('save', async (fileName: string) => {
+      logger.log('debug', `Saving workflow ${fileName}`);
+      await this.saveNewWorkflow(fileName)
+    });
     socket.on('new-recording', () => this.workflowRecord = {
       workflow: [],
     } );
