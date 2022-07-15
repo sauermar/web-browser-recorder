@@ -19,6 +19,7 @@
     "@types/uuid": "^8.3.4",
     "@wbr-project/wbr-interpret": "^0.9.3-marketa.1",
     "axios": "^0.26.0",
+    "buffer": "^6.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.17.2",

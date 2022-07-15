@@ -114,8 +114,8 @@ export const RecordingsTable = ({ handleEditRecording, handleRunRecording }: Rec
   }, []);
 
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <TableContainer sx={{ maxHeight: 440 }}>
+    <React.Fragment>
+      <TableContainer component={Paper} sx={{ width: '100%', overflow: 'hidden' }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
@@ -200,7 +200,7 @@ export const RecordingsTable = ({ handleEditRecording, handleRunRecording }: Rec
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-    </Paper>
+    </React.Fragment>
   );
 }
 

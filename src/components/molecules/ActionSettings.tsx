@@ -63,7 +63,7 @@ export const ActionSettings = ({action}: ActionSettingsProps) => {
               marginTop: "20px",
             }}
           >
-            {"Add Action"}
+            Add Action
           </Button>
         </form>
       </ActionSettingsWrapper>

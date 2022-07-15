@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import { MainMenu } from "../components/organisms/MainMenu";
-import { Grid } from "@mui/material";
+import { Grid, Stack } from "@mui/material";
 import { Recordings } from "../components/organisms/Recordings";
 import { Runs } from "../components/organisms/Runs";
 import { useGlobalInfoStore } from "../context/globalInfo";
@@ -109,6 +109,7 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
           currentInterpretationLog={currentInterpretationLog}
           abortRunHandler={() => abortRunHandler(ids.runId)}
           runId={ids.runId}
+          runningRecordingName={runningRecordingName}
         />;
       default:
         return null;
@@ -116,13 +117,9 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
   }
 
   return (
-    <Grid container direction="row" spacing={0}>
-      <Grid item xs={ 2 } style={{ display: "flex", flexDirection: "row" }}>
+    <Stack direction='row' spacing={0}>
         <MainMenu value={content} handleChangeContent={setContent}/>
-      </Grid>
-      <Grid item xs>
-        { DisplayContent() }
-      </Grid>
-    </Grid>
+      { DisplayContent() }
+    </Stack>
   );
 };

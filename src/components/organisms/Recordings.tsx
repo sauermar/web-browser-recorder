@@ -32,22 +32,21 @@ export const Recordings = ({ handleEditRecording, handleRunRecording, setFileNam
   }
 
   return (
+    <React.Fragment>
+    <RunSettingsModal isOpen={runSettingsAreOpen}
+                      handleClose={handleClose}
+                      handleStart={ (settings) => handleRunRecording(settings) }
+                      isTask={params.length !== 0}
+                      params={params}
+    />
     <Grid container direction="column" sx={{ padding: '30px'}}>
-      <Grid item xs={ 3 }>
-        <hr/>
-      </Grid>
       <Grid item xs>
         <RecordingsTable
           handleEditRecording={handleEditRecording}
           handleRunRecording={handleSettingsAndRun}
         />
-        <RunSettingsModal isOpen={runSettingsAreOpen}
-                          handleClose={handleClose}
-                          handleStart={ (settings) => handleRunRecording(settings) }
-                          isTask={params.length !== 0}
-                          params={params}
-        />
       </Grid>
     </Grid>
+    </React.Fragment>
   );
 }

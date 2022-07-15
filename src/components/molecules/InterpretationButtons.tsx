@@ -70,14 +70,17 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
   const handleDescription = () => {
     switch (decisionModal.actionType){
       case 'customAction':
-        return ( <Typography>
+        return (
+          <React.Fragment>
+          <Typography>
           Do you want to use the previously recorded selector
           as a where condition for matching the action?
-          <Box style={{marginTop: '4px'}}>
-            [previous action: <b>{decisionModal.action}</b>]
-            <pre>{decisionModal.selector}</pre>
-          </Box>
-        </Typography> );
+        </Typography>
+        <Box style={{marginTop: '4px'}}>
+          [previous action: <b>{decisionModal.action}</b>]
+          <pre>{decisionModal.selector}</pre>
+        </Box>
+          </React.Fragment>);
       default: return null;}
   }
 

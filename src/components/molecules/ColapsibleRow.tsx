@@ -5,9 +5,8 @@ import TableCell from "@mui/material/TableCell";
 import { Box, Collapse, IconButton, Typography } from "@mui/material";
 import { DeleteForever, KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import { deleteRunFromStorage } from "../../api/storage";
-import Highlight from "react-highlight";
-import Button from "@mui/material/Button";
 import { columns, Data } from "./RunsTable";
+import { RunContent } from "./RunContent";
 
 interface CollapsibleRowProps {
   row: Data;
@@ -15,8 +14,9 @@ interface CollapsibleRowProps {
   isOpen: boolean;
   currentLog: string;
   abortRunHandler: () => void;
+  runningRecordingName: string;
 }
-export const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog, abortRunHandler }: CollapsibleRowProps) => {
+export const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog, abortRunHandler,runningRecordingName }: CollapsibleRowProps) => {
   const [open, setOpen] = useState(isOpen);
 
   const logEndRef = useRef<HTMLDivElement|null>(null);
@@ -32,7 +32,6 @@ export const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog, abortRun
   }
 
   useEffect(() => {
-    console.log('scrolling to the bottom of the log')
     scrollToLogBottom();
   }, [currentLog])
 
@@ -85,29 +84,8 @@ export const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog, abortRun
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <Typography>Interpreter settings:</Typography>
-            <Typography>{JSON.stringify(row.interpreterSettings, null, 2)}</Typography>
-            <Box sx={{ margin: 1,
-              background: '#19171c',
-              overflowY: 'scroll',
-              width: '800px',
-              aspectRatio: '4/1',
-              boxSizing: 'border-box',
-            }}>
-              <div>
-                <Highlight className="javascript">
-                  {isOpen ? currentLog : row.log}
-                </Highlight>
-                <div style={{ float:"left", clear: "both" }}
-                     ref={logEndRef}/>
-              </div>
-            </Box>
-            {isOpen ? <Button
-              color="error"
-              onClick={handleAbort}
-            >
-              Abort
-            </Button> : null}
+            <RunContent row={row} abortRunHandler={handleAbort} currentLog={currentLog}
+            logEndRef={logEndRef} interpretationInProgress={runningRecordingName === row.name} />
           </Collapse>
         </TableCell>
       </TableRow>

@@ -27,8 +27,8 @@ export const columns: readonly Column[] = [
   { id: 'startedAt', label: 'Started at', minWidth: 80 },
   { id: 'finishedAt', label: 'Finished at', minWidth: 80 },
   { id: 'duration', label: 'Duration', minWidth: 80 },
-  { id: 'task', label: 'Task', minWidth: 80 },
   { id: 'runId', label: 'Run id', minWidth: 80 },
+  { id: 'task', label: 'Task', minWidth: 80 },
   { id: 'delete', label: 'Delete', minWidth: 80 },
 ];
 
@@ -43,16 +43,19 @@ export interface Data {
   log: string;
   runId: string;
   interpreterSettings: RunSettings;
+  serializableOutput: any;
+  binaryOutput: any;
 }
 
 interface RunsTableProps {
   currentInterpretationLog: string;
   abortRunHandler: () => void;
   runId: string;
+  runningRecordingName: string;
 }
 
 export const RunsTable = (
-  { currentInterpretationLog, abortRunHandler, runId }: RunsTableProps) => {
+  { currentInterpretationLog, abortRunHandler, runId, runningRecordingName }: RunsTableProps) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [rows, setRows] = useState<Data[]>([]);
@@ -129,6 +132,7 @@ export const RunsTable = (
                     isOpen={runId === row.runId}
                     currentLog={currentInterpretationLog}
                     abortRunHandler={abortRunHandler}
+                    runningRecordingName={runningRecordingName}
                   />
                 )
               : null }

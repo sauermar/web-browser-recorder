@@ -19,8 +19,8 @@ export const MainMenu = ({ value = 'recordings', handleChangeContent }: MainMenu
   return (
     <Paper
       sx={{
-        height: '100%',
-        width: '100%',
+        height: 'auto',
+        maxWidth: 'fit-content',
         backgroundColor: 'lightgray',
         paddingTop: '2rem',
       }}
@@ -46,23 +46,6 @@ export const MainMenu = ({ value = 'recordings', handleChangeContent }: MainMenu
           }} value="runs" label="Runs" />
         </Tabs>
       </Box>
-      <Box sx={{
-        width: '100%',
-        height: '25%',
-        background: 'darkgray',
-      }}>
-        <HelpText>Help & Inspiration</HelpText>
-      </Box>
     </Paper>
   );
 }
-
-const HelpText = styled.p`
-  font-size: larger;
-  font-style: italic;
-  font-family: serif;
-  display: grid;
-  justify-content: center;
-  padding-top: 71px;
-  color: rgba(0, 0, 0, 0.5);
-`;

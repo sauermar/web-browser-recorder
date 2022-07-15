@@ -107,7 +107,6 @@ export const PairEditForm: FC<PairEditFormProps> = (
         what: whatFromPair?.what || [],
       }
       : {
-          id: pairProps.id,
           where: whereFromPair?.where || {},
           what: whatFromPair?.what || [],
         }
