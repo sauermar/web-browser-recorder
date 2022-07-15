@@ -59,10 +59,12 @@ export class WorkflowInterpreter {
     workflow: WorkflowFile,
     page: Page,
     updatePageOnPause: (page: Page) => void,
+    settings: InterpreterSettings,
   ) => {
+    const params = settings.params ? settings.params : null;
+    delete settings.params;
     const options = {
-      maxConcurrency: 1,
-      maxRepeats: 1,
+      ...settings,
       debugChannel: {
         activeId: (id: any) => {
           this.activeId = id;
@@ -74,11 +76,9 @@ export class WorkflowInterpreter {
         },
       },
       serializableCallback: (data: any) => {
-        console.log(data);
         this.socket.emit('serializableCallback', data);
       },
       binaryCallback: (data: string, mimetype: string) => {
-        console.log(data);
         this.socket.emit('binaryCallback', {data, mimetype});
       }
     }
@@ -105,7 +105,7 @@ export class WorkflowInterpreter {
 
     this.socket.emit('log', '----- Starting the interpretation -----', false);
 
-    const status = await interpreter.run(page);
+    const status = await interpreter.run(page, params);
 
     this.socket.emit('log', `----- The interpretation finished with status: ${status} -----`, false);
 

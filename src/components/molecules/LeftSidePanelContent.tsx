@@ -67,7 +67,7 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow, recordingName, 
   return (
     <div>
       <Tooltip title='Add pair' placement='left' arrow>
-        <div style={{ marginRight: '15px', float: 'right'}}>
+        <div style={{ float: 'right'}}>
           <AddButton
             handleClick={handleAddPair}
             title=''
@@ -85,9 +85,7 @@ export const LeftSidePanelContent = ({ workflow, updateWorkflow, recordingName, 
           numberOfPairs={workflow.workflow.length}
         />
       </GenericModal>
-
-      <Typography sx={{margin: '10px'}}>Recording:</Typography>
-  <div>
+      <div>
       {
         workflow.workflow.map((pair, i, workflow, ) =>
           <Pair

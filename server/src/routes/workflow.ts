@@ -30,6 +30,15 @@ router.get('/:browserId', (req, res) => {
   return res.send(workflowFile);
 });
 
+router.get('/params/:browserId', (req, res) => {
+  const activeBrowser = browserPool.getRemoteBrowser(req.params.browserId);
+  let params = null;
+  if (activeBrowser && activeBrowser.generator) {
+    params = activeBrowser.generator.getParams();
+  }
+  return res.send(params);
+});
+
 router.delete('/pair/:index', (req, res) => {
   const id = browserPool.getActiveBrowserId();
   if (id) {

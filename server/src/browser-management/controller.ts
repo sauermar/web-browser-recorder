@@ -123,9 +123,13 @@ export const interpretWholeWorkflow = async() => {
     const id = getActiveBrowserId();
     if (id) {
     const browser = browserPool.getRemoteBrowser(id);
-    await browser?.interpretCurrentRecording();
+      if (browser) {
+        await browser.interpretCurrentRecording();
+      } else {
+        logger.log('error', `No active browser with id ${id} found in the browser pool`);
+      }
     } else {
-      logger.log('error', 'Cannot interpret the workflow: No active browser.');
+      logger.log('error', `Cannot interpret the workflow: bad id ${id}.`);
     }
 };
 

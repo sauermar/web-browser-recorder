@@ -134,7 +134,7 @@ export const InterpretationButtons = ({ enableStepping }: InterpretationButtonsP
 
   return (
     <Stack direction="row" spacing={3}
-    sx={{ marginTop: '10px', marginBottom: '5px'}} >
+    sx={{ marginTop: '10px', marginBottom: '5px', justifyContent: 'space-evenly',}} >
       <IconButton disabled={!info.running} sx={{display:'grid', '&:hover': { color: '#1976d2', backgroundColor: 'transparent' }}}
                   aria-label="pause" size="small" title="Pause" onClick={handlePause}>
         <PauseCircle sx={{ fontSize: 30, justifySelf:'center' }}/>

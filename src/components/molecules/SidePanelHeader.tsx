@@ -21,13 +21,13 @@ export const SidePanelHeader = () => {
  };
 
  return (
-   <div>
+   <div style={{width: 'inherit'}}>
     <InterpretationButtons enableStepping={(isPaused) => setSteppingIsDisabled(!isPaused)}/>
      <Button
        variant='outlined'
        disabled={steppingIsDisabled}
        onClick={handleStep}
-       sx={{marginLeft: '15px'}}
+       sx={{marginLeft:'15px'}}
      >
        step
        <FastForward/>

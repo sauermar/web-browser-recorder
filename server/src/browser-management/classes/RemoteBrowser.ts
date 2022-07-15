@@ -7,7 +7,7 @@ import {
 import { Socket } from "socket.io";
 
 import logger from '../../logger';
-import { RemoteBrowserOptions } from "../../types";
+import { InterpreterSettings, RemoteBrowserOptions } from "../../types";
 import { WorkflowGenerator } from "../../workflow-management/classes/Generator";
 import { WorkflowInterpreter } from "../../workflow-management/classes/Interpreter";
 
@@ -48,6 +48,12 @@ export class RemoteBrowser {
      * @private
      */
     private currentPage : Page | null | undefined = null;
+
+    private interpreterSettings: InterpreterSettings = {
+      debug: false,
+      maxConcurrency: 1,
+      maxRepeats: 1,
+    };
 
     /**
      * {@link WorkflowGenerator} instance specific to the remote browser.
@@ -91,6 +97,7 @@ export class RemoteBrowser {
      */
     public registerEditorEvents = () : void => {
         this.socket.on('rerender', async() => await this.makeAndEmitScreenshot());
+        this.socket.on('settings', (settings) => this.interpreterSettings = settings);
         this.socket.on('changeTab', async(tabIndex) => await this.changeTab(tabIndex));
         this.socket.on('addTab', async () => {
             await this.currentPage?.context().newPage();
@@ -202,13 +209,26 @@ export class RemoteBrowser {
      * @returns {Promise<void>}
      */
     public interpretCurrentRecording = async () : Promise<void> => {
+        logger.log('debug', 'Starting interpretation in the editor');
         if (this.generator) {
             const workflow = this.generator.getWorkflowFile();
             await this.initializeNewPage();
             if (this.currentPage) {
+                const params = this.generator.getParams();
+                if (params) {
+                    this.interpreterSettings.params = params.reduce((acc, param) => {
+                        if (this.interpreterSettings.params && Object.keys(this.interpreterSettings.params).includes(param)) {
+                            return { ...acc, [param]: this.interpreterSettings.params[param] };
+                        } else {
+                            return { ...acc, [param]: '', }
+                        }
+                    }, {})
+                }
+                logger.log('debug', `Starting interpretation with settings: ${JSON.stringify(this.interpreterSettings, null, 2)}`);
                 await this.interpreter.interpretRecordingInEditor(
                   workflow, this.currentPage,
                   (newPage: Page) => this.currentPage = newPage,
+                  this.interpreterSettings
                 );
                 // clear the active index from generator
                 this.generator.clearLastIndex();
@@ -265,13 +285,18 @@ export class RemoteBrowser {
      * @returns {Promise<void>}
      */
     private initializeNewPage = async (options?: Object) : Promise<void> => {
+        await this.stopScreencast();
         const newPage = options ? await this.browser?.newPage(options)
           : await this.browser?.newPage();
 
         await this.currentPage?.close();
         this.currentPage = newPage;
-        this.client = await this.currentPage?.context().newCDPSession(this.currentPage);
-        await this.subscribeToScreencast();
+        if (this.currentPage) {
+            this.client = await this.currentPage.context().newCDPSession(this.currentPage);
+            await this.subscribeToScreencast();
+        } else {
+          logger.log('error', 'Could not get a new page, returned undefined');
+        }
     };
 
     /**

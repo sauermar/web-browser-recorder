@@ -79,8 +79,7 @@ export const Pair: FC<PairProps> = (
   return (
     <PairWrapper isActive={isActive}>
       <Stack direction="row">
-        <div style={{display: 'flex', maxWidth:'20px', alignItems:'center', justifyContent: 'center',
-          marginLeft: '5px',}}>
+        <div style={{display: 'flex', maxWidth:'20px', alignItems:'center', justifyContent: 'center', }}>
           {isActive ? <LoadingButton loading variant="text"/>
             : breakpoint ? <BreakpointButton changeColor={true} handleClick={handleBreakpointClick}/>
               : <BreakpointButton handleClick={handleBreakpointClick}/>
@@ -88,7 +87,6 @@ export const Pair: FC<PairProps> = (
         </div>
         <Button sx={{
           position: 'relative',
-          left: '6%',
           color: 'black',
           padding: '5px 25%',
           fontSize: '1rem',

@@ -1,6 +1,6 @@
-import { Paper } from "@mui/material";
+import { Box, Paper, Tab, Tabs } from "@mui/material";
 import React, { useCallback, useEffect, useState } from "react";
-import { getActiveWorkflow } from "../../api/workflow";
+import { getActiveWorkflow, getParamsOfActiveWorkflow } from "../../api/workflow";
 import { useSocketStore } from '../../context/socket';
 import { WhereWhatPair, WorkflowFile } from "@wbr-project/wbr-interpret";
 import { SidePanelHeader } from "../molecules/SidePanelHeader";
@@ -8,6 +8,9 @@ import { emptyWorkflow } from "../../shared/constants";
 import { LeftSidePanelContent } from "../molecules/LeftSidePanelContent";
 import { useBrowserDimensionsStore } from "../../context/browserDimensions";
 import { useGlobalInfoStore } from "../../context/globalInfo";
+import { TabContext, TabPanel } from "@mui/lab";
+import { LeftSidePanelSettings } from "../molecules/LeftSidePanelSettings";
+import { RunSettings } from "../molecules/RunSettings";
 
 const fetchWorkflow = (id: string, callback: (response: WorkflowFile) => void) => {
   getActiveWorkflow(id).then(
@@ -33,6 +36,13 @@ export const LeftSidePanel = (
 
   const [workflow, setWorkflow] = useState<WorkflowFile>(emptyWorkflow);
   const [hasScrollbar, setHasScrollbar] = useState<boolean>(alreadyHasScrollbar);
+  const [tab, setTab] = useState<string>('recording');
+  const [params, setParams] = useState<string[]>([]);
+  const [settings, setSettings] = React.useState<RunSettings>({
+    maxConcurrency: 1,
+    maxRepeats: 1,
+    debug: false,
+  });
 
   const { id, socket } = useSocketStore();
   const { setWidth, width } = useBrowserDimensionsStore();
@@ -90,16 +100,37 @@ export const LeftSidePanel = (
         height: '100%',
         width: '100%',
         backgroundColor: 'lightgray',
-        alignItems: "center",
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        flexDirection: 'column',
       }}
     >
       <SidePanelHeader/>
-      <LeftSidePanelContent
-        workflow={workflow}
-        updateWorkflow={setWorkflow}
-        recordingName={recordingName}
-        handleSelectPairForEdit={handleSelectPairForEdit}
-      />
+      <TabContext value={tab}>
+          <Tabs value={tab} onChange={(e, newTab) => setTab(newTab)}>
+            <Tab label="Recording" value='recording' />
+            <Tab label="Settings" value='settings' onClick={() => {
+              getParamsOfActiveWorkflow(id).then((response) => {
+                if (response) {
+                  setParams(response);
+                }
+              })
+            }}/>
+          </Tabs>
+        <TabPanel value='recording' sx={{padding: '0px'}}>
+          <LeftSidePanelContent
+            workflow={workflow}
+            updateWorkflow={setWorkflow}
+            recordingName={recordingName}
+            handleSelectPairForEdit={handleSelectPairForEdit}
+          />
+        </TabPanel>
+        <TabPanel value='settings'>
+          <LeftSidePanelSettings params={params}
+          settings={settings} setSettings={setSettings}/>
+        </TabPanel>
+      </TabContext>
     </Paper>
   );
 
