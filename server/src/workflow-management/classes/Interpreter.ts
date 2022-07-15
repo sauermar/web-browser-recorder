@@ -3,7 +3,6 @@ import logger from "../../logger";
 import { Socket } from "socket.io";
 import { Page } from "playwright";
 import { InterpreterSettings } from "../../types";
-import { saveFile } from "../storage";
 
 
 export class WorkflowInterpreter {
@@ -38,6 +37,7 @@ export class WorkflowInterpreter {
       this.interpretationIsPaused = false;
       if (this.interpretationResume) {
         this.interpretationResume();
+        this.socket.emit('log', '----- The interpretation has been resumed -----', false);
       } else {
         logger.log('debug',"Resume called but no resume function is set");
       }
@@ -49,7 +49,10 @@ export class WorkflowInterpreter {
         logger.log('debug', "Step called but no resume function is set");
       }
     });
-    this.socket.on('breakpoints', (data: boolean[]) => this.breakpoints = data);
+    this.socket.on('breakpoints', (data: boolean[]) => {
+      logger.log('debug', "Setting breakpoints: " + data);
+      this.breakpoints = data
+    });
   }
 
   public interpretRecordingInEditor = async (
@@ -84,7 +87,7 @@ export class WorkflowInterpreter {
     this.interpreter = interpreter;
 
     interpreter.on('flag', async (page, resume) => {
-      if (this.activeId && this.breakpoints[this.activeId]) {
+      if (this.activeId !== null && this.breakpoints[this.activeId]) {
         logger.log('debug',`breakpoint hit id: ${this.activeId}`);
         this.socket.emit('breakpointHit');
         this.interpretationIsPaused = true;
@@ -94,12 +97,17 @@ export class WorkflowInterpreter {
         this.interpretationResume = resume;
         logger.log('debug',`Paused inside of flag: ${page.url()}`);
         updatePageOnPause(page);
+        this.socket.emit('log', '----- The interpretation has been paused -----', false);
       } else {
         resume();
       }
     });
 
-    await interpreter.run(page);
+    this.socket.emit('log', '----- Starting the interpretation -----', false);
+
+    const status = await interpreter.run(page);
+
+    this.socket.emit('log', `----- The interpretation finished with status: ${status} -----`, false);
 
     logger.log('debug',`Interpretation finished`);
     this.interpreter = null;
@@ -113,6 +121,7 @@ export class WorkflowInterpreter {
     if (this.interpreter) {
       logger.log('info', 'Stopping the interpretation.');
       await this.interpreter.stop();
+      this.socket.emit('log', '----- The interpretation has been stopped -----', false);
       this.clearState();
     } else {
       logger.log('error', 'Cannot stop: No active interpretation.');

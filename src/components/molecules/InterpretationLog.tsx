@@ -26,20 +26,29 @@ export const InterpretationLog = () => {
     }
   }
 
-  const handleLog = useCallback((msg: string) => {
-    setLog((prevState) => prevState + '\n' + `[${new Date().toLocaleString()}] ` + msg);
+  const handleLog = useCallback((msg: string, date: boolean = true) => {
+    if (!date){
+      setLog((prevState) => prevState + '\n' + msg);
+    } else {
+      setLog((prevState) => prevState + '\n' + `[${new Date().toLocaleString()}] ` + msg);
+    }
     scrollLogToBottom();
   }, [log, scrollLogToBottom])
 
   const handleSerializableCallback = useCallback((data: string) => {
     setLog((prevState) =>
-      prevState + '\n' + JSON.stringify(data, null, 2));
+      prevState + '\n' + '---------- Serializable output data received ----------' + '\n'
+      + JSON.stringify(data, null, 2) + '\n' + '--------------------------------------------------');
     scrollLogToBottom();
   }, [log, scrollLogToBottom])
 
   const handleBinaryCallback = useCallback(({data, mimetype}: any) => {
+    console.log('mimetype', mimetype);
+    console.log('data', data);
     setLog((prevState) =>
-    prevState + '\n' + JSON.parse(data));
+    prevState + '\n' + '---------- Binary output data received ----------' + '\n'
+      + `mimetype: ${mimetype}` + '\n' + `data: ${JSON.stringify(data)}` + '\n'
+      + '------------------------------------------------');
     scrollLogToBottom();
   }, [log, scrollLogToBottom])
 
