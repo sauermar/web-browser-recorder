@@ -193,12 +193,12 @@ router.post('/runs/abort/:fileName/:runId', async (req, res) => {
       }
     }, {});
     const run_meta = {
+      ...parsedRun,
       status: 'ABORTED',
       finishedAt: null,
       duration: '',
       browserId: null,
       log: currentLog,
-      ...parsedRun,
     };
 
     fs.mkdirSync('../storage/runs', { recursive: true })

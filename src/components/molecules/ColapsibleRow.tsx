@@ -65,7 +65,7 @@ export const CollapsibleRow = ({ row, handleDelete, isOpen, currentLog, abortRun
                 return (
                   <TableCell key={column.id} align={column.align}>
                     <IconButton aria-label="add" size= "small" onClick={() => {
-                      deleteRunFromStorage(row.name).then((result: boolean) => {
+                      deleteRunFromStorage(`${row.name}_${row.runId}`).then((result: boolean) => {
                         if (result) {
                           handleDelete();
                         }

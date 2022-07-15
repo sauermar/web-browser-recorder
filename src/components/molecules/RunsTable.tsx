@@ -129,7 +129,7 @@ export const RunsTable = (
                     row={row}
                     handleDelete={handleDelete}
                     key={`row-${row.id}`}
-                    isOpen={runId === row.runId}
+                    isOpen={runId === row.runId && runningRecordingName === row.name}
                     currentLog={currentInterpretationLog}
                     abortRunHandler={abortRunHandler}
                     runningRecordingName={runningRecordingName}

@@ -9,6 +9,7 @@ import ImageIcon from '@mui/icons-material/Image';
 import ArticleIcon from '@mui/icons-material/Article';
 import {Buffer} from 'buffer';
 import { useEffect } from "react";
+import AssignmentIcon from '@mui/icons-material/Assignment';
 
 interface RunContentProps {
   row: Data,
@@ -56,7 +57,7 @@ export const RunContent = ({row, currentLog, interpretationInProgress, logEndRef
           color="error"
           onClick={abortRunHandler}
         >
-          Abort
+          Stop
         </Button> : null}
       </TabPanel>
       <TabPanel value='input' sx={{width: '700px'}}>
@@ -66,6 +67,26 @@ export const RunContent = ({row, currentLog, interpretationInProgress, logEndRef
         </Typography>
         {
           Object.keys(row.interpreterSettings).map((setting, index) => {
+            if (setting === 'params') {
+              return (
+                <div key={`settings-${setting}-${index}`}>
+                <Typography variant='h6' sx={{display:'flex', alignItems:'center'}} key={`setting-${index}`}>
+                  <AssignmentIcon sx={{marginRight: '15px'}}/>
+                  Recording parameters
+                </Typography>
+                  {
+                    Object.keys(row.interpreterSettings.params).map((param, index) => {
+                      return (
+                        <Typography key={`recording-params-item-${index}`} sx={{margin: '10px'}}>
+                          {/*@ts-ignore*/}
+                          {param}: {row.interpreterSettings.params[param].toString()}
+                        </Typography>
+                      )
+                    })
+                  }
+                </div>
+              )
+            }
             return (
               <Typography key={`interpreter-settings-item-${index}`} sx={{margin: '10px'}}>
                 {/*@ts-ignore*/}
