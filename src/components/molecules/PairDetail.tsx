@@ -247,12 +247,6 @@ export const PairDetail = ({ pair, index }: PairDetailProps) => {
               ?(
               <React.Fragment>
               { Object.keys(pair.what).map((key, index) => {
-                //hide generated actions in pair detail
-                if (pair.what[index].args &&
-                  //@ts-ignore
-                  pair.what[index].args.length > 0 && pair?.what[index].args[0] === 'generated') {
-                  return null;
-                }
                 return (
                   <TreeView
                     defaultCollapseIcon={<ExpandMoreIcon />}

@@ -87,6 +87,7 @@ router.get('/interpret', async (req, res) => {
         await interpretWholeWorkflow();
         return res.send('interpretation done');
     } catch (e) {
+        return res.send('interpretation done');
         return res.status(400);
     }
 });

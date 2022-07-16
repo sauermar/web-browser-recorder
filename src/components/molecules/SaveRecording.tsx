@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { IconButton, Button } from "@mui/material";
+import React, { useCallback, useEffect, useState } from 'react';
+import { IconButton, Button, Box, LinearProgress, Tooltip } from "@mui/material";
 import { GenericModal } from "../atoms/GenericModal";
 import { stopRecording } from "../../api/recording";
 import { useGlobalInfoStore } from "../../context/globalInfo";
@@ -18,6 +18,7 @@ export const SaveRecording = ({fileName}: SaveRecordingProps) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [needConfirm, setNeedConfirm] = useState<boolean>(false);
   const [recordingName, setRecordingName] = useState<string>(fileName);
+  const [waitingForSave, setWaitingForSave] = useState<boolean>(false);
 
   const { browserId, setBrowserId, notify, recordings } =  useGlobalInfoStore();
   const { socket } = useSocketStore();
@@ -40,16 +41,27 @@ export const SaveRecording = ({fileName}: SaveRecordingProps) => {
     }
   };
 
-  // notifies backed to save the recording in progress,
-  // releases resources and changes the view for main page by clearing the global browserId
-  const saveRecording = async () => {
-    socket?.emit('save', recordingName)
+  const exitRecording = useCallback(async() => {
     notify('success', 'Recording saved successfully');
     if (browserId) {
       await stopRecording(browserId);
     }
     setBrowserId(null);
+  }, [setBrowserId, browserId, notify]);
+
+  // notifies backed to save the recording in progress,
+  // releases resources and changes the view for main page by clearing the global browserId
+  const saveRecording = async () => {
+    socket?.emit('save', recordingName)
+    setWaitingForSave(true);
   }
+
+  useEffect(() => {
+    socket?.on('fileSaved', exitRecording);
+    return () => {
+      socket?.off('fileSaved', exitRecording);
+    }
+  }, [socket, exitRecording]);
 
   return (
     <div>
@@ -87,6 +99,13 @@ export const SaveRecording = ({fileName}: SaveRecordingProps) => {
               </React.Fragment>)
               : <Button type="submit" variant="contained">Save</Button>
             }
+          { waitingForSave &&
+              <Tooltip title='Optimizing and saving the workflow' placement={"bottom"}>
+                  <Box sx={{ width: '100%' }}>
+                      <LinearProgress/>
+                  </Box>
+              </Tooltip>
+          }
         </form>
       </GenericModal>
     </div>

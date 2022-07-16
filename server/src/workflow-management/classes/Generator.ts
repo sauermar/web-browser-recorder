@@ -100,10 +100,12 @@ export class WorkflowGenerator {
       if (match) {
         // if a match of where conditions is found, the new action is added into the matched rule
         const matchedIndex = this.workflowRecord.workflow.indexOf(match);
-        pair.what.push({
-          action: 'waitForLoadState',
-          args: ['networkidle'],
-        })
+        if (pair.what[0].action !== 'waitForLoadState' && pair.what[0].action !== 'press') {
+          pair.what.push({
+            action: 'waitForLoadState',
+            args: ['networkidle'],
+          })
+        }
         this.workflowRecord.workflow[matchedIndex].what = this.workflowRecord.workflow[matchedIndex].what.concat(pair.what);
         logger.log('info', `Pushed ${JSON.stringify(this.workflowRecord.workflow[matchedIndex])} to workflow pair`);
         matched = true;
@@ -114,16 +116,13 @@ export class WorkflowGenerator {
     if (!matched) {
       const handled = await this.handleOverShadowing(pair, page, this.generatedData.lastIndex || 0);
       if (!handled) {
-        // adding flag as a top action to every pair for pausing/resuming
-        pair.what.unshift({
-          action: 'flag',
-          args: ['generated'],
-        })
         //adding waitForLoadState with networkidle, for better success rate of automatically recorded workflows
-        pair.what.push({
-          action: 'waitForLoadState',
-          args: ['networkidle'],
-        })
+        if (pair.what[0].action !== 'waitForLoadState' && pair.what[0].action !== 'press') {
+          pair.what.push({
+            action: 'waitForLoadState',
+            args: ['networkidle'],
+          })
+        }
         if (this.generatedData.lastIndex === 0) {
           this.generatedData.lastIndex = null;
           // we want to have the most specific selectors at the beginning of the workflow
@@ -273,29 +272,29 @@ export class WorkflowGenerator {
       return workflow;
   };
 
-  private AddGeneratedFlags = (workflow: WorkflowFile): WorkflowFile => {
+  public AddGeneratedFlags = (workflow: WorkflowFile): WorkflowFile => {
+    const copy = JSON.parse(JSON.stringify(workflow));
     for (let i = 0; i < workflow.workflow.length; i++) {
-      workflow.workflow[i].what.unshift({
+      copy.workflow[i].what.unshift({
         action: 'flag',
         args: ['generated'],
       });
     }
-    return workflow;
+    return copy;
   };
 
   public updateWorkflowFile = (workflowFile: WorkflowFile, meta: MetaData) => {
-    const stoppableWorkflow = this.AddGeneratedFlags(workflowFile);
     this.recordingMeta = meta;
     const params = this.checkWorkflowForParams(workflowFile);
     if (params) {
       this.recordingMeta.params = params;
     }
-    this.workflowRecord = stoppableWorkflow;
+    this.workflowRecord = workflowFile;
   }
 
   public saveNewWorkflow = async (fileName: string) => {
+    const recording = this.optimizeWorkflow(this.workflowRecord);
     try {
-      const recording = this.removeAllGeneratedFlags(this.workflowRecord);
       this.recordingMeta = {
         name: fileName,
         create_date: this.recordingMeta.create_date || new Date().toLocaleString(),
@@ -308,11 +307,13 @@ export class WorkflowGenerator {
         `../storage/recordings/${fileName}.waw.json`,
         JSON.stringify({ recording_meta: this.recordingMeta, recording }, null, 2)
       );
-    } catch (e) {
+    }
+     catch (e) {
       const { message } = e as Error;
       logger.log('warn', `Cannot save the file to the local file system`)
       console.log(message);
     }
+    this.socket.emit('fileSaved');
   }
 
   private generateSelector = async (page:Page, coordinates:Coordinates, action: ActionType) => {
@@ -414,9 +415,16 @@ export class WorkflowGenerator {
     if (overShadowing.length !== 0) {
       for (const overShadowedAction of overShadowing) {
         if (overShadowedAction.index === index) {
-          // add new selector to the where part of the overshadowing pair
-          this.workflowRecord.workflow[index].where.selectors =
-            this.workflowRecord.workflow[index].where.selectors?.concat(pair.where.selectors || []);
+          if (pair.where.selectors) {
+            for (const selector of pair.where.selectors) {
+              if (this.workflowRecord.workflow[index].where.selectors?.includes(selector)) {
+                break;
+              } else {
+                // add new selector to the where part of the overshadowing pair
+                  this.workflowRecord.workflow[index].where.selectors?.push(selector);
+              }
+            }
+          }
           // push the action automatically to the first/the closest rule which would be overShadowed
           this.workflowRecord.workflow[index].what =
             this.workflowRecord.workflow[index].what.concat(pair.what);
@@ -460,6 +468,75 @@ export class WorkflowGenerator {
       }
     }
     return null;
+  }
+
+  private optimizeWorkflow = (workflow: WorkflowFile) => {
+
+    // replace a sequence of press actions by a single fill action
+    let input = {
+      selector: '',
+      value: '',
+      actionCounter: 0,
+    };
+
+    const pushTheOptimizedAction = (pair: WhereWhatPair, index: number) => {
+      if (input.value.length === 1) {
+        // when only one press action is present, keep it and add a waitForLoadState action
+        pair.what.splice(index + 1, 0, {
+          action: 'waitForLoadState',
+          args: ['networkidle'],
+        })
+      } else {
+        // when more than one press action is present, add a type action
+        pair.what.splice(index - input.actionCounter, input.actionCounter, {
+          action: 'type',
+          args: [input.selector, input.value], }, {
+          action: 'waitForLoadState',
+          args: ['networkidle'], });
+      }
+    }
+
+
+    for (const pair of workflow.workflow) {
+      pair.what.forEach( (condition, index) => {
+        if (condition.action === 'press') {
+          if (condition.args && condition.args[1]) {
+            if (!input.selector) {
+              input.selector = condition.args[0];
+            }
+            if (input.selector === condition.args[0]) {
+              input.actionCounter++;
+              if (condition.args[1].length === 1) {
+                input.value = input.value + condition.args[1];
+              } else if (condition.args[1] === 'Backspace') {
+                input.value = input.value.slice(0, -1);
+              } else if (condition.args[1] !== 'Shift') {
+                pushTheOptimizedAction(pair, index);
+                pair.what.splice(index + 1, 0, {
+                  action: 'waitForLoadState',
+                  args: ['networkidle'],
+                })
+                input = {selector: '', value: '', actionCounter: 0};
+              }
+            } else {
+              pushTheOptimizedAction(pair, index);
+              input = {
+                selector: condition.args[0],
+                value: condition.args[1],
+                actionCounter: 1,
+              };
+            }
+          }
+        } else {
+          if (input.value.length !== 0) {
+            pushTheOptimizedAction(pair, index);
+            // clear the input
+            input = {selector: '', value: '', actionCounter: 0};
+          }
+        }
+      });
+    }
+    return workflow;
   }
 
   public getParams = (): string[]|null => {

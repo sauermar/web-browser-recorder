@@ -211,7 +211,7 @@ export class RemoteBrowser {
     public interpretCurrentRecording = async () : Promise<void> => {
         logger.log('debug', 'Starting interpretation in the editor');
         if (this.generator) {
-            const workflow = this.generator.getWorkflowFile();
+            const workflow = this.generator.AddGeneratedFlags(this.generator.getWorkflowFile());
             await this.initializeNewPage();
             if (this.currentPage) {
                 const params = this.generator.getParams();
