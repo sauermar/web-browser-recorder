@@ -1,5 +1,5 @@
 /**
- * A set of functions handling user input on a remote browser recording session from client.
+ * A set of helpers handling user input on a remote browser recording session from client.
  */
 import { Socket } from 'socket.io';
 
@@ -8,7 +8,7 @@ import { Coordinates, ScrollDeltas, KeyboardInput } from '../types';
 import { browserPool } from "../server";
 import { WorkflowGenerator } from "../workflow-management/classes/Generator";
 import { Page } from "playwright";
-import { throttle } from "../../../src/functions/inputHelpers";
+import { throttle } from "../../../src/helpers/inputHelpers";
 import { CustomActions } from "../../../src/shared/types";
 
 const handleWrapper = async (

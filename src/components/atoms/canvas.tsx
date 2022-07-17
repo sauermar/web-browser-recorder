@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useRef} from 'react';
 import { useSocketStore } from '../../context/socket';
-import { getMappedCoordinates } from "../../functions/inputHelpers";
+import { getMappedCoordinates } from "../../helpers/inputHelpers";
 import { useGlobalInfoStore } from "../../context/globalInfo";
 
 interface CreateRefCallback {

@@ -1,7 +1,7 @@
 import React  from 'react';
 
 import styled from "styled-components";
-import { mapRect } from "../../functions/inputHelpers";
+import { mapRect } from "../../helpers/inputHelpers";
 import canvas from "./canvas";
 
 interface HighlighterProps {

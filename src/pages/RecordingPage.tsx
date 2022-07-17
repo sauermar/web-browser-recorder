@@ -44,7 +44,7 @@ export const RecordingPage = ({ recordingName }: RecordingPageProps) => {
   };
 
   //resize browser content when loaded event is fired
-  useEffect(() => changeBrowserDimensions(), [isLoaded])
+   useEffect(() => changeBrowserDimensions(), [isLoaded])
 
   useEffect(() => {
     let isCancelled = false;
@@ -73,7 +73,7 @@ export const RecordingPage = ({ recordingName }: RecordingPageProps) => {
     }
   }, [setId]);
 
-  const changeBrowserDimensions = () => {
+  const changeBrowserDimensions = useCallback(() => {
     if (browserContentRef.current) {
       const currentWidth = Math.floor(browserContentRef.current.getBoundingClientRect().width);
       const innerHeightWithoutNavBar = window.innerHeight - 54.5;
@@ -85,7 +85,7 @@ export const RecordingPage = ({ recordingName }: RecordingPageProps) => {
       }
       socket?.emit("rerender");
     }
-  };
+  }, [socket]);
 
   const handleLoaded = useCallback(() => {
     console.log(recordingName);

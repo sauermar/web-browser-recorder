@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react';
-import { Stack, Button, IconButton, Tooltip } from "@mui/material";
+import { Stack, Button, IconButton, Tooltip, Chip, Badge } from "@mui/material";
 import { AddPair, deletePair, UpdatePair } from "../../api/workflow";
 import { WorkflowFile } from "@wbr-project/wbr-interpret";
 import { ClearButton } from "../atoms/buttons/ClearButton";
@@ -85,15 +85,18 @@ export const Pair: FC<PairProps> = (
               : <BreakpointButton handleClick={handleBreakpointClick}/>
           }
         </div>
-        <Button sx={{
-          position: 'relative',
-          color: 'black',
-          padding: '5px 25%',
-          fontSize: '1rem',
-        }} variant='text' key={`pair-${index}`}
-        onClick={() => handleSelectPairForEdit(pair, index)}>
-          {index}
-        </Button>
+        <Badge badgeContent={pair.what.length} color="primary">
+          <Button sx={{
+            position: 'relative',
+            color: 'black',
+            padding: '5px 20px',
+            fontSize: '1rem',
+            textTransform: 'none',
+          }} variant='text' key={`pair-${index}`}
+          onClick={() => handleSelectPairForEdit(pair, index)}>
+            index: {index}
+          </Button>
+        </Badge>
         <Stack direction="row" spacing={0}
         sx={{
           color: 'inherit',

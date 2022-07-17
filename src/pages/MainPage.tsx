@@ -8,6 +8,7 @@ import { createRunForStoredRecording, interpretStoredRecording, notifyAboutAbort
 import { io, Socket } from "socket.io-client";
 import { stopRecording } from "../api/recording";
 import { RunSettings } from "../components/molecules/RunSettings";
+import { Resources } from "../components/organisms/Resources";
 
 interface MainPageProps {
   handleEditRecording: (fileName: string) => void;
@@ -111,13 +112,15 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
           runId={ids.runId}
           runningRecordingName={runningRecordingName}
         />;
+      case 'resources' :
+        return <Resources/>;
       default:
         return null;
     }
   }
 
   return (
-    <Stack direction='row' spacing={0}>
+    <Stack direction='row' spacing={0} sx={{minHeight: '800px'}}>
         <MainMenu value={content} handleChangeContent={setContent}/>
       { DisplayContent() }
     </Stack>
