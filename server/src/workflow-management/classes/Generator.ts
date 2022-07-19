@@ -96,7 +96,6 @@ export class WorkflowGenerator {
     // validate if a pair with the same where conditions is already present in the workflow
     if (pair.where.selectors && pair.where.selectors[0]) {
       const match = selectorAlreadyInWorkflow(pair.where.selectors[0], this.workflowRecord.workflow);
-      console.log(match, 'Does the new pair have previously recorded selectors?')
       if (match) {
         // if a match of where conditions is found, the new action is added into the matched rule
         const matchedIndex = this.workflowRecord.workflow.indexOf(match);
@@ -347,9 +346,12 @@ export class WorkflowGenerator {
     }
   }
 
-  public notifyOnNewTab = (url: string) => {
-    if (this.socket){
-      const parsedUrl = new URL(url);
+  public notifyOnNewTab = (page: Page, pageIndex: number) => {
+    if (this.socket) {
+      page.on('close', () => {
+        this.socket.emit('tabHasBeenClosed', pageIndex);
+      })
+      const parsedUrl = new URL(page.url());
       const host = parsedUrl.hostname?.match(/\b(?!www\.)[a-zA-Z0-9]+/g)?.join('.');
       this.socket.emit('newTab', host ? host : 'new tab')
       console.log('notified about a new tab')

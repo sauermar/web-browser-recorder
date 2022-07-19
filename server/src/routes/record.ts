@@ -32,7 +32,7 @@ router.get('/start', (req, res) => {
     const id = initializeRemoteBrowserForRecording({
         browser: chromium,
         launchOptions: {
-            headless: false,
+            headless: true,
         }
     });
     return res.send(id);

@@ -8,7 +8,6 @@ import { createRunForStoredRecording, interpretStoredRecording, notifyAboutAbort
 import { io, Socket } from "socket.io-client";
 import { stopRecording } from "../api/recording";
 import { RunSettings } from "../components/molecules/RunSettings";
-import { Resources } from "../components/organisms/Resources";
 
 interface MainPageProps {
   handleEditRecording: (fileName: string) => void;
@@ -112,8 +111,6 @@ export const MainPage = ({ handleEditRecording }: MainPageProps) => {
           runId={ids.runId}
           runningRecordingName={runningRecordingName}
         />;
-      case 'resources' :
-        return <Resources/>;
       default:
         return null;
     }

@@ -90,13 +90,19 @@ export const BrowserContent = () => {
 
   };
 
+  const tabHasBeenClosedHandler = useCallback((index: number) => {
+    handleCloseTab(index);
+  }, [handleCloseTab])
+
  useEffect(() => {
    if (socket) {
      socket.on('newTab', handleNewTab);
+     socket.on('tabHasBeenClosed', tabHasBeenClosedHandler);
    }
    return () => {
      if (socket) {
        socket.off('newTab', handleNewTab);
+       socket.off('tabHasBeenClosed', tabHasBeenClosedHandler);
      }
    }
  }, [socket, handleNewTab])

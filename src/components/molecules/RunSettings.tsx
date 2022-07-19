@@ -3,6 +3,7 @@ import { GenericModal } from "../atoms/GenericModal";
 import { MenuItem, TextField, Typography } from "@mui/material";
 import { Dropdown } from "../atoms/DropdownMui";
 import Button from "@mui/material/Button";
+import { modalStyle } from "./AddWhereCondModal";
 
 interface RunSettingsProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ export const RunSettingsModal = ({ isOpen, handleStart, handleClose, isTask, par
     <GenericModal
       isOpen={isOpen}
       onClose={handleClose}
+      modalStyle={modalStyle}
     >
       <div style={{
         display: 'flex',
@@ -42,9 +44,10 @@ export const RunSettingsModal = ({ isOpen, handleStart, handleClose, isTask, par
           ?
           (
             <React.Fragment>
-            <Typography>Recording parameters:</Typography>
+            <Typography sx={{ margin: '20px 0px' }} >Recording parameters:</Typography>
               { params?.map((item, index) => {
             return <TextField
+              sx={{ marginBottom: '15px' }}
               key={`param-${index}`}
               type="string"
               label={item}
@@ -66,9 +69,9 @@ export const RunSettingsModal = ({ isOpen, handleStart, handleClose, isTask, par
             </React.Fragment>)
           : null
         }
-        <Typography>Interpreter settings:</Typography>
+        <Typography sx={{ margin: '20px 0px' }} >Interpreter settings:</Typography>
         <TextField
-          sx={{ marginLeft: '15px' }}
+          sx={{ marginBottom: '15px' }}
           type="number"
           label="maxConcurrency"
           required
@@ -80,7 +83,7 @@ export const RunSettingsModal = ({ isOpen, handleStart, handleClose, isTask, par
           defaultValue={settings.maxConcurrency}
         />
         <TextField
-          sx={{ marginLeft: '15px' }}
+          sx={{ marginBottom: '15px' }}
           type="number"
           label="maxRepeats"
           required

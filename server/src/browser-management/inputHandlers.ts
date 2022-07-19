@@ -89,7 +89,7 @@ const handleMousedown = async (generator: WorkflowGenerator, page: Page, { x, y 
         for (let i = 1; i <= numOfNewPages; i++) {
             const newPage = page.context().pages()[tabsAfterClick - i];
             if (newPage) {
-                generator.notifyOnNewTab(newPage.url());
+                generator.notifyOnNewTab(newPage, tabsAfterClick - i);
             }
         }
     }

@@ -44,10 +44,6 @@ export const MainMenu = ({ value = 'recordings', handleChangeContent }: MainMenu
             alignItems: 'baseline',
             fontSize:'medium',
           }} value="runs" label="Runs" />
-          <Tab sx={{
-            alignItems: 'baseline',
-            fontSize:'medium',
-          }} value="resources" label="Resources" />
       </Tabs>
       </Box>
     </Paper>
