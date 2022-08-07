@@ -1,0 +1,70 @@
+{
+  "recording_meta": {
+    "name": "alza-output",
+    "create_date": "7/15/2022, 3:14:20 AM",
+    "pairs": 2,
+    "update_date": "7/15/2022, 3:14:20 AM",
+    "params": []
+  },
+  "recording": {
+    "workflow": [
+      {
+        "where": {
+          "url": "https://www.alza.cz/hobby/zahradni-bazeny/18890782.htm"
+        },
+        "what": [
+          {
+            "action": "scrape",
+            "args": []
+          },
+          {
+            "action": "waitForLoadState",
+            "args": [
+              "networkidle"
+            ]
+          },
+          {
+            "action": "scroll",
+            "args": [
+              1
+            ]
+          },
+          {
+            "action": "waitForLoadState",
+            "args": [
+              "networkidle"
+            ]
+          },
+          {
+            "action": "screenshot",
+            "args": [
+              {
+                "type": "jpeg",
+                "quality": 75
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "where": {
+          "url": "about:blank"
+        },
+        "what": [
+          {
+            "action": "goto",
+            "args": [
+              "https://www.alza.cz/hobby/zahradni-bazeny/18890782.htm"
+            ]
+          },
+          {
+            "action": "waitForLoadState",
+            "args": [
+              "networkidle"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

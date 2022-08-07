@@ -1,0 +1,101 @@
+{
+  "recording_meta": {
+    "name": "alza-scrape",
+    "create_date": "7/15/2022, 2:30:31 AM",
+    "pairs": 4,
+    "update_date": "7/15/2022, 4:24:14 AM",
+    "params": []
+  },
+  "recording": {
+    "workflow": [
+      {
+        "where": {
+          "url": "https://www.alza.cz/sport/elektricke-kolobezky/18859663.htm"
+        },
+        "what": [
+          {
+            "action": "scrape",
+            "args": []
+          },
+          {
+            "action": "waitForLoadState",
+            "args": [
+              "networkidle"
+            ]
+          },
+          {
+            "action": "fill",
+            "args": [
+              {
+                "$param": "name"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "where": {
+          "url": "https://www.alza.cz/sport/elektricke-kolobezky/18859663.htm",
+          "selectors": [
+            "[href=\"javascript:Alza.Web.Cookies.acceptAllCookies();\"]"
+          ]
+        },
+        "what": [
+          {
+            "action": "click",
+            "args": [
+              "[href=\"javascript:Alza.Web.Cookies.acceptAllCookies();\"]"
+            ]
+          },
+          {
+            "action": "waitForLoadState",
+            "args": [
+              "networkidle"
+            ]
+          }
+        ]
+      },
+      {
+        "where": {
+          "url": "https://www.alza.cz/sport/elektricke-kolobezky/18859663.htm",
+          "selectors": [
+            "#alzaDialog > .close"
+          ]
+        },
+        "what": [
+          {
+            "action": "click",
+            "args": [
+              "#alzaDialog > .close"
+            ]
+          },
+          {
+            "action": "waitForLoadState",
+            "args": [
+              "networkidle"
+            ]
+          }
+        ]
+      },
+      {
+        "where": {
+          "url": "about:blank"
+        },
+        "what": [
+          {
+            "action": "goto",
+            "args": [
+              "https://www.alza.cz/sport/elektricke-kolobezky/18859663.htm"
+            ]
+          },
+          {
+            "action": "waitForLoadState",
+            "args": [
+              "networkidle"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "recording_meta": {
+    "name": "seznam",
+    "create_date": "6/20/2022, 4:33:28 PM",
+    "pairs": 4,
+    "update_date": "6/20/2022, 4:33:28 PM"
+  },
+  "recording": {
+    "workflow": [
+      {
+        "where": {
+          "url": "https://www.novinky.cz/",
+          "selectors": [
+            "[href=\"https://www.novinky.cz/stalo-se\"]:nth-child(2)"
+          ]
+        },
+        "what": [
+          {
+            "action": "click",
+            "args": [
+              "[href=\"https://www.novinky.cz/stalo-se\"]:nth-child(2)"
+            ]
+          },
+          {
+            "action": "waitForLoadState",
+            "args": [
+              "networkidle"
+            ]
+          }
+        ]
+      },
+      {
+        "where": {
+          "url": "https://www.seznam.cz/",
+          "selectors": [
+            "[href=\"https://www.novinky.cz/\"]:nth-child(2)"
+          ]
+        },
+        "what": [
+          {
+            "action": "click",
+            "args": [
+              "[href=\"https://www.novinky.cz/\"]:nth-child(2)"
+            ]
+          },
+          {
+            "action": "waitForLoadState",
+            "args": [
+              "networkidle"
+            ]
+          }
+        ]
+      },
+      {
+        "where": {
+          "url": "https://www.seznam.cz/",
+          "selectors": []
+        },
+        "what": [
+          {
+            "action": "mouse.click",
+            "args": [
+              680,
+              650
+            ]
+          },
+          {
+            "action": "waitForLoadState",
+            "args": [
+              "networkidle"
+            ]
+          }
+        ]
+      },
+      {
+        "where": {
+          "url": "about:blank"
+        },
+        "what": [
+          {
+            "action": "goto",
+            "args": [
+              "https://seznam.cz"
+            ]
+          },
+          {
+            "action": "waitForLoadState",
+            "args": [
+              "networkidle"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "recording_meta": {
+    "name": "screenshot",
+    "create_date": "7/14/2022, 9:28:47 PM",
+    "pairs": 2,
+    "update_date": "7/14/2022, 9:28:47 PM",
+    "params": []
+  },
+  "recording": {
+    "workflow": [
+      {
+        "where": {
+          "url": "https://www.wikipedia.org/",
+          "selectors": [
+            "#js-link-box-en"
+          ]
+        },
+        "what": [
+          {
+            "action": "click",
+            "args": [
+              "#js-link-box-en"
+            ]
+          },
+          {
+            "action": "waitForLoadState",
+            "args": [
+              "networkidle"
+            ]
+          },
+          {
+            "action": "screenshot",
+            "args": []
+          }
+        ]
+      },
+      {
+        "where": {
+          "url": "about:blank"
+        },
+        "what": [
+          {
+            "action": "goto",
+            "args": [
+              "https://wikipedia.org"
+            ]
+          },
+          {
+            "action": "waitForLoadState",
+            "args": [
+              "networkidle"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
