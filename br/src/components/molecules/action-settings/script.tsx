@@ -1,0 +1,63 @@
+import React, { forwardRef, useImperativeHandle } from 'react';
+import Editor from 'react-simple-code-editor';
+// @ts-ignore
+import { highlight, languages } from 'prismjs/components/prism-core';
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/themes/prism.css';
+import styled from "styled-components";
+import InfoIcon from '@mui/icons-material/Info';
+import { WarningText } from "../../atoms/texts";
+
+export const ScriptSettings = forwardRef((props, ref) => {
+  const [code, setCode] = React.useState('');
+
+  useImperativeHandle(ref, () => ({
+    getSettings() {
+      return code;
+    }
+  }));
+
+  return (
+    <EditorWrapper>
+      <WarningText>
+        <InfoIcon color='warning'/>
+        Allows to run an arbitrary asynchronous function evaluated at the server
+        side accepting the current page instance argument.
+      </WarningText>
+      <StyledEditor
+        placeholder="Type some code…"
+        value={code}
+        onValueChange={code => setCode(code)}
+        highlight={code => highlight(code, languages.js)}
+        padding={10}
+        style={{
+          fontFamily: '"Fira code", "Fira Mono", monospace',
+          fontSize: 12,
+          background: '#f0f0f0',
+        }}
+      />
+    </EditorWrapper>
+  );
+});
+
+const EditorWrapper = styled.div`
+  flex: 1;
+  overflow: auto;
+    /** hard-coded height */
+  height: 100%;
+  width: 100%;
+`;
+
+const StyledEditor = styled(Editor)`
+  white-space: pre;
+  caret-color: #fff;
+  min-width: 100%;
+  min-height: 100%;
+  float: left;
+  & > textarea,
+  & > pre {
+    outline: none;
+    white-space: pre !important;
+  }
+`;

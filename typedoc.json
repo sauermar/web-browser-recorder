@@ -1,0 +1,7 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["./src", "./server/src"],
+  "sort": ["source-order"],
+  "categorizeByGroup": false,
+  "tsconfig": "./tsconfig.json"
+}

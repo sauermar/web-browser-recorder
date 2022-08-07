@@ -10,6 +10,8 @@
 
 /.idea
 
+/server/logs
+
 /build
 
 package-lock.json
