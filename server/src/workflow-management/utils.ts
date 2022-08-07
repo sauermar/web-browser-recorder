@@ -1,19 +1,11 @@
 import { Action, ActionType, TagName } from "../types";
 
-export const isSupportedActionType = (actionType: any) => {
-  return [
-    ActionType.AwaitText,
-    ActionType.Click,
-    ActionType.DragAndDrop,
-    ActionType.Screenshot,
-    ActionType.Hover,
-    ActionType.Input,
-    ActionType.Keydown,
-    ActionType.Load,
-    ActionType.Scroll,
-  ].includes(actionType);
-};
-
+/**
+ * A helper function to get the best selector for the specific user action.
+ * @param action The user action.
+ * @returns {string|null}
+ * @category WorkflowManagement-Selectors
+ */
 export const getBestSelectorForAction = (action: Action) => {
   switch (action.type) {
     case ActionType.Click:

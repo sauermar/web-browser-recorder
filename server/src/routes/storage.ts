@@ -1,5 +1,5 @@
 /**
- * API endpoints handling workflow management.
+ * RESTful API endpoints handling the recording storage.
  */
 
 import { Router } from 'express';
@@ -21,6 +21,9 @@ router.all('/', (req, res, next) => {
   next() // pass control to the next handler
 })
 
+/**
+ * GET endpoint for getting an array of all stored recordings.
+ */
 router.get('/recordings', async (req, res) => {
   try {
     const data = await readFiles('./../storage/recordings/');
@@ -31,18 +34,23 @@ router.get('/recordings', async (req, res) => {
   }
 });
 
+/**
+ * DELETE endpoint for deleting a recording from the storage.
+ */
 router.delete('/recordings/:fileName', async (req, res) => {
   try {
     await deleteFile(`./../storage/recordings/${req.params.fileName}.waw.json`);
     return res.send(true);
   } catch (e) {
     const {message} = e as Error;
-    console.log(message)
     logger.log('info', `Error while deleting a recording with name: ${req.params.fileName}.waw.json`);
     return res.send(false);
   }
 });
 
+/**
+ * GET endpoint for getting an array of runs from the storage.
+ */
 router.get('/runs', async (req, res) => {
   try {
     const data = await readFiles('./../storage/runs/');
@@ -53,23 +61,29 @@ router.get('/runs', async (req, res) => {
   }
 });
 
+/**
+ * DELETE endpoint for deleting a run from the storage.
+ */
 router.delete('/runs/:fileName', async (req, res) => {
   try {
     await deleteFile(`./../storage/runs/${req.params.fileName}.json`);
     return res.send(true);
   } catch (e) {
     const {message} = e as Error;
-    console.log(message)
     logger.log('info', `Error while deleting a run with name: ${req.params.fileName}.json`);
     return res.send(false);
   }
 });
 
+/**
+ * PUT endpoint for starting a remote browser instance and saving run metadata to the storage.
+ * Making it ready for interpretation and returning a runId.
+ */
 router.put('/runs/:fileName', async (req, res) => {
   try {
     const id = createRemoteBrowserForRun({
       browser: chromium,
-      launchOptions: { headless: false }
+      launchOptions: { headless: true }
     });
 
     const runId = uuid();
@@ -98,12 +112,14 @@ router.put('/runs/:fileName', async (req, res) => {
     });
   } catch (e) {
     const {message} = e as Error;
-    console.log(message)
     logger.log('info', `Error while creating a run with name: ${req.params.fileName}.json`);
     return res.send('');
   }
 });
 
+/**
+ * GET endpoint for getting a run from the storage.
+ */
 router.get('/runs/run/:fileName/:runId', async (req, res) => {
   try {
     // read the run from storage
@@ -117,6 +133,9 @@ router.get('/runs/run/:fileName/:runId', async (req, res) => {
   }
 });
 
+/**
+ * PUT endpoint for finishing a run and saving it to the storage.
+ */
 router.post('/runs/run/:fileName/:runId', async (req, res) => {
   try {
     // read the recording from storage
@@ -164,13 +183,14 @@ router.post('/runs/run/:fileName/:runId', async (req, res) => {
       }
   } catch (e) {
     const {message} = e as Error;
-    console.log(message)
     logger.log('info', `Error while running a recording with name: ${req.params.fileName}_${req.params.runId}.json`);
     return res.send(false);
   }
 });
 
-
+/**
+ * POST endpoint for aborting a current interpretation of the run.
+ */
 router.post('/runs/abort/:fileName/:runId', async (req, res) => {
   try {
     // read the run from storage
@@ -209,7 +229,6 @@ router.post('/runs/abort/:fileName/:runId', async (req, res) => {
     return res.send(true);
   } catch (e) {
     const {message} = e as Error;
-    console.log(message)
     logger.log('info', `Error while running a recording with name: ${req.params.fileName}_${req.params.runId}.json`);
     return res.send(false);
   }

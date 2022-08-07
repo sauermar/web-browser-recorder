@@ -6,7 +6,15 @@ import { getBestSelectorForAction } from "./utils";
 
 type Workflow = WorkflowFile["workflow"];
 
-
+/**
+ * Returns a {@link Rectangle} object representing
+ * the coordinates, width, height and corner points of the element.
+ * If an element is not found, returns null.
+ * @param page The page instance.
+ * @param coordinates Coordinates of an element.
+ * @category WorkflowManagement-Selectors
+ * @returns {Promise<Rectangle|undefined|null>}
+ */
 export const getRect = async (page: Page, coordinates: Coordinates) => {
   try {
     const rect = await page.evaluate(
@@ -41,6 +49,14 @@ export const getRect = async (page: Page, coordinates: Coordinates) => {
   }
 }
 
+/**
+ * Checks the basic info about an element and returns a {@link BaseActionInfo} object.
+ * If the element is not found, returns undefined.
+ * @param page The page instance.
+ * @param coordinates Coordinates of an element.
+ * @category WorkflowManagement-Selectors
+ * @returns {Promise<BaseActionInfo|undefined>}
+ */
 export const getElementInformation = async (
   page: Page,
   coordinates: Coordinates
@@ -70,46 +86,18 @@ export const getElementInformation = async (
   }
 }
 
-
-export const getFullPath = async (page: Page, coordinates: Coordinates) => {
-  try {
-    const selector = await page.evaluate(
-      async ({ x, y }) => {
-
-        const fullPath = (el: any): string => {
-          let names = [];
-          while (el.parentNode) {
-            if (el.id) {
-              names.unshift('#' + el.id);
-              break;
-            } else {
-              if (el == el.ownerDocument.documentElement) {
-                names.unshift(el.tagName);
-              } else {
-                for(var c = 1, e = el; e.previousElementSibling; e = e.previousElementSibling, c++);
-                names.unshift(el.tagName + ":nth-child(" + c + ")");
-              }
-              el = el.parentNode;
-            }
-          }
-          return names.join(" > ");
-        }
-
-        const element = document.elementFromPoint(x, y);
-        // @ts-ignore
-        const selector = fullPath(element);
-        return selector || '';
-      },
-      { x: coordinates.x, y: coordinates.y },
-    );
-    return selector;
-  } catch (error) {
-    const { message, stack } = error as Error;
-    logger.log('error', `Error while retrieving selector: ${message}`);
-    logger.log('error', `Stack: ${stack}`);
-  }
-};
-
+/**
+ * Returns the best and unique css {@link Selectors} for the element on the page.
+ * Internally uses a finder function from https://github.com/antonmedv/finder/blob/master/finder.ts
+ * available as a npm package: @medv/finder
+ *
+ * The finder needs to be executed and defined inside a browser context. Meaning,
+ * the code needs to be available inside a page evaluate function.
+ * @param page The page instance.
+ * @param coordinates Coordinates of an element.
+ * @category WorkflowManagement-Selectors
+ * @returns {Promise<Selectors|null|undefined>}
+ */
 export const getSelectors = async (page: Page, coordinates: Coordinates) => {
   try {
      const selectors : any = await page.evaluate(async ({ x, y }) => {
@@ -698,6 +686,15 @@ export const getSelectors = async (page: Page, coordinates: Coordinates) => {
     return null;
 };
 
+/**
+ * Returns the first pair from the given workflow that contains the given selector
+ * inside the where condition, and it is the only selector there.
+ * If a match is not found, returns undefined.
+ * @param selector The selector to find.
+ * @param workflow The workflow to search in.
+ * @category WorkflowManagement
+ * @returns {Promise<WhereWhatPair|undefined>}
+ */
 export const selectorAlreadyInWorkflow = (selector: string, workflow: Workflow) => {
   return workflow.find((pair: WhereWhatPair) => {
     if (pair.where.selectors?.includes(selector)) {
@@ -708,6 +705,12 @@ export const selectorAlreadyInWorkflow = (selector: string, workflow: Workflow) 
   });
 };
 
+/**
+ * Checks whether the given selectors are visible on the page at the same time.
+ * @param selectors The selectors to check.
+ * @param page The page to use for the validation.
+ * @category WorkflowManagement
+ */
 export const isRuleOvershadowing = async(selectors: string[], page:Page): Promise<boolean> => {
   for (const selector of selectors){
     const areElsVisible = await page.$$eval(selector,

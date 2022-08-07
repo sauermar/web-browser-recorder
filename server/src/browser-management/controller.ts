@@ -12,12 +12,13 @@ import { RemoteBrowserOptions } from "../types";
 import logger from "../logger";
 
 /**
- * Starts and initializes a {@link RemoteBrowser} instance for recording.
- * Creates a new {@link Socket} connection over a dedicated namespace
+ * Starts and initializes a {@link RemoteBrowser} instance.
+ * Creates a new socket connection over a dedicated namespace
  * and registers all interaction event handlers.
  * Returns the id of an active browser or the new remote browser's generated id.
  * @param options {@link RemoteBrowserOptions} to be used when launching the browser
  * @returns string
+ * @category BrowserManagement-Controller
  */
 export const initializeRemoteBrowserForRecording = (options: RemoteBrowserOptions): string => {
     const id = getActiveBrowserId() || uuid();
@@ -49,6 +50,7 @@ export const initializeRemoteBrowserForRecording = (options: RemoteBrowserOption
  * Returns the new remote browser's generated id.
  * @param options {@link RemoteBrowserOptions} to be used when launching the browser
  * @returns string
+ * @category BrowserManagement-Controller
  */
 export const createRemoteBrowserForRun = (options: RemoteBrowserOptions): string => {
     const id = uuid();
@@ -68,6 +70,7 @@ export const createRemoteBrowserForRun = (options: RemoteBrowserOptions): string
  * and removes the browser from the browser pool.
  * @param id instance id of the remote browser to be terminated
  * @returns {Promise<boolean>}
+ * @category BrowserManagement-Controller
  */
 export const destroyRemoteBrowser = async (id: string) : Promise<boolean> => {
     const browserSession = browserPool.getRemoteBrowser(id);
@@ -83,6 +86,7 @@ export const destroyRemoteBrowser = async (id: string) : Promise<boolean> => {
  * Returns the id of an active browser or null.
  * Wrapper around {@link browserPool.getActiveBrowserId()} function.
  * @returns {string | null}
+ * @category  BrowserManagement-Controller
  */
 export const getActiveBrowserId = (): string | null=> {
     return browserPool.getActiveBrowserId();
@@ -92,6 +96,7 @@ export const getActiveBrowserId = (): string | null=> {
  * Returns the url string from a remote browser if exists in the browser pool.
  * @param id instance id of the remote browser
  * @returns {string | undefined}
+ * @category  BrowserManagement-Controller
  */
 export const getRemoteBrowserCurrentUrl = (id: string): string | undefined => {
     return browserPool.getRemoteBrowser(id)?.getCurrentPage()?.url();
@@ -101,6 +106,7 @@ export const getRemoteBrowserCurrentUrl = (id: string): string | undefined => {
  * Returns the array of tab strings from a remote browser if exists in the browser pool.
  * @param id instance id of the remote browser
  * @return {string[] | undefined}
+ * @category  BrowserManagement-Controller
  */
 export const getRemoteBrowserCurrentTabs = (id: string): string[] | undefined => {
     return browserPool.getRemoteBrowser(id)?.getCurrentPage()?.context().pages()
@@ -118,6 +124,7 @@ export const getRemoteBrowserCurrentTabs = (id: string): string[] | undefined =>
  * Interprets the currently generated workflow in the active browser instance.
  * If there is no active browser, the function logs an error.
  * @returns {Promise<void>}
+ * @category  BrowserManagement-Controller
  */
 export const interpretWholeWorkflow = async() => {
     const id = getActiveBrowserId();
@@ -137,6 +144,7 @@ export const interpretWholeWorkflow = async() => {
  * Stops the interpretation of the current workflow in the active browser instance.
  * If there is no active browser, the function logs an error.
  * @returns {Promise<void>}
+ * @category  BrowserManagement-Controller
  */
 export const stopRunningInterpretation = async() => {
     const id = getActiveBrowserId();

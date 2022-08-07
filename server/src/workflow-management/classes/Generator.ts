@@ -31,19 +31,44 @@ interface MetaData {
   params: string[],
 }
 
+/**
+ * Workflow generator is used to transform the user's interactions into an automatically
+ * generated correct workflows, using the ability of internal state persistence and
+ * heuristic generative algorithms.
+ * This class also takes care of the selector generation.
+ * @category WorkflowManagement
+ */
 export class WorkflowGenerator {
 
+  /**
+   * The socket used to communicate with the client.
+   * @private
+   */
   private socket : Socket;
 
+  /**
+   * The public constructor of the WorkflowGenerator.
+   * Takes socket for communication as a parameter and registers some important events on it.
+   * @param socket The socket used to communicate with the client.
+   * @constructor
+   */
   public constructor(socket: Socket) {
     this.socket = socket;
     this.registerEventHandlers(socket);
   }
 
+  /**
+   * The current workflow being recorded.
+   * @private
+   */
   private workflowRecord: WorkflowFile = {
     workflow: [],
   };
 
+  /**
+   * Metadata of the currently recorded workflow.
+   * @private
+   */
   private recordingMeta: MetaData = {
     name: '',
     create_date: '',
@@ -52,13 +77,22 @@ export class WorkflowGenerator {
     params: [],
   }
 
-  // we need to persist some data between actions for correct generating of the workflow
+  /**
+   * The persistent data from the whole workflow generation process.
+   * Used for correct generation of other user inputs.
+   * @private
+   */
   private generatedData: PersistedGeneratedData = {
     lastUsedSelector: '',
     lastIndex: null,
     lastAction: '',
   }
 
+  /**
+   * Registers the event handlers for all generator-related events on the socket.
+   * @param socket The socket used to communicate with the client.
+   * @private
+   */
   private registerEventHandlers = (socket: Socket) => {
     socket.on('save', async (fileName: string) => {
       logger.log('debug', `Saving workflow ${fileName}`);
@@ -91,6 +125,29 @@ export class WorkflowGenerator {
     })
   };
 
+  /**
+   * Adds a newly generated pair to the workflow and notifies the client about it by
+   * sending the updated workflow through socket.
+   *
+   * Checks some conditions for the correct addition of the pair.
+   * 1. The pair's action selector is already in the workflow as a different pair's where selector
+   *    If so, the what part of the pair is added to the pair with the same where selector.
+   * 2. The pair's where selector is located on the page at the same time as another pair's where selector,
+   * having the same url. This state is called over-shadowing an already existing pair.
+   *   If so, the pair is merged with the previous over-shadowed pair - what part is attached and
+   *   new selector added to the where selectors. In case the over-shadowed pair is further down the
+   *   workflow array, the new pair is added to the beginning of the workflow array.
+   *
+   * This function also makes sure to add a waitForLoadState and a generated flag
+   * action after every new action or pair added. The [waitForLoadState](https://playwright.dev/docs/api/class-frame#frame-wait-for-load-state)
+   * action waits for the networkidle event to be fired,
+   * and the generated flag action is used for making pausing the interpretation possible.
+   *
+   * @param pair The pair to add to the workflow.
+   * @param page The page to use for the state checking.
+   * @private
+   * @returns {Promise<void>}
+   */
   private addPairToWorkflowAndNotifyClient = async(pair: WhereWhatPair, page: Page) => {
     let matched = false;
     // validate if a pair with the same where conditions is already present in the workflow
@@ -143,6 +200,12 @@ export class WorkflowGenerator {
     logger.log('info',`Workflow emitted`);
   };
 
+  /**
+   * Generates a pair for the click event.
+   * @param coordinates The coordinates of the click event.
+   * @param page The page to use for obtaining the needed data.
+   * @returns {Promise<void>}
+   */
   public onClick = async (coordinates: Coordinates, page: Page) => {
     let where: WhereWhatPair["where"] = { url: this.getBestUrl(page.url()) };
     const selector = await this.generateSelector(page, coordinates, ActionType.Click);
@@ -166,6 +229,12 @@ export class WorkflowGenerator {
     await this.addPairToWorkflowAndNotifyClient(pair, page);
   };
 
+  /**
+   * Generates a pair for the change url event.
+   * @param newUrl The new url to be changed to.
+   * @param page The page to use for obtaining the needed data.
+   * @returns {Promise<void>}
+   */
   public onChangeUrl = async(newUrl: string, page: Page) => {
     this.generatedData.lastUsedSelector = '';
     const pair: WhereWhatPair = {
@@ -180,6 +249,13 @@ export class WorkflowGenerator {
     await this.addPairToWorkflowAndNotifyClient(pair, page);
   };
 
+  /**
+   * Generates a pair for the keypress event.
+   * @param key The key to be pressed.
+   * @param coordinates The coordinates of the keypress event.
+   * @param page The page to use for obtaining the needed data.
+   * @returns {Promise<void>}
+   */
   public onKeyboardInput = async (key: string, coordinates: Coordinates, page: Page) => {
     let where: WhereWhatPair["where"] = { url: this.getBestUrl(page.url()) };
     const selector = await this.generateSelector(page, coordinates, ActionType.Keydown);
@@ -200,6 +276,12 @@ export class WorkflowGenerator {
     await this.addPairToWorkflowAndNotifyClient(pair, page);
   };
 
+  /**
+   * Generates a pair for the custom action event.
+   * @param action The type of the custom action.
+   * @param settings The settings of the custom action.
+   * @param page The page to use for obtaining the needed data.
+   */
   public customAction = async (action: CustomActions, settings: any, page: Page) => {
     const pair: WhereWhatPair = {
       where: { url: this.getBestUrl(page.url())},
@@ -221,10 +303,19 @@ export class WorkflowGenerator {
     }
   };
 
+  /**
+   * Returns the currently generated workflow.
+   * @returns {WorkflowFile}
+   */
   public getWorkflowFile = () => {
     return this.workflowRecord;
   };
 
+  /**
+   * Removes a pair from the currently generated workflow.
+   * @param index The index of the pair to be removed.
+   * @returns void
+   */
   public removePairFromWorkflow = (index: number) => {
     if (index <= this.workflowRecord.workflow.length && index >= 0) {
       this.workflowRecord.workflow.splice(this.workflowRecord.workflow.length - (index + 1), 1);
@@ -234,6 +325,12 @@ export class WorkflowGenerator {
     }
   };
 
+  /**
+   * Adds a new pair to the currently generated workflow.
+   * @param index The index on which the pair should be added.
+   * @param pair The pair to be added.
+   * @returns void
+   */
   public addPairToWorkflow = (index: number, pair: WhereWhatPair) => {
     if (index === this.workflowRecord.workflow.length) {
       this.workflowRecord.workflow.unshift(pair);
@@ -246,6 +343,12 @@ export class WorkflowGenerator {
     }
   };
 
+  /**
+   * Updates a pair in the currently generated workflow.
+   * @param index The index of the pair to be updated.
+   * @param pair The pair to be used as a replacement.
+   * @returns void
+   */
   public updatePairInWorkflow = (index: number, pair: WhereWhatPair) => {
     if (index <= this.workflowRecord.workflow.length && index >= 0) {
       this.workflowRecord.workflow[this.workflowRecord.workflow.length - (index + 1)] = pair;
@@ -254,11 +357,22 @@ export class WorkflowGenerator {
     }
   };
 
+  /**
+   * Updates the socket used for communication with the client.
+   * @param socket The socket to be used for communication.
+   * @returns void
+   */
   public updateSocket = (socket: Socket) : void => {
     this.socket = socket;
     this.registerEventHandlers(socket);
   };
 
+  /**
+   * Returns the currently generated workflow without all the generated flag actions.
+   * @param workflow The workflow for removing the generated flag actions from.
+   * @private
+   * @returns {WorkflowFile}
+   */
   private removeAllGeneratedFlags = (workflow: WorkflowFile): WorkflowFile => {
       for (let i = 0; i < workflow.workflow.length; i++) {
         if (
@@ -271,6 +385,12 @@ export class WorkflowGenerator {
       return workflow;
   };
 
+  /**
+   * Adds generated flag actions to the workflow's pairs' what conditions.
+   * @param workflow The workflow for adding the generated flag actions from.
+   * @private
+   * @returns {WorkflowFile}
+   */
   public AddGeneratedFlags = (workflow: WorkflowFile): WorkflowFile => {
     const copy = JSON.parse(JSON.stringify(workflow));
     for (let i = 0; i < workflow.workflow.length; i++) {
@@ -282,6 +402,13 @@ export class WorkflowGenerator {
     return copy;
   };
 
+  /**
+   * Enables to update the generated workflow file.
+   * Adds a generated flag action for possible pausing during the interpretation.
+   * Used for loading a recorded workflow to already initialized Generator.
+   * @param workflowFile The workflow file to be used as a replacement for the current generated workflow.
+   * @returns void
+   */
   public updateWorkflowFile = (workflowFile: WorkflowFile, meta: MetaData) => {
     this.recordingMeta = meta;
     const params = this.checkWorkflowForParams(workflowFile);
@@ -291,6 +418,12 @@ export class WorkflowGenerator {
     this.workflowRecord = workflowFile;
   }
 
+  /**
+   * Creates a recording metadata and stores the curren workflow
+   * with the metadata to the file system.
+   * @param fileName The name of the file.
+   * @returns {Promise<void>}
+   */
   public saveNewWorkflow = async (fileName: string) => {
     const recording = this.optimizeWorkflow(this.workflowRecord);
     try {
@@ -310,11 +443,19 @@ export class WorkflowGenerator {
      catch (e) {
       const { message } = e as Error;
       logger.log('warn', `Cannot save the file to the local file system`)
-      console.log(message);
     }
     this.socket.emit('fileSaved');
   }
 
+  /**
+   * Uses a system of functions to generate a correct and unique css selector
+   * according to the action being performed.
+   * @param page The page to be used for obtaining the information and selector.
+   * @param coordinates The coordinates of the element.
+   * @param action The action for which the selector is being generated.
+   * @private
+   * @returns {Promise<string|null>}
+   */
   private generateSelector = async (page:Page, coordinates:Coordinates, action: ActionType) => {
     const elementInfo = await getElementInformation(page, coordinates);
     const bestSelector = getBestSelectorForAction(
@@ -332,6 +473,13 @@ export class WorkflowGenerator {
     return bestSelector;
   }
 
+  /**
+   * Generates data for highlighting the element on client side and emits the
+   * highlighter event to the client.
+   * @param page The page to be used for obtaining data.
+   * @param coordinates The coordinates of the element.
+   * @returns {Promise<void>}
+   */
   public generateDataForHighlighter = async (page: Page, coordinates: Coordinates) => {
     const rect = await getRect(page, coordinates);
     const displaySelector = await this.generateSelector(page, coordinates, ActionType.Click);
@@ -340,12 +488,25 @@ export class WorkflowGenerator {
     }
   }
 
+  /**
+   * Notifies the client about the change of the url if navigation
+   * happens after some performed action.
+   * @param url The new url.
+   * @param fromNavBar Whether the navigation is from the simulated browser's navbar or not.
+   * @returns void
+   */
   public notifyUrlChange = (url:string) => {
     if (this.socket) {
       this.socket.emit('urlChanged', url);
     }
   }
 
+  /**
+   * Notifies the client about the new tab if popped-up
+   * @param page The page to be used for obtaining data.
+   * @param pageIndex The index of the page.
+   * @returns void
+   */
   public notifyOnNewTab = (page: Page, pageIndex: number) => {
     if (this.socket) {
       page.on('close', () => {
@@ -354,10 +515,17 @@ export class WorkflowGenerator {
       const parsedUrl = new URL(page.url());
       const host = parsedUrl.hostname?.match(/\b(?!www\.)[a-zA-Z0-9]+/g)?.join('.');
       this.socket.emit('newTab', host ? host : 'new tab')
-      console.log('notified about a new tab')
     }
   }
 
+  /**
+   * Generates a pair for navigating to the previous page.
+   * This function alone adds the pair to the workflow and notifies the client.
+   * It's safe to always add a go back action to the first rule in the workflow and do not check
+   * general conditions for adding a pair to the workflow.
+   * @param newUrl The previous page's url.
+   * @returns void
+   */
   public onGoBack = (newUrl: string) => {
     //it's safe to always add a go back action to the first rule in the workflow
     this.workflowRecord.workflow[0].what.push({
@@ -368,6 +536,14 @@ export class WorkflowGenerator {
     this.socket.emit('workflow', this.workflowRecord);
   }
 
+  /**
+   * Generates a pair for navigating to the next page.
+   * This function alone adds the pair to the workflow and notifies the client.
+   * It's safe to always add a go forward action to the first rule in the workflow and do not check
+   * general conditions for adding a pair to the workflow.
+   * @param newUrl The next page's url.
+   * @returns void
+   */
   public onGoForward = (newUrl: string) => {
     //it's safe to always add a go forward action to the first rule in the workflow
     this.workflowRecord.workflow[0].what.push({
@@ -378,6 +554,14 @@ export class WorkflowGenerator {
     this.socket.emit('workflow', this.workflowRecord);
   }
 
+  /**
+   * Checks and returns possible pairs that would get over-shadowed by the pair
+   * from the current workflow.
+   * @param pair The pair that could be over-shadowing.
+   * @param page The page to be used for checking the visibility and accessibility of the selectors.
+   * @private
+   * @returns {Promise<PossibleOverShadow[]>}
+   */
   private IsOverShadowingAction = async (pair: WhereWhatPair, page: Page) => {
     type possibleOverShadow = {
       index: number;
@@ -411,6 +595,15 @@ export class WorkflowGenerator {
   }
 
 
+  /**
+   * General over-shadowing handler.
+   * Checks for possible over-shadowed pairs and if found,
+   * adds the pair to the workflow in the correct way.
+   * @param pair The pair that could be over-shadowing.
+   * @param page The page to be used for checking the visibility and accessibility of the selectors.
+   * @private
+   * @returns {Promise<boolean>}
+   */
   private handleOverShadowing = async (pair: WhereWhatPair, page: Page, index: number): Promise<boolean> => {
     const overShadowing = (await this.IsOverShadowingAction(pair, page))
       .filter((p) => p.isOverShadowing);
@@ -440,17 +633,43 @@ export class WorkflowGenerator {
     return false;
   }
 
+  /**
+   * Returns the best possible url representation for a where condition according to the heuristics.
+   * @param url The url to be checked and possibly replaced.
+   * @private
+   * @returns {string | {$regex: string}}
+   */
   private getBestUrl = (url: string) => {
     const parsedUrl = new URL(url);
     const protocol = parsedUrl.protocol === 'https:' || parsedUrl.protocol === 'http:' ? `${parsedUrl.protocol}//`: parsedUrl.protocol;
-    if (parsedUrl.search) {
-      //TODO: let the user choose which query parameteres wants to include in search part of the regex
-      const searchQuery = parsedUrl.search.split('&');
-      return { $regex: `^${protocol}${parsedUrl.host}${parsedUrl.pathname}.*$`}
+    const regex = new RegExp(/(?=.*[A-Z])/g)
+    // remove all params with uppercase letters, they are most likely dynamically generated
+    // also escapes all regex characters from the params
+    const search = parsedUrl.search
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .split('&').map((param, index) => {
+        if (!regex.test(param)) {
+          return param;
+        } else {
+          return '.*';
+        }
+      })
+      .join('&');
+    let bestUrl;
+    if (search) {
+      bestUrl = {
+        $regex: `^${protocol}${parsedUrl.host}${parsedUrl.pathname}${search}${parsedUrl.hash}`
+      }
+    } else {
+      bestUrl = `${protocol}${parsedUrl.host}${parsedUrl.pathname}${parsedUrl.hash}`;
     }
-    return `${protocol}${parsedUrl.host}${parsedUrl.pathname}${parsedUrl.hash}`;
+    return bestUrl;
   }
 
+  /**
+   * Returns parameters if present in the workflow or null.
+   * @param workflow The workflow to be checked.
+   */
   private checkWorkflowForParams = (workflow: WorkflowFile): string[]|null => {
     // for now the where condition cannot have any params, so we're checking only what part of the pair
     // where only the args part of what condition can have a parameter
@@ -472,6 +691,10 @@ export class WorkflowGenerator {
     return null;
   }
 
+  /**
+   * A function for workflow optimization once finished.
+   * @param workflow The workflow to be optimized.
+   */
   private optimizeWorkflow = (workflow: WorkflowFile) => {
 
     // replace a sequence of press actions by a single fill action
@@ -541,10 +764,16 @@ export class WorkflowGenerator {
     return workflow;
   }
 
+  /**
+   * Returns workflow params from the stored metadata.
+   */
   public getParams = (): string[]|null => {
     return this.checkWorkflowForParams(this.workflowRecord);
   }
 
+  /**
+   * Clears the last generated data index.
+   */
   public clearLastIndex = () => {
     this.generatedData.lastIndex = null;
   }

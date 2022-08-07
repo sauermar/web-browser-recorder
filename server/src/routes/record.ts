@@ -1,5 +1,5 @@
 /**
- * API endpoints handling remote browser recording sessions.
+ * RESTful API endpoints handling remote browser recording sessions.
  */
 import { Router } from 'express';
 
@@ -59,11 +59,17 @@ router.get('/stop/:browserId', async (req, res) => {
     return res.send(success);
 });
 
+/**
+ * GET endpoint for getting the id of the active remote browser.
+ */
 router.get('/active', (req, res) => {
     const id = getActiveBrowserId();
     return res.send(id);
 });
 
+/**
+ * GET endpoint for getting the current url of the active remote browser.
+ */
 router.get('/active/url', (req, res) => {
     const id = getActiveBrowserId();
     if (id) {
@@ -73,6 +79,9 @@ router.get('/active/url', (req, res) => {
     return res.send(null);
 });
 
+/**
+ * GET endpoint for getting the current tabs of the active remote browser.
+ */
 router.get('/active/tabs', (req, res) => {
     const id = getActiveBrowserId();
     if (id) {
@@ -82,6 +91,9 @@ router.get('/active/tabs', (req, res) => {
     return res.send([]);
 });
 
+/**
+ * GET endpoint for starting an interpretation of the currently generated workflow.
+ */
 router.get('/interpret', async (req, res) => {
     try {
         await interpretWholeWorkflow();
@@ -92,6 +104,9 @@ router.get('/interpret', async (req, res) => {
     }
 });
 
+/**
+ * GET endpoint for stopping an ongoing interpretation of the currently generated workflow.
+ */
 router.get('/interpret/stop', async (req, res) => {
     await stopRunningInterpretation();
     return res.send('interpretation stopped');

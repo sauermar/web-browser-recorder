@@ -7,7 +7,11 @@ import { DEBUG, LOGS_PATH } from "./constants/config";
 
 const { combine, timestamp, printf } = format;
 
-
+/**
+ * Winston logger instance.
+ * Used for logging in the server side.
+ * Logs are being stored inside the logs' directory.
+ */
 const logger = createLogger({
     format: combine(
         timestamp(),

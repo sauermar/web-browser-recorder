@@ -16,12 +16,12 @@ import { WorkflowInterpreter } from "../../workflow-management/classes/Interpret
  * It is used to allow a variety of interaction with the Playwright's browser instance.
  * Every remote browser holds an instance of a generator and interpreter classes with
  * the purpose of generating and interpreting workflows.
+ * @category BrowserManagement
  */
 export class RemoteBrowser {
 
     /**
      * Playwright's [browser](https://playwright.dev/docs/api/class-browser) instance.
-     * {@link Browser}
      * @private
      */
     private browser: Browser | null = null;
@@ -29,14 +29,12 @@ export class RemoteBrowser {
     /**
      * The Playwright's [CDPSession](https://playwright.dev/docs/api/class-cdpsession) instance,
      * used to talk raw Chrome Devtools Protocol.
-     * {@link CDPSession}
      * @private
      */
     private client : CDPSession | null | undefined = null;
 
     /**
      * Socket.io socket instance enabling communication with the client (frontend) side.
-     * {@link Socket}
      * @private
      */
     private socket : Socket;
@@ -44,15 +42,18 @@ export class RemoteBrowser {
     /**
      * The Playwright's [Page](https://playwright.dev/docs/api/class-page) instance
      * as current interactive remote browser's page.
-     * {@link Page}
      * @private
      */
     private currentPage : Page | null | undefined = null;
 
+    /**
+     * Interpreter settings for any started interpretation.
+     * @private
+     */
     private interpreterSettings: InterpreterSettings = {
-      debug: false,
-      maxConcurrency: 1,
-      maxRepeats: 1,
+        debug: false,
+        maxConcurrency: 1,
+        maxRepeats: 1,
     };
 
     /**
@@ -107,7 +108,6 @@ export class RemoteBrowser {
         this.socket.on('closeTab', async (tabInfo) => {
             const page = this.currentPage?.context().pages()[tabInfo.index];
             if (page) {
-                console.log(tabInfo.isCurrent);
                 if (tabInfo.isCurrent){
                     if (this.currentPage?.context().pages()[tabInfo.index + 1]) {
                         // next tab

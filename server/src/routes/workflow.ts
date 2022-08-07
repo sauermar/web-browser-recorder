@@ -1,5 +1,5 @@
 /**
- * API endpoints handling workflow management.
+ * RESTful API endpoints handling currently generated workflow management.
  */
 
 import { Router } from 'express';
@@ -30,6 +30,9 @@ router.get('/:browserId', (req, res) => {
   return res.send(workflowFile);
 });
 
+/**
+ * Get endpoint returning the parameter array of the recording associated with the browserId browser instance.
+ */
 router.get('/params/:browserId', (req, res) => {
   const activeBrowser = browserPool.getRemoteBrowser(req.params.browserId);
   let params = null;
@@ -39,6 +42,9 @@ router.get('/params/:browserId', (req, res) => {
   return res.send(params);
 });
 
+/**
+ * DELETE endpoint for deleting a pair from the generated workflow.
+ */
 router.delete('/pair/:index', (req, res) => {
   const id = browserPool.getActiveBrowserId();
   if (id) {
@@ -52,6 +58,9 @@ router.delete('/pair/:index', (req, res) => {
   return res.send(null);
 });
 
+/**
+ * POST endpoint for adding a pair to the generated workflow.
+ */
 router.post('/pair/:index', (req, res) => {
   const id = browserPool.getActiveBrowserId();
   if (id) {
@@ -69,6 +78,9 @@ router.post('/pair/:index', (req, res) => {
   return res.send(null);
 });
 
+/**
+ * PUT endpoint for updating a pair in the generated workflow.
+ */
 router.put('/pair/:index', (req, res) => {
   const id = browserPool.getActiveBrowserId();
   if (id) {
@@ -86,6 +98,9 @@ router.put('/pair/:index', (req, res) => {
   return res.send(null);
 });
 
+/**
+ * PUT endpoint for updating the currently generated workflow file from the one in the storage.
+ */
 router.put('/:browserId/:fileName', async (req, res) => {
   try {
     const browser = browserPool.getRemoteBrowser(req.params.browserId);
@@ -102,7 +117,6 @@ router.put('/:browserId/:fileName', async (req, res) => {
     return res.send(null);
   } catch (e) {
     const {message} = e as Error;
-    console.log(message)
     logger.log('info', `Error while reading a recording with name: ${req.params.fileName}.waw.json`);
     return res.send(null);
   }
