@@ -1,4 +1,8 @@
 # The web browser recorder
+> The web browser recorder was created as a Bachelor Thesis project
+> in collaboration with [Apify](https://apify.com/).
+> The thesis is included in this repository in the `thesis.pdf` file.
+
 The web browser recorder is an easy-to-use **RPA tool** designed as a web application that enables the user to record a workflow in the simulated browser GUI,
 running [Playwright](https://playwright.dev/) automation framework on the background.
 The workflow is being recorded in the [Web Automation Workflow](https://github.com/barjin/wbr/blob/main/docs/wbr-interpret/waw_definition.md)
